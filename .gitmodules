@@ -1,3 +1,6 @@
 [submodule "gdcdictionary"]
 	path = gdcdictionary
 	url = https://github.com/NCI-GDC/gdcdictionary.git
+[submodule "PDC-Public"]
+	path = PDC-Public
+	url = https://github.com/esacinc/PDC-Public
