@@ -5,11 +5,11 @@ import pprint
 
 pp = pprint.PrettyPrinter()
 
-def adm(sheet_id: str, range: str) -> Dict:
+
+def adm(sheet_id: str) -> Dict:
     """
     Extract ADM models from Google Drive
     :param str sheet_id: The identifier of the google sheet
-
     :return: A list of adm values
     """
     nodes = {}
