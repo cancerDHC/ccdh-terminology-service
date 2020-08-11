@@ -162,7 +162,7 @@ def gdc_values():
     rows = cdm('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
     new_rows = []
     for row in rows:
-        node, entity, attr = row[-3:]
+        node, entity, attr = row[-4:-1]
         yaml_file = f'{entity.lower()}.yaml'
         value_found = True
         if node.upper() != 'GDC':
@@ -176,12 +176,11 @@ def gdc_values():
                 print(f'GDC | {entity} | {attr} not found')
                 value_found = False
         if not value_found:
-            row.append('')
             new_rows.append(row)
             continue
         for code in props[attr].get('enum', []):
             new_row = deepcopy(row)
-            new_row.append(code)
+            new_row[-1] = code
             new_rows.append(new_row)
     return new_rows
 

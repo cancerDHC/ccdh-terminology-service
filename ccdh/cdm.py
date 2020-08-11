@@ -28,6 +28,7 @@ def cdm(sheet_id: str) -> List[List]:
                 continue
             row = values[:2]
             row.extend(prop.split('.'))
+            row.append('')
             rows.append(row)
     return rows
 
