@@ -4,3 +4,6 @@
 [submodule "PDC-Public"]
 	path = PDC-Public
 	url = https://github.com/esacinc/PDC-Public
+[submodule "icdc-model-tool"]
+	path = icdc-model-tool
+	url = https://github.com/CBIIT/icdc-model-tool
