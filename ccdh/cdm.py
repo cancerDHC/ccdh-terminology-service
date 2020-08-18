@@ -26,8 +26,8 @@ def cdm(sheet_id: str) -> List[List]:
         for prop in values[8].split('\n'):
             if len(prop.split('.')) != 3:
                 continue
-            row = values[:2]
-            row.extend(prop.split('.'))
+            row = [s.strip() for s in values[:2]]
+            row.extend([s.strip() for s in prop.split('.')])
             row.append('')
             rows.append(row)
     return rows
