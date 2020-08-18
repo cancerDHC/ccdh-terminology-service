@@ -7,8 +7,8 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly',
           'https://www.googleapis.com/auth/drive.metadata.readonly']
 
-PICKLE_PATH = Path(__file__).parent.parent.joinpath('token.pickle')
-CREDENTIALS_PATH = Path(__file__).parent.parent.joinpath('google_api_credentials.json')
+PICKLE_PATH = Path(__file__).parent.parent.parent.joinpath('token.pickle')
+CREDENTIALS_PATH = Path(__file__).parent.parent.parent.joinpath('google_api_credentials.json')
 
 
 def authorize():
