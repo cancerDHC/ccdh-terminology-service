@@ -8,5 +8,5 @@ def icdc_dictionary():
 
 
 def test_read_icdc(icdc_dictionary):
-    assert 'aliquot.yaml' in pdc_dictionary.schema
-    assert 'studyRunMetadata.yaml' not in pdc_dictionary.schema
+    assert 'general_sample_pathology' in icdc_dictionary.properties
+    assert 'sample' in icdc_dictionary.entities
