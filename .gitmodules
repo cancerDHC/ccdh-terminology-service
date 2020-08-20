@@ -7,3 +7,6 @@
 [submodule "icdc-model-tool"]
 	path = icdc-model-tool
 	url = https://github.com/CBIIT/icdc-model-tool
+[submodule "HTAN-data-pipeline"]
+	path = HTAN-data-pipeline
+	url = https://github.com/ncihtan/HTAN-data-pipeline.git
