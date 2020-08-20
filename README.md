@@ -34,3 +34,18 @@ To run the script to populate everything, run main
 ```
 pipenv run python -m ccdh.main
 ```
+
+## Data
+
+The node github repos are added as git submodules.
+
+The node github repos are documented here: https://docs.google.com/document/d/1Iu2HrbKykeNe3Q23NYEkHlWONEUV9GuWVNhzElf84TY
+
+Note that HTAN data dictionary is not in the master branch. The branch is tracked in the submodule using 
+these commands: 
+
+```
+git submodule add https://github.com/ncihtan/HTAN-data-pipeline.git
+git submodule set-branch --branch organized-into-packages -- HTAN-data-pipeline/
+git submodule update --remote
+```

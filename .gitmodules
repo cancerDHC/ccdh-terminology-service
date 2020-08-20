@@ -10,3 +10,4 @@
 [submodule "HTAN-data-pipeline"]
 	path = HTAN-data-pipeline
 	url = https://github.com/ncihtan/HTAN-data-pipeline.git
+	branch = organized-into-packages
