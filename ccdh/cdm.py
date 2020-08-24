@@ -22,7 +22,7 @@ def class_definition(sheet_id: str, ranges: str) -> List[List]:
     result = service.spreadsheets().values().batchGet(spreadsheetId=sheet_id, ranges=ranges).execute()
     value_ranges = result.get('valueRanges', [])
 
-    return list(filter(lambda x: len(x) > 0, value_ranges[0]['values'][5:]))
+    return list(filter(lambda x: len(x) > 0, value_ranges[0]['values']))
 
 
 def enumerated(sheet_id: str) -> List[List]:
