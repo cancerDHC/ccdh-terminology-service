@@ -8,7 +8,7 @@ import logging
 import os
 import yaml
 from pathlib import Path
-from ccdh.cdm import cdm
+from ccdh.cdm import enumerated
 from copy import deepcopy
 import csv
 
@@ -159,7 +159,7 @@ class GDCDictionary(object):
 
 def gdc_values():
     gdc = GDCDictionary()
-    rows = cdm('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
+    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
     new_rows = []
     for row in rows:
         node, entity, attr = row[-4:-1]

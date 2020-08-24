@@ -7,9 +7,27 @@ import csv
 pp = pprint.PrettyPrinter()
 
 
-def cdm(sheet_id: str) -> List[List]:
+def class_definition(sheet_id: str, ranges: str) -> List[List]:
     """
-    Extract ADM models from Google Drive
+    Extract CDM Enumerated model from Google Drive
+    :param str sheet_id: The identifier of the google sheet
+    :param str ranges: the ranges (sheet) name
+    :return: A list of adm values
+    """
+    rows = []
+
+    service = build('sheets', 'v4', credentials=authorize())
+
+    # Call the Sheets API
+    result = service.spreadsheets().values().batchGet(spreadsheetId=sheet_id, ranges=ranges).execute()
+    value_ranges = result.get('valueRanges', [])
+
+    return list(filter(lambda x: len(x) > 0, value_ranges[0]['values'][5:]))
+
+
+def enumerated(sheet_id: str) -> List[List]:
+    """
+    Extract CDM Enumerated model from Google Drive
     :param str sheet_id: The identifier of the google sheet
     :return: A list of adm values
     """
@@ -34,7 +52,7 @@ def cdm(sheet_id: str) -> List[List]:
 
 
 def main():
-    rows = cdm('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
+    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4', 'Enumerated')
     with open('output.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:
