@@ -8,7 +8,6 @@ import logging
 import os
 import yaml
 from pathlib import Path
-from ccdh.cdm import cdm
 from copy import deepcopy
 import csv
 from ccdh.gdc import visit_directory, gdc_values
