@@ -46,7 +46,7 @@ def enumerated(sheet_id: str) -> List[List]:
                 continue
             row = [s.strip() for s in values[:2]]
             row.extend([s.strip() for s in prop.split('.')])
-            row.append('')
+            row.extend([''] * 4)
             rows.append(row)
     return rows
 
