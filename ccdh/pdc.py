@@ -82,7 +82,7 @@ def pdc_values():
     rows = gdc_values()
     new_rows = []
     for row in rows:
-        node, entity, attr = row[-4:-1]
+        node, entity, attr = row[2:5]
         yaml_file = f'{entity.lower()}.yaml'
         value_found = True
         if node.upper() != 'PDC':
@@ -98,9 +98,11 @@ def pdc_values():
         if not value_found:
             new_rows.append(row)
             continue
+        cde_id = props[attr].get('cde_id', '')
         for code in props[attr].get('enum', []):
             new_row = deepcopy(row)
-            new_row[-1] = code
+            new_row[5] = code
+            new_row[6] = cde_id
             new_rows.append(new_row)
     return new_rows
 
