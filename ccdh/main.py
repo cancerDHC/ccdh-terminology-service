@@ -32,11 +32,13 @@ def main():
                     cde_id = row[6]
                     values = get_ncit_code(cde_id)
                 for value in values:
-                    if value.display.lower() == row[5]:
+                    if value.code.lower() == row[5].lower():
+                        row[7] = value.display
                         for ext in value.extension:
                             if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
                                 continue
-                            row[7] = ext.valueCodeableConcept.coding[0].code
+                            row.append(ext.valueCodeableConcept.coding[0].code)
+                            row.append(ext.valueCodeableConcept.coding[0].display)
             tsv_output.writerow(row)
 
 
