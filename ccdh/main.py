@@ -1,14 +1,48 @@
+from ccdh.cdm import enumerated
 from ccdh.icdc import icdc_values
 import csv
+from fhirclient import client
+from fhirclient.models.valueset import ValueSet
+from ccdh.gdc import gdc_values
+from ccdh.pdc import pdc_values
+from ccdh.icdc import icdc_values
+from pathlib import Path
+from datetime import date
+
+
+settings = {
+    'app_id': 'hot-ecosystem',
+    'api_base': 'https://fhir.hotecosystem.org/terminology/cadsr/'
+}
+smart = client.FHIRClient(settings=settings)
 
 
 def main():
-    rows = icdc_values()
-    with open('valuesets_2020-08-16.tsv', 'w', newline='') as f_output:
+    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
+    rows = icdc_values(pdc_values(gdc_values(rows)))
+    cde_id = None
+    values = []
+    output = Path(__file__).parent.parent.joinpath(f'output/valuesets_{date.today().strftime("%m-%d-%y")}.tsv')
+    with open(output, 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         tsv_output.writerow(['CDM.Entity', 'CDM Attribute', 'Source', 'Source Entity', 'Source Attribute', 'Value'])
         for row in rows:
+            if row[6]:
+                if row[6] != cde_id:
+                    cde_id = row[6]
+                    values = get_ncit_code(cde_id)
+                for value in values:
+                    if value.display.lower() == row[5]:
+                        for ext in value.extension:
+                            if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
+                                continue
+                            row[7] = ext.valueCodeableConcept.coding[0].code
             tsv_output.writerow(row)
+
+
+def get_ncit_code(cde_id):
+    value_set = ValueSet.read(cde_id, smart.server)
+    return value_set.expansion.contains
 
 
 if __name__ == '__main__':

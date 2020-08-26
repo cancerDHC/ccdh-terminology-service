@@ -77,9 +77,8 @@ class PDCDictionary(object):
         return path[:-5]
 
 
-def pdc_values():
+def pdc_values(rows):
     pdc = PDCDictionary(root_dir=PDC_ROOT)
-    rows = gdc_values()
     new_rows = []
     for row in rows:
         node, entity, attr = row[2:5]
@@ -108,7 +107,7 @@ def pdc_values():
 
 
 def main():
-    rows = pdc_values()
+    rows = pdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('pdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:

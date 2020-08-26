@@ -7,6 +7,7 @@ from pathlib import Path
 
 import yaml
 
+from ccdh.cdm import enumerated
 from ccdh.gdc import visit_directory
 from ccdh.pdc import pdc_values
 
@@ -63,9 +64,8 @@ class ICDCDictionary(object):
         self.entities = yamls['icdc-model.yml']['Nodes']
 
 
-def icdc_values():
+def icdc_values(rows):
     icdc = ICDCDictionary(root_dir=ICDC_ROOT)
-    rows = pdc_values()
     new_rows = []
     for row in rows:
         node, entity, attr = row[-4:-1]
@@ -90,7 +90,7 @@ def icdc_values():
 
 
 def main():
-    rows = icdc_values()
+    rows = icdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('icdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:

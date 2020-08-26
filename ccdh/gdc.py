@@ -157,9 +157,8 @@ class GDCDictionary(object):
             obj.update(self.resolve_reference(ref, root))
 
 
-def gdc_values():
+def gdc_values(rows):
     gdc = GDCDictionary()
-    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
     new_rows = []
     for row in rows:
         node, entity, attr = row[2:5]
@@ -189,7 +188,7 @@ def gdc_values():
 
 
 def main():
-    rows = gdc_values()
+    rows = gdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('gdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:
