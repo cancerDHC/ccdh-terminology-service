@@ -171,3 +171,5 @@ dmypy.json
 .idea
 /google_api_credentials.json
 token.pickle
+
+output/*.tsv
