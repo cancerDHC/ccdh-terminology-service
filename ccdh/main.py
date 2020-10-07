@@ -17,10 +17,9 @@ settings = {
 smart = client.FHIRClient(settings=settings)
 
 
-
 def main():
     rows = cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
-    rows = icdc_values(pdc_values(gdc_values(rows)))
+    rows = pdc_values(gdc_values(rows))
     cde_id = None
     values = []
     output = Path(__file__).parent.parent.joinpath(f'output/valuesets_{date.today().strftime("%m-%d-%y")}.tsv')
@@ -35,12 +34,12 @@ def main():
                     values = get_ncit_code(cde_id)
                 for value in values:
                     if value.code.lower() == row[5].lower():
-                        row[7] = value.display
-                        for ext in value.extension:
-                            if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
-                                continue
-                            row.append(ext.valueCodeableConcept.coding[0].code)
-                            row.append(ext.valueCodeableConcept.coding[0].display)
+                        if value.extension:
+                            for ext in value.extension:
+                                if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
+                                    continue
+                                row.append(ext.valueCodeableConcept.coding[0].code)
+                                row.append(ext.valueCodeableConcept.coding[0].display)
             tsv_output.writerow(row)
 
 

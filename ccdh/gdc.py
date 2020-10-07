@@ -18,6 +18,7 @@ MAP_DIR = Path(__file__).parent.parent.joinpath('mappings/gdc-ncit')
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
+
 @contextmanager
 def visit_directory(path):
     """Perform contained actions with current working directory at
@@ -208,7 +209,7 @@ def gdc_values(rows):
             new_row = deepcopy(row)
             new_row[5] = code
             new_row[6] = str(cde_id)
-            map_row = gdc_ncit_map[new_row[4]].get(new_row[5], [])
+            map_row = gdc_ncit_map.get(new_row[4], {}).get(new_row[5], [])
             if map_row:
                 new_row[7] = map_row[0]
                 new_row[8] = map_row[1]

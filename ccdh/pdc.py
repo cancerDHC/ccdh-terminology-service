@@ -10,7 +10,8 @@ import yaml
 from pathlib import Path
 from copy import deepcopy
 import csv
-from ccdh.gdc import visit_directory, gdc_values
+from ccdh.gdc import visit_directory, gdc_values, gdc_ncit_mappings
+from ccdh.cdm import cdm_dictionary_sheet
 
 
 PDC_ROOT = Path(__file__).parent.parent.joinpath('PDC-public/documentation/prod/yaml')
@@ -79,6 +80,7 @@ class PDCDictionary(object):
 
 def pdc_values(rows):
     pdc = PDCDictionary(root_dir=PDC_ROOT)
+    gdc_ncit_map = gdc_ncit_mappings()
     new_rows = []
     for row in rows:
         node, entity, attr = row[2:5]
@@ -102,12 +104,16 @@ def pdc_values(rows):
             new_row = deepcopy(row)
             new_row[5] = code
             new_row[6] = cde_id
+            map_row = gdc_ncit_map.get(new_row[4], {}).get(new_row[5], [])
+            if map_row:
+                new_row[7] = map_row[0]
+                new_row[8] = map_row[1]
             new_rows.append(new_row)
     return new_rows
 
 
 def main():
-    rows = pdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
+    rows = pdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('pdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:
