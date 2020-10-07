@@ -25,7 +25,7 @@ def class_definition(sheet_id: str, ranges: str) -> List[List]:
     return list(filter(lambda x: len(x) > 0, value_ranges[0]['values']))
 
 
-def enumerated(sheet_id: str) -> List[List]:
+def cdm_dictionary_sheet(sheet_id: str) -> List[List]:
     """
     Extract CDM Enumerated model from Google Drive
     :param str sheet_id: The identifier of the google sheet
@@ -36,23 +36,25 @@ def enumerated(sheet_id: str) -> List[List]:
     service = build('sheets', 'v4', credentials=authorize())
 
     # Call the Sheets API
-    result = service.spreadsheets().values().batchGet(spreadsheetId=sheet_id, ranges='Enumerated').execute()
+    result = service.spreadsheets().values().batchGet(spreadsheetId=sheet_id, ranges='MVPv0').execute()
     value_ranges = result.get('valueRanges', [])
     for values in value_ranges[0]['values']:
         if len(values) < 9:
             continue
-        for prop in values[8].split('\n'):
+        elif values[7] != 'Coding':
+            continue
+        for prop in values[12].split('\n'):
             if len(prop.split('.')) != 3:
                 continue
-            row = [s.strip() for s in values[:2]]
+            row = [s.strip() for s in values[4:6]]
             row.extend([s.strip() for s in prop.split('.')])
-            row.extend([''] * 4)
+            row.extend([''] * 5)
             rows.append(row)
     return rows
 
 
 def main():
-    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4', 'Enumerated')
+    rows = cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4', 'Enumerated')
     with open('output.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:

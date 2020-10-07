@@ -1,4 +1,4 @@
-from ccdh.cdm import enumerated
+from ccdh.cdm import cdm_dictionary_sheet
 from ccdh.icdc import icdc_values
 import csv
 from fhirclient import client
@@ -17,15 +17,17 @@ settings = {
 smart = client.FHIRClient(settings=settings)
 
 
+
 def main():
-    rows = enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
+    rows = cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
     rows = icdc_values(pdc_values(gdc_values(rows)))
     cde_id = None
     values = []
     output = Path(__file__).parent.parent.joinpath(f'output/valuesets_{date.today().strftime("%m-%d-%y")}.tsv')
     with open(output, 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
-        tsv_output.writerow(['CDM.Entity', 'CDM Attribute', 'Source', 'Source Entity', 'Source Attribute', 'Value'])
+        tsv_output.writerow(['CDM.Entity', 'CDM Attribute', 'Source', 'Source Entity', 'Source Attribute', 'Value',
+                             'CDE ID (caDSR)', 'PV Meaning', 'NCIt Concept Code', 'NCIt Preferred Name'])
         for row in rows:
             if row[6]:
                 if row[6] != cde_id:

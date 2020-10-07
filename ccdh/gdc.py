@@ -8,15 +8,15 @@ import logging
 import os
 import yaml
 from pathlib import Path
-from ccdh.cdm import enumerated
+from ccdh.cdm import cdm_dictionary_sheet
 from copy import deepcopy
 import csv
 
 
 MOD_DIR = Path(__file__).parent.parent.joinpath('gdcdictionary/gdcdictionary')
+MAP_DIR = Path(__file__).parent.parent.joinpath('mappings/gdc-ncit')
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
-
 
 @contextmanager
 def visit_directory(path):
@@ -30,6 +30,31 @@ def visit_directory(path):
         yield os.getcwd()
     finally:
         os.chdir(cdir)
+
+
+def gdc_ncit_mappings():
+    target_code_map = {}
+    target_code_file = MAP_DIR / 'NCIt_AB_vs_GDC_Property_10_02_2020.csv'
+    with open(target_code_file, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+        for row in reader:
+            target_code_map[row[0]] = row[1]
+    gdc_ncit_map = {}
+    gdc_ncit_file = MAP_DIR / 'NCIt_Maps_To_GDC.csv'
+    with open(gdc_ncit_file, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+        for row in reader:
+            # Note, there was one typo in one Target_Code, it has been fixed it in Protege but the data CCDH has
+            # (likely the 20.08e file) will have MOPRH as an abbreviation, which should have been MORPH.
+            if row[3] == 'MOPRH':
+                row[3] = 'MORPH'
+            target_code = target_code_map[row[3]]
+            if target_code not in gdc_ncit_map:
+                gdc_ncit_map[target_code] = {}
+            gdc_ncit_map[target_code][row[4]] = row
+    return gdc_ncit_map
 
 
 class GDCDictionary(object):
@@ -159,6 +184,7 @@ class GDCDictionary(object):
 
 def gdc_values(rows):
     gdc = GDCDictionary()
+    gdc_ncit_map = gdc_ncit_mappings()
     new_rows = []
     for row in rows:
         node, entity, attr = row[2:5]
@@ -182,13 +208,18 @@ def gdc_values(rows):
             new_row = deepcopy(row)
             new_row[5] = code
             new_row[6] = str(cde_id)
+            map_row = gdc_ncit_map[new_row[4]].get(new_row[5], [])
+            if map_row:
+                new_row[7] = map_row[0]
+                new_row[8] = map_row[1]
+
             new_rows.append(new_row)
 
     return new_rows
 
 
 def main():
-    rows = gdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
+    rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('gdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:

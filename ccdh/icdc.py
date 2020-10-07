@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from ccdh.cdm import enumerated
+from ccdh.cdm import cdm_dictionary_sheet
 from ccdh.gdc import visit_directory
 from ccdh.pdc import pdc_values
 
@@ -90,7 +90,7 @@ def icdc_values(rows):
 
 
 def main():
-    rows = icdc_values(enumerated('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
+    rows = icdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     with open('icdc.tsv', 'w', newline='') as f_output:
         tsv_output = csv.writer(f_output, delimiter='\t')
         for row in rows:
