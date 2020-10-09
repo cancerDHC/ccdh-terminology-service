@@ -181,6 +181,8 @@ class GDCDictionary(object):
             refs = [refs]
         for ref in refs:
             obj.update(self.resolve_reference(ref, root))
+# ['subject_match_field', 'subject_label', 'predicate_id', 'object_match_field', 'object_id',
+#                              'object_label', 'see_also'])
 
 
 def gdc_values(rows):
@@ -189,6 +191,7 @@ def gdc_values(rows):
     new_rows = []
     for row in rows:
         node, entity, attr = row[2:5]
+        subject_match_field = f'{node}.{entity}.{attr}'
         yaml_file = f'{entity.lower()}.yaml'
         value_found = True
         if node.upper() != 'GDC':
@@ -202,18 +205,20 @@ def gdc_values(rows):
                 print(f'GDC | {entity} | {attr} not found')
                 value_found = False
         if not value_found:
-            new_rows.append(row)
             continue
         cde_id = props[attr].get('termDef', {}).get('cde_id', '') or ''
         for code in props[attr].get('enum', []):
-            new_row = deepcopy(row)
-            new_row[5] = code
-            new_row[6] = str(cde_id)
-            map_row = gdc_ncit_map.get(new_row[4], {}).get(new_row[5], [])
+            new_row = [''] * 7
+            new_row[0] = subject_match_field
+            new_row[1] = code
+            map_row = gdc_ncit_map.get(row[4], {}).get(code, [])
+            new_row[3] = f'{row[0]}.{row[1]}'
             if map_row:
-                new_row[7] = map_row[0]
-                new_row[8] = map_row[1]
-
+                new_row[2] = 'skos:exactMatch'
+                new_row[4] = f'NCIT:{map_row[0]}'
+                new_row[5] = map_row[1]
+            if cde_id:
+                new_row[6] = f'CDE:{str(cde_id)}'
             new_rows.append(new_row)
 
     return new_rows
