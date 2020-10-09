@@ -31,18 +31,18 @@ def main():
         tsv_output.writerow(['subject_match_field', 'subject_label', 'predicate_id', 'object_match_field', 'object_id',
                              'object_label', 'see_also'])
         for row in rows:
-            if row[8]:
-                if row[8] != cde_id:
-                    cde_id = row[8]
-                    values = get_ncit_code(cde_id)
-                # for value in values:
-                #     if value.code.lower() == row[5].lower():
-                #         if value.extension:
-                #             for ext in value.extension:
-                #                 if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
-                #                     continue
-                #                 row.append(ext.valueCodeableConcept.coding[0].code)
-                #                 row.append(ext.valueCodeableConcept.coding[0].display)
+            # if row[6]:
+            #     if row[6] != cde_id:
+            #         cde_id = row[6]
+            #         values = get_ncit_code(cde_id.split(':')[-1])
+            #     # for value in values:
+            #     #     if value.code.lower() == row[5].lower():
+            #     #         if value.extension:
+            #     #             for ext in value.extension:
+            #     #                 if ext.url != 'http://cbiit.nci.nih.gov/caDSR#main_concept':
+            #     #                     continue
+            #     #                 row.append(ext.valueCodeableConcept.coding[0].code)
+            #     #                 row.append(ext.valueCodeableConcept.coding[0].display)
             tsv_output.writerow(row)
 
 

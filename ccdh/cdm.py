@@ -46,9 +46,9 @@ def cdm_dictionary_sheet(sheet_id: str) -> List[List]:
         for prop in values[12].split('\n'):
             if len(prop.split('.')) != 3:
                 continue
-            row = [s.strip() for s in values[4:6]]
-            row.extend([s.strip() for s in prop.split('.')])
-            row.extend([''] * 5)
+            row = [''] * 7
+            row[0] = prop
+            row[3] = f'{values[4]}.{values[5]}'
             rows.append(row)
     return rows
 

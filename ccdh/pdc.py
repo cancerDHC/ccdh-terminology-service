@@ -1,3 +1,4 @@
+import sys
 from copy import deepcopy
 from collections import namedtuple
 from contextlib import contextmanager
@@ -10,11 +11,16 @@ import yaml
 from pathlib import Path
 from copy import deepcopy
 import csv
-from ccdh.gdc import visit_directory, gdc_values, gdc_ncit_mappings
+from ccdh.gdc import expand_rows
 from ccdh.cdm import cdm_dictionary_sheet
 
+GDC_DIR = Path(__file__).parent.parent / 'gdcdictionary'
+sys.path.append(str(GDC_DIR))
 
-PDC_ROOT = Path(__file__).parent.parent.joinpath('PDC-public/documentation/prod/yaml')
+from gdcdictionary.python import visit_directory
+
+
+PDC_ROOT = Path(__file__).parent.parent / 'PDC-public/documentation/prod/yaml'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
@@ -80,10 +86,9 @@ class PDCDictionary(object):
 
 def pdc_values(rows):
     pdc = PDCDictionary(root_dir=PDC_ROOT)
-    gdc_ncit_map = gdc_ncit_mappings()
     new_rows = []
     for row in rows:
-        node, entity, attr = row[2:5]
+        node, entity, attr = row[0].split('.')
         yaml_file = f'{entity.lower()}.yaml'
         value_found = True
         if node.upper() != 'PDC':
@@ -98,17 +103,10 @@ def pdc_values(rows):
                 value_found = False
         if not value_found:
             new_rows.append(row)
-            continue
-        cde_id = props[attr].get('cde_id', '')
-        for code in props[attr].get('enum', []):
-            new_row = deepcopy(row)
-            new_row[5] = code
-            new_row[6] = cde_id
-            map_row = gdc_ncit_map.get(new_row[4], {}).get(new_row[5], [])
-            if map_row:
-                new_row[7] = map_row[0]
-                new_row[8] = map_row[1]
-            new_rows.append(new_row)
+        else:
+            cde_id = props[attr].get('cde_id', '')
+            codes = props[attr].get('enum', [])
+            new_rows.extend(expand_rows(row, codes, cde_id))
     return new_rows
 
 

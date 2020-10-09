@@ -1,6 +1,7 @@
 import csv
 import glob
 import logging
+import sys
 from collections import namedtuple
 from copy import deepcopy
 from pathlib import Path
@@ -8,10 +9,12 @@ from pathlib import Path
 import yaml
 
 from ccdh.cdm import cdm_dictionary_sheet
-from ccdh.gdc import visit_directory
-from ccdh.pdc import pdc_values
+GDC_DIR = Path(__file__).parent.parent / 'gdcdictionary'
+sys.path.append(str(GDC_DIR))
 
-ICDC_ROOT = Path(__file__).parent.parent.joinpath('icdc-model-tool/model-desc')
+from gdcdictionary.python import visit_directory
+
+ICDC_ROOT = Path(__file__).parent.parent / 'icdc-model-tool/model-desc'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
