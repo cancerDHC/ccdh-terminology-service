@@ -5,6 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pytest-flask = "*"
+pytest-docker = "*"
+docker-compose = "*"
 
 [packages]
 google-api-python-client = "==1.7.9"
@@ -26,6 +29,7 @@ matplotlib = "*"
 PyYAML = "*"
 PyLD = "*"
 PyGithub = "*"
+py2neo = "*"
 
 [requires]
 python_version = "3.8"

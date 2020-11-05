@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  ccdh-neo4j:
+    image: neo4j:latest
+    container_name: ccdh-test-neo4j-container
+    environment:
+      - NEO4J_AUTH=neo4j/harmonization
+      - NEO4JLABS_PLUGINS=["apoc"]
+    ports:
+      - "7768:7687"
+      - "4747:7474"
