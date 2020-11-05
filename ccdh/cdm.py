@@ -9,7 +9,7 @@ pp = pprint.PrettyPrinter()
 
 def class_definition(sheet_id: str, ranges: str) -> List[List]:
     """
-    Extract CDM Enumerated model from Google Drive
+    Extract CDM Enumerated biolinkml from Google Drive
     :param str sheet_id: The identifier of the google sheet
     :param str ranges: the ranges (sheet) name
     :return: A list of adm values
@@ -27,7 +27,7 @@ def class_definition(sheet_id: str, ranges: str) -> List[List]:
 
 def cdm_dictionary_sheet(sheet_id: str) -> List[List]:
     """
-    Extract CDM Enumerated model from Google Drive
+    Extract CDM Enumerated biolinkml from Google Drive
     :param str sheet_id: The identifier of the google sheet
     :return: A list of adm values
     """

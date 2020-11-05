@@ -119,7 +119,7 @@ class TabularSchemaDefinitionLoader(object):
 
     @classmethod
     def create_schema(cls, name):
-        schema: SchemaDefinition = SchemaDefinition(name='CCDH-MVP', id=f'{ccdh_root}/model/{name}', title=name)
+        schema: SchemaDefinition = SchemaDefinition(name='CCDH-MVP', id=f'{ccdh_root}/biolinkml/{name}', title=name)
         schema.version = 'v0'
         schema.license = 'https://creativecommons.org/publicdomain/zero/1.0/'
         schema.prefixes = {
@@ -174,7 +174,7 @@ def load_ccdh_sheet(ranges) -> Tuple[SchemaDefinition, SchemaDefinition]:
     entities_schema.slots = slots
     entities_schema.classes = entities
 
-    data_types_schema = SchemaDefinition(name='datatypes', id=f'{ccdh_root}/model/datatypes', title='Data Types used by the CCDH model')
+    data_types_schema = SchemaDefinition(name='datatypes', id=f'{ccdh_root}/biolinkml/datatypes', title='Data Types used by the CCDH biolinkml')
     data_types_schema.license = 'https://creativecommons.org/publicdomain/zero/1.0/'
     data_types_schema.prefixes = {
         'biolinkml': 'https://w3id.org/biolink/biolinkml/',

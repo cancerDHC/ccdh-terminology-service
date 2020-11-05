@@ -1,6 +1,6 @@
 import pytest
 import requests
-from ccdh.model.cdm_biolinkml_loader import load_ccdh_specimen
+from ccdh.biolinkml.cdm_biolinkml_loader import load_ccdh_specimen
 from requests.exceptions import ConnectionError
 from typing import List
 from biolinkml.meta import SchemaDefinition

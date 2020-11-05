@@ -14,7 +14,7 @@ sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import visit_directory
 
-ICDC_ROOT = Path(__file__).parent.parent / 'icdc-model-tool/model-desc'
+ICDC_ROOT = Path(__file__).parent.parent / 'icdc-biolinkml-tool/biolinkml-desc'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
@@ -63,8 +63,8 @@ class ICDCDictionary(object):
         """Load and reslove all schemas from directory"""
 
         yamls = self.load_schemas_from_dir(directory)
-        self.properties = yamls['icdc-model-props.yml']['PropDefinitions']
-        self.entities = yamls['icdc-model.yml']['Nodes']
+        self.properties = yamls['icdc-biolinkml-props.yml']['PropDefinitions']
+        self.entities = yamls['icdc-biolinkml.yml']['Nodes']
 
 
 def icdc_values(rows):
