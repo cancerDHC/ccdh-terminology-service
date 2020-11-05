@@ -9,7 +9,7 @@ from pathlib import Path
 import yaml
 
 from ccdh.cdm import cdm_dictionary_sheet
-GDC_DIR = Path(__file__).parent.parent / 'gdcdictionary'
+GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import visit_directory

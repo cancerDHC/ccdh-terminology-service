@@ -7,7 +7,7 @@ from pathlib import Path
 from ccdh.cdm import cdm_dictionary_sheet
 from ccdh.gdc import expand_rows
 
-HTAN_DIR = Path(__file__).parent.parent / 'HTAN-data-pipeline'
+HTAN_DIR = Path(__file__).parent.parent / 'crdc-nodes/HTAN-data-pipeline'
 sys.path.append(str(HTAN_DIR))
 
 from schematic.schemas.explorer import SchemaExplorer

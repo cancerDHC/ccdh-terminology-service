@@ -12,7 +12,7 @@ import csv
 from typing import List
 import sys
 
-GDC_DIR = Path(__file__).parent.parent / 'gdcdictionary'
+GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import GDCDictionary
