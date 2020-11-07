@@ -19,13 +19,7 @@ class DataElement(Model):
 class ValueDomain(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    data_element = RelatedTo(DataElement)
-
-
-@dataclass
-class EnumeratedValueDomain(ValueDomain):
-    __primarykey__ = 'identifier'
-    identifier: str = Property()
+    data_element = RelatedTo(DataElement, 'DOMAIN_OF')
     permissible_values = RelatedFrom('PermissibleValue', 'PART_OF')
 
 
@@ -35,7 +29,7 @@ class PermissibleValue(Model):
     __primarylabel__ = 'value'
     identifier: str = Property()
     value: str = Property()
-    value_domain = RelatedTo(EnumeratedValueDomain)
+    value_domain = RelatedTo(ValueDomain)
     value_meaning = RelatedTo('ValueMeaning', 'MAPS_TO')
 
 
