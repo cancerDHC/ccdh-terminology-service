@@ -29,7 +29,7 @@ class PermissibleValue(Model):
     __primarylabel__ = 'value'
     identifier: str = Property()
     value: str = Property()
-    value_domain = RelatedTo(ValueDomain)
+    value_domain = RelatedTo(ValueDomain, 'PART_OF')
     value_meaning = RelatedTo('ValueMeaning', 'MAPS_TO')
 
 
@@ -41,7 +41,7 @@ class ValueMeaning(Model):
     code_system: str = Property()
     display: str = Property()
 
-    permissible_values = RelatedFrom(PermissibleValue)
+    permissible_values = RelatedFrom(PermissibleValue, 'MAPS_TO')
     concept_domain = RelatedTo('ConceptualDomain', 'PART_OF')
 
 
@@ -50,15 +50,9 @@ class ConceptualDomain(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     name: str = Property()
-    data_element_concept = RelatedTo('DataElementConcept', 'DOMAIN_OF')
-
-
-@dataclass
-class EnumeratedConceptualDomain(ConceptualDomain):
-    __primarykey__ = 'identifier'
-    name: str = Property()
-    value_meanings = RelatedFrom(ValueMeaning)
     uri: str = Property()
+    data_element_concept = RelatedTo('DataElementConcept', 'DOMAIN_OF')
+    value_meanings = RelatedFrom(ValueMeaning, 'PART_OF')
 
 
 @dataclass
@@ -67,7 +61,7 @@ class DataElementConcept(Model):
     name: str = Property()
     object_class: str = Property()
     property: str = Property()
-    sconceptual_domain = RelatedFrom(ConceptualDomain)
+    conceptual_domain = RelatedFrom(ConceptualDomain, 'DOMAIN_OF')
     data_element = RelatedFrom(DataElement, 'REPRESENTS')
 
 
