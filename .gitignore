@@ -173,3 +173,7 @@ dmypy.json
 token.pickle
 
 output/*.tsv
+
+## Project specific ignores
+
+config.ini

@@ -6,7 +6,6 @@ from py2neo.ogm import Model, Property, RelatedFrom, RelatedTo
 class DataElement(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    title: str = Property()
     context: str = Property()
     entity: str = Property()
     attribute: str = Property()
@@ -26,7 +25,6 @@ class ValueDomain(Model):
 @dataclass
 class PermissibleValue(Model):
     __primarykey__ = 'identifier'
-    __primarylabel__ = 'value'
     identifier: str = Property()
     value: str = Property()
     value_domain = RelatedTo(ValueDomain, 'PART_OF')
