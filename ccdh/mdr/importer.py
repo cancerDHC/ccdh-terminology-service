@@ -25,8 +25,12 @@ class GdcImporter:
         self.graph = graph
 
     def add_data_element(self, entity, attribute) -> List[Model]:
+        where_stmt = f"_.context='GDC' and _.entity='{entity}' and _.attribute='{attribute}'"
+        data_element = DataElement.match(self.graph).where(where_stmt).first()
+        if data_element is not None:
+            return data_element
+
         tx = self.graph.begin()
-        models = []
         yaml_file = f'{entity.lower()}.yaml'
         if yaml_file not in self.gdc.resolvers:
             print(f'GDC | {entity} not found')
@@ -35,9 +39,9 @@ class GdcImporter:
         if attribute not in props:
             print(f'GDC | {entity} | {attribute} not found')
             return None
-
         data_element = DataElement(identifier=f'http://ccdh/data_element/gdc/{entity}/{attribute}',
                                    entity=entity, attribute=attribute, context='GDC')
+
         tx.create(data_element)
 
         value_domain = ValueDomain(identifier=f'http://ccdh/value_domain/gdc/{entity}/{attribute}')
@@ -64,12 +68,26 @@ class GdcImporter:
                 pv.value_meaning.add(vm)
             tx.create(pv)
         tx.commit()
+        return data_element
+
+    def add_data_element_concept(self, object_class, property):
+        where_stmt = f"_.object_class='{object_class}' and _.property='{property}'"
+        data_element_concept = DataElementConcept.match(self.graph).where(where_stmt).first()
+        if data_element_concept is None:
+            tx = self.graph.begin()
+            identifier = f'http://ccdh/data_element_concept/{quote_plus(object_class)}/{property}'
+            data_element_concept = DataElementConcept(identifier=identifier, name=f'{object_class}.{property}',
+                                                      object_class=object_class, property=property)
+            tx.create(data_element_concept)
+            tx.commit()
+        return data_element_concept
 
     def assign_data_element_concept(self, data_element: DataElement, data_element_concept: DataElementConcept):
         if len(data_element.data_element_concept) == 1:
             return
         tx = self.graph.begin()
         data_element.data_element_concept.add(data_element_concept)
+        tx.merge(data_element)
         tx.commit()
 
 

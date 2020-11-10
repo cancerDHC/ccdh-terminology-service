@@ -21,12 +21,16 @@ def import_mvp():
     rows = read_mvp_tsv()
     tuples = list()
     importer = GdcImporter(neo4j_graph())
+    data_elements = dict()
     for row in rows:
-        context, entity, attribute = row[0].split('.')
-        tuples.append((entity, attribute))
-    tuples = set(tuples)
-    for (entity, attribute) in tuples:
-        importer.add_data_element(entity, attribute)
+        if row[0].startswith('GDC'):
+            data_elements[row[0]] = row[3]
+    for gdc_tuple, cdm_tuple in data_elements.items():
+        _, entity, attribute = gdc_tuple.split('.')
+        data_element = importer.add_data_element(entity, attribute)
+        _, object_class, property = cdm_tuple.split('.')
+        data_element_concept = importer.add_data_element_concept(object_class, property)
+        importer.assign_data_element_concept(data_element, data_element_concept)
 
 
 if __name__ == '__main__':

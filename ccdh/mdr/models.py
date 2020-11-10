@@ -56,6 +56,7 @@ class ConceptualDomain(Model):
 @dataclass
 class DataElementConcept(Model):
     __primarykey__ = 'identifier'
+    identifier: str = Property()
     name: str = Property()
     object_class: str = Property()
     property: str = Property()
