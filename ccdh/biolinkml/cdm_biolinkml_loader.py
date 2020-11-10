@@ -101,7 +101,8 @@ class TabularSchemaDefinitionLoader(object):
         mappings.extend(['FHIR:' + i.strip() for i in row[13].split('\n') if i.strip()])
         # slot.mappings = list(filter(lambda x: re.match(r'^\w+:[\w\-\_]+\.[\w\-\_]+$', x), mappings))
         slot.comments.extend(filter(lambda a: len(a.strip()) > 0, row[9].split('\n')))
-        if slot.range == 'Coding':
+        if slot.range == 'CodableConcept' or slot.range == 'CodeableConcept':
+            slot.range = 'CodeableConcept'
             slot.values_from = f'{ccdh_root}/valuesets/CDM/{entity}/{slot.name}'
         return slot
 
@@ -119,7 +120,7 @@ class TabularSchemaDefinitionLoader(object):
 
     @classmethod
     def create_schema(cls, name):
-        schema: SchemaDefinition = SchemaDefinition(name='CCDH-MVP', id=f'{ccdh_root}/biolinkml/{name}', title=name)
+        schema: SchemaDefinition = SchemaDefinition(name='CCDH-MVP', id=f'{ccdh_root}/model/{name}', title=name)
         schema.version = 'v0'
         schema.license = 'https://creativecommons.org/publicdomain/zero/1.0/'
         schema.prefixes = {
@@ -174,7 +175,7 @@ def load_ccdh_sheet(ranges) -> Tuple[SchemaDefinition, SchemaDefinition]:
     entities_schema.slots = slots
     entities_schema.classes = entities
 
-    data_types_schema = SchemaDefinition(name='datatypes', id=f'{ccdh_root}/biolinkml/datatypes', title='Data Types used by the CCDH biolinkml')
+    data_types_schema = SchemaDefinition(name='datatypes', id=f'{ccdh_root}/model/datatypes', title='Data Types used by the CCDH model')
     data_types_schema.license = 'https://creativecommons.org/publicdomain/zero/1.0/'
     data_types_schema.prefixes = {
         'biolinkml': 'https://w3id.org/biolink/biolinkml/',
@@ -183,7 +184,7 @@ def load_ccdh_sheet(ranges) -> Tuple[SchemaDefinition, SchemaDefinition]:
     data_types_schema.default_prefix = 'types'
     data_types_schema.imports = ['biolinkml:types']
     data_types_schema.types = {
-        'literal': TypeDefinition(name='literal', typeof='string'),
+        'decimal': TypeDefinition(name='decimal', typeof='float'),
         'url': TypeDefinition(name='url', typeof='string')
     }
     data_types_schema.classes = data_types
