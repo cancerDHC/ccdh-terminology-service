@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8db6a14e46df63dd7f9147d0725ffd8ae92ca60727139e79280eb585ef21c213"
+            "sha256": "667029123cef26449a5bda2a772cd9377d28cd5ee5ffd5e93442d5fbe321e0a9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -850,6 +850,11 @@
                 "sha256:d6a66b5b8cda141660e07aeb00472db077a98d22cb588c973209c7336850fb3c"
             ],
             "version": "==1.8.5"
+        },
+        "sssom-py": {
+            "editable": true,
+            "git": "https://github.com/cmungall/sssom-py",
+            "ref": "f88c4146d784c2ac080700ac7a3891ae47181cb1"
         },
         "synapseclient": {
             "hashes": [

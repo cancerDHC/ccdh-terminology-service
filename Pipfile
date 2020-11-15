@@ -30,6 +30,7 @@ PyYAML = "*"
 PyLD = "*"
 PyGithub = "*"
 py2neo = "*"
+sssom-py = {editable = true, git = "https://github.com/cmungall/sssom-py"}
 
 [requires]
 python_version = "3.8"
