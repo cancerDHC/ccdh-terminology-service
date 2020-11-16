@@ -8,12 +8,12 @@ from sssom.io import *
 
 from ccdh.config import ROOT_DIR, neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.gdc import gdc_ncit_mappings
 
 GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import GDCDictionary
-from ccdh.gdc import gdc_ncit_mappings
 
 
 class GdcDataDictionaryImporter:
@@ -67,39 +67,37 @@ class GdcDataDictionaryImporter:
             tx.commit()
         return de_node, subgraph
 
+    def import_mvp(self):
+        # rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
+        rows = GdcDataDictionaryImporter.read_mvp_tsv()
+        importer = GdcDataDictionaryImporter(self.graph)
+        data_elements = dict()
+        for row in rows:
+            if row[0].startswith('GDC'):
+                data_elements[row[0]] = row[3]
+        for gdc_tuple, cdm_tuple in data_elements.items():
+            _, entity, attribute = gdc_tuple.split('.')
+            de_node, subgraph = importer.add_data_element(entity, attribute, commit=False)
+            _, object_class, prop = cdm_tuple.split('.')
+            dec_node = self.mdr_graph.find_data_element_concept(object_class, prop)
+            if dec_node is None:
+                dec_node = self.mdr_graph.create_data_element_concept(object_class, prop)
+            subgraph |= dec_node
+            subgraph |= Relationship(de_node, 'REPRESENTS', dec_node)
+            tx = neo4j_graph().begin()
+            tx.create(subgraph)
+            tx.commit()
 
-def read_mvp_tsv() -> List[str]:
-    rows = list()
-    with open(ROOT_DIR / 'output/CDA_MVP_V0_value_sets-20-10-22.tsv', 'r') as tsvfile:
-        reader = csv.reader(tsvfile, delimiter='\t')
-        next(reader)
-        for row in reader:
-            rows.append(row)
-    return rows
-
-
-def import_mvp():
-    # rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
-    rows = read_mvp_tsv()
-    importer = GdcDataDictionaryImporter(neo4j_graph())
-    mdr_graph = MdrGraph(neo4j_graph())
-    data_elements = dict()
-    for row in rows:
-        if row[0].startswith('GDC'):
-            data_elements[row[0]] = row[3]
-    for gdc_tuple, cdm_tuple in data_elements.items():
-        _, entity, attribute = gdc_tuple.split('.')
-        de_node, subgraph = importer.add_data_element(entity, attribute, commit=False)
-        _, object_class, prop = cdm_tuple.split('.')
-        dec_node = mdr_graph.find_data_element_concept(object_class, prop)
-        if dec_node is None:
-            dec_node = mdr_graph.create_data_element_concept(object_class, prop)
-        subgraph |= dec_node
-        subgraph |= Relationship(de_node, 'REPRESENTS', dec_node)
-        tx = neo4j_graph().begin()
-        tx.create(subgraph)
-        tx.commit()
+    @staticmethod
+    def read_mvp_tsv() -> List[str]:
+        rows = list()
+        with open(ROOT_DIR / 'output/CDA_MVP_V0_value_sets-20-10-22.tsv', 'r') as tsvfile:
+            reader = csv.reader(tsvfile, delimiter='\t')
+            next(reader)
+            for row in reader:
+                rows.append(row)
+        return rows
 
 
 if __name__ == '__main__':
-    import_mvp()
+    GdcDataDictionaryImporter(neo4j_graph()).import_mvp()
