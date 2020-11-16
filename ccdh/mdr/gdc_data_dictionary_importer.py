@@ -1,6 +1,5 @@
 import csv
 import sys
-from collections import namedtuple
 from pathlib import Path
 from typing import List
 
@@ -23,7 +22,7 @@ class GdcDataDictionaryImporter:
         self.gdc_dictionary = GDCDictionary()
         self.mdr_graph = MdrGraph(graph)
 
-    def add_data_element(self, entity, attribute) -> Subgraph:
+    def add_data_element(self, entity, attribute, commit=False) -> Subgraph:
         context = 'GDC'
         de_node = self.mdr_graph.get_data_element(context, entity, attribute)
         if de_node is None:
@@ -62,10 +61,11 @@ class GdcDataDictionaryImporter:
                     subgraph |= vm_node
                 subgraph |= Relationship(vm_node, 'MEANING_OF', pv_node)
 
-        tx = self.graph.begin()
-        tx.create(subgraph)
-        tx.commit()
-        return subgraph
+        if commit:
+            tx = self.graph.begin()
+            tx.create(subgraph)
+            tx.commit()
+        return de_node, subgraph
 
 
 def read_mvp_tsv() -> List[str]:
@@ -81,18 +81,24 @@ def read_mvp_tsv() -> List[str]:
 def import_mvp():
     # rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
     rows = read_mvp_tsv()
-    tuples = list()
     importer = GdcDataDictionaryImporter(neo4j_graph())
+    mdr_graph = MdrGraph(neo4j_graph())
     data_elements = dict()
     for row in rows:
         if row[0].startswith('GDC'):
             data_elements[row[0]] = row[3]
     for gdc_tuple, cdm_tuple in data_elements.items():
         _, entity, attribute = gdc_tuple.split('.')
-        data_element = importer.add_data_element(entity, attribute)
-        # _, object_class, property = cdm_tuple.split('.')
-        # data_element_concept = importer.add_data_element_concept(object_class, property)
-        # importer.assign_data_element_concept(data_element, data_element_concept)
+        de_node, subgraph = importer.add_data_element(entity, attribute, commit=False)
+        _, object_class, prop = cdm_tuple.split('.')
+        dec_node = mdr_graph.find_data_element_concept(object_class, prop)
+        if dec_node is None:
+            dec_node = mdr_graph.create_data_element_concept(object_class, prop)
+        subgraph |= dec_node
+        subgraph |= Relationship(de_node, 'REPRESENTS', dec_node)
+        tx = neo4j_graph().begin()
+        tx.create(subgraph)
+        tx.commit()
 
 
 if __name__ == '__main__':
