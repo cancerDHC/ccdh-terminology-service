@@ -1,16 +1,12 @@
-import sys
-import uuid
-from collections import namedtuple
 from typing import List, Union, Tuple
-from py2neo import Graph, Relationship, Node, NodeMatcher, Cursor, Subgraph
-from py2neo.cypher import cypher_escape
-
-from ccdh.mdr.models import *
-from pathlib import Path
 from urllib.parse import quote_plus
-from sssom.sssom_datamodel import MappingSet, Mapping
+
+import shortuuid
+from py2neo import Relationship, Node, NodeMatcher, Cursor, Subgraph
 from sssom.io import *
+
 from ccdh.config import DEFAULT_PAGE_SIZE
+from ccdh.mdr.models import *
 
 
 class MdrGraph:
@@ -19,16 +15,13 @@ class MdrGraph:
 
     @staticmethod
     def create_data_element(context: str, entity: str, attr: str) -> Node:
-        data_element = Node('DataElement',
-                            identifier=f'http://ccdh/data_elements/{context}/{entity}/{attr}',
-                            entity=entity, attribute=attr, context=context)
-        return data_element
+        identifier = f'http://ccdh/data-elements/{quote_plus(context)}/{quote_plus(entity)}/{quote_plus(attr)}'
+        return Node('DataElement', identifier=identifier, entity=entity, attribute=attr, context=context)
 
     @staticmethod
-    def create_value_domain(permissible_values: List[str]) -> Tuple[Subgraph]:
-        identifier = 'http://ccdh/value-domain/' + str(uuid.uuid4())
-        value_domain = Node('ValueDomain', identifier=identifier)
-        return value_domain
+    def create_value_domain() -> Tuple[Subgraph]:
+        identifier = 'http://ccdh/value-domain/' + shortuuid.uuid()
+        return Node('ValueDomain', identifier=identifier)
 
     @staticmethod
     def create_value_meaning(code, code_system, display, version=None):
@@ -39,7 +32,7 @@ class MdrGraph:
 
     @staticmethod
     def create_permissible_value(value):
-        pv = Node('PermissibleValue', value=value, identifier=str(uuid.uuid4()))
+        pv = Node('PermissibleValue', value=value, identifier=shortuuid.uuid())
         return pv
 
     @staticmethod
@@ -62,8 +55,8 @@ class MdrGraph:
         tx.create(Relationship(de_node, 'REPRESENTS', dec_node))
         tx.commit()
 
-    def get_permissible_value_mapping(self, context: str, entity: str, attribute: str, pagination: bool = True,
-                                      page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSetDocument:
+    def find_permissible_value_mappings(self, context: str, entity: str, attribute: str, pagination: bool = True,
+                                        page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
         where_list = []
         if context is not None:
             where_list.append(f"n.context='{context}'")
@@ -101,11 +94,7 @@ class MdrGraph:
             mappings.append(mapping)
         mapping_set.mappings = mappings
         df = cursor.to_data_frame()
-        curie_map = {
-            'NCIT': 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#'
-        }
-        mapping_set_doc: MappingSetDocument = MappingSetDocument(mapping_set, curie_map)
-        return mapping_set_doc
+        return mapping_set
 
     def find_value_meaning(self, code, code_system, version=None):
         where_stmt = f"_.code='{code}' AND _.code_system='{code_system}'"
@@ -129,4 +118,13 @@ class MdrGraph:
     def find_data_element_concept(self, object_class, prop):
         where_stmt = f"_.object_class='{object_class}' AND _.property='{prop}'"
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
+
+    def find_data_element(self, context, entity, attribute):
+        where_stmt = f"_.context='{context}' AND _.entity='{entity}' AND _.attribute='{attribute}'"
+        return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
+
+    def find_data_elements(self, context, entity):
+        where_stmt = f"_.context='{context}' AND _.entity='{entity}'"
+        return list(NodeMatcher(self.graph).match('DataElement').where(where_stmt))
+
 

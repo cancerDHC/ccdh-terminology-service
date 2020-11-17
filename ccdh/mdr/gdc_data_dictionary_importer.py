@@ -40,8 +40,10 @@ class GdcDataDictionaryImporter:
 
         gdc_ncit_map = gdc_ncit_mappings()
         enum_values = props[attribute].get('enum', [])
+        de_node['description'] = props[attribute].get('description', '')
+        de_node['type'] = 'enum'
 
-        vd_node = self.mdr_graph.create_value_domain(enum_values)
+        vd_node = self.mdr_graph.create_value_domain()
         subgraph |= vd_node
         subgraph |= Relationship(vd_node, 'DOMAIN_OF', de_node)
 

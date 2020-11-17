@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from py2neo.ogm import Model, Property, RelatedFrom, RelatedTo
 
 
@@ -9,6 +10,7 @@ class DataElement(Model):
     context: str = Property()
     entity: str = Property()
     attribute: str = Property()
+    version = Property(default=None)
 
     value_domain = RelatedFrom('ValueDomain', 'DOMAIN_OF')
     data_element_concept = RelatedTo('DataElementConcept', 'REPRESENTS')
@@ -18,7 +20,7 @@ class DataElement(Model):
 class ValueDomain(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    data_element = RelatedTo(DataElement, 'DOMAIN_OF')
+    data_elements = RelatedTo(DataElement, 'DOMAIN_OF')
     permissible_values = RelatedFrom('PermissibleValue', 'PART_OF')
 
 
@@ -27,7 +29,7 @@ class PermissibleValue(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     value: str = Property()
-    value_domain = RelatedTo(ValueDomain, 'PART_OF')
+    value_domains = RelatedTo(ValueDomain, 'PART_OF')
     value_meaning = RelatedTo('ValueMeaning', 'MAPS_TO')
 
 
@@ -49,7 +51,7 @@ class ConceptualDomain(Model):
     identifier: str = Property()
     name: str = Property()
     uri: str = Property()
-    data_element_concept = RelatedTo('DataElementConcept', 'DOMAIN_OF')
+    data_element_concepts = RelatedTo('DataElementConcept', 'DOMAIN_OF')
     value_meanings = RelatedFrom(ValueMeaning, 'PART_OF')
 
 
@@ -57,9 +59,9 @@ class ConceptualDomain(Model):
 class DataElementConcept(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    name: str = Property()
     object_class: str = Property()
     property: str = Property()
+    version: str = Property(default=None)
     conceptual_domain = RelatedFrom(ConceptualDomain, 'DOMAIN_OF')
     data_element = RelatedFrom(DataElement, 'REPRESENTS')
 
