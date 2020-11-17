@@ -1,6 +1,6 @@
 from flask import Response, stream_with_context
 from flask_restx import Api
-from ccdh.apis.resources import ns as ccdh_ns
+from ccdh.apis.harmonization.resources import ns as ccdh_ns
 
 api = Api(
     title='CCDH Terminology Harmonization API',
@@ -8,7 +8,7 @@ api = Api(
     description='An api to facilitate the CCDH terminology value harmonization process',
 )
 
-api.add_namespace(ccdh_ns, path='/ccdh')
+api.add_namespace(ccdh_ns, path='/harmonization')
 
 
 @api.representation('text/tab-separated-values+sssom')

@@ -1,7 +1,7 @@
 from flask import Flask
 
 from ccdh.apis.api import api
-from ccdh.apis.schemas import ma
+from ccdh.apis.harmonization.schemas import ma
 
 app = Flask(__name__)
 api.init_app(app)

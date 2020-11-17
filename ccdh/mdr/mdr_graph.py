@@ -72,10 +72,10 @@ class MdrGraph:
         <-[:PART_OF]-(p:PermissibleValue)
         {where_stmt}
         OPTIONAL MATCH (p:PermissibleValue)<-[:MEANING_OF]-(v:ValueMeaning)
-        RETURN n.context + '.' + n.entity + '.' + n.attribute as subject_match_context,
+        RETURN n.context + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.value as subject_label, p.identifier as subject_id,
         v.code as object_id, v.display as object_label,
-        'CDM' + '.' + c.object_class + '.' + c.property as object_match_context
+        'CDM' + '.' + c.object_class + '.' + c.property as object_match_field
         {paging_stmt}
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)

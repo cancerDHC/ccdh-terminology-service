@@ -1,7 +1,7 @@
 import pytest
 from py2neo import NodeMatcher
 
-from ccdh.mdr.importer import GdcImporter
+from ccdh.mdr.mdr_graph import GdcImporter
 
 
 @pytest.fixture
@@ -25,4 +25,11 @@ def test_add_data_element(gdc_importer, neo4j_graph):
 
 def test_assign_data_element_concept(gdc_importer, neo4j_graph):
     pass
+
+
+def test_get_permissible_value_mapping(gdc_importer, neo4j_graph):
+    data_element = gdc_importer.add_data_element('Aliquot', 'analyte_type')
+    data_element_concept = gdc_importer.add_data_element_concept('Specimen', 'analyte_type')
+    gdc_importer.assign_data_element_concept(data_element, data_element_concept)
+    gdc_importer.get_permissible_value_mapping('GDC', 'Aliquot', 'analyte_type')
 

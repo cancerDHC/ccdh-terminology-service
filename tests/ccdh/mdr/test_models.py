@@ -6,12 +6,8 @@ from ccdh.mdr.models import *
 
 @pytest.fixture
 def data_element(neo4j_graph):
-    data_element = DataElement()
-    data_element.identifier = 'http://gdc/sample/tissue_type'
-    data_element.context = 'gdc'
-    data_element.entity = 'sample'
-    data_element.attribute = 'tissue_type'
-
+    data_element = DataElement(identifier='http://ccdh/data-element/gdc/sample/tissue_type', context='GDC',
+                               entity='sample', attribute='tissue_type')
     tx = neo4j_graph.begin()
     tx.create(data_element)
     tx.commit()
@@ -33,6 +29,16 @@ def value_domain(neo4j_graph):
     tx = neo4j_graph.begin()
     tx.delete(value_domain)
     tx.finish()
+
+
+def test_data_element():
+    data_element = DataElement()
+    data_element.identifier = 'http://gdc/sample/tissue_type'
+    data_element.context = 'gdc'
+    data_element.entity = 'sample'
+    data_element.attribute = 'tissue_type'
+    assert data_element.attribute == 'tissue_type'
+    assert data_element.version is None
 
 
 def test_value_domain(neo4j_graph, value_domain):

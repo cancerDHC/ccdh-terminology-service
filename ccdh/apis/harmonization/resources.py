@@ -1,15 +1,15 @@
-from flask_restx import Resource, fields, Namespace
+from flask_restx import Resource, Namespace
 
-from ccdh.apis.schemas import DataElementSchema, MappingSetSchema
+from ccdh.apis.harmonization.schemas import DataElementSchema, MappingSetSchema
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
 
-ns = Namespace('ccdh', description='CCDH')
+ns = Namespace('harmonization', description='CCDH Value Harmonization')
 mdr_graph = MdrGraph(neo4j_graph())
 
 data_element_schema = DataElementSchema()
 data_elements_schema = DataElementSchema(many=True)
-mapping_set_doc_schema = MappingSetSchema()
+mapping_set_schema = MappingSetSchema()
 
 
 @ns.route('/data-elements/<context>/<entity>/<attribute>')
@@ -42,4 +42,4 @@ class DataElementMapping(Resource):
     @ns.doc('get_mapping_data_element')
     @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
     def get(self, context, entity, attribute):
-        return mapping_set_doc_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute))
+        return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute))
