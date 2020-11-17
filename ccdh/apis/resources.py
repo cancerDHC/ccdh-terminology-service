@@ -3,7 +3,6 @@ from flask_restx import Resource, fields, Namespace
 from ccdh.apis.schemas import DataElementSchema, MappingSetSchema
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
-from ccdh.apis.utils import marshall_node
 
 ns = Namespace('ccdh', description='CCDH')
 mdr_graph = MdrGraph(neo4j_graph())
@@ -41,5 +40,6 @@ class DataElementList(Resource):
 @ns.param('attribute', 'The entity attribute name of the data element')
 class DataElementMapping(Resource):
     @ns.doc('get_mapping_data_element')
+    @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
     def get(self, context, entity, attribute):
         return mapping_set_doc_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute))
