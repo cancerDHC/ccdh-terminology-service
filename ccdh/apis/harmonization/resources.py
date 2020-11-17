@@ -43,3 +43,24 @@ class DataElementMapping(Resource):
     @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
     def get(self, context, entity, attribute):
         return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute))
+
+
+@ns.route('/mapping/data-element/<context>/<entity>')
+@ns.response(404, 'Mapping not found for data element')
+@ns.param('context', 'The context of the data element')
+@ns.param('entity', 'The entity that the data element is defined in')
+class EntityMapping(Resource):
+    @ns.doc('get_mapping_data_element')
+    @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
+    def get(self, context, entity):
+        return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, None, pagination=False))
+
+
+@ns.route('/mapping/data-element/<context>')
+@ns.response(404, 'Mapping not found for data element')
+@ns.param('context', 'The context of the data element')
+class ContextMapping(Resource):
+    @ns.doc('get_mapping_data_element')
+    @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
+    def get(self, context):
+        return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, None, None, pagination=False))
