@@ -33,6 +33,9 @@ py2neo = "*"
 sssom-py = {editable = true, git = "https://github.com/cmungall/sssom-py"}
 prefixcommons = "*"
 flask = "*"
+shortuuid = "*"
+flask-restx = "*"
+flask-marshmallow = "*"
 
 [requires]
 python_version = "3.8"
