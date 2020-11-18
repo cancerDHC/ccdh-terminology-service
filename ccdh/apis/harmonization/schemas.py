@@ -8,8 +8,8 @@ class DataElementSchema(ma.Schema):
         fields = ('context', 'entity', 'attribute', 'type', 'description', '_links')
         ordered = True
     _links = ma.Hyperlinks({
-        'self': ma.AbsoluteURLFor("harmonization_data_element", values=dict(context='<context>', entity='<entity>', attribute='<attribute>')),
-        'entity': ma.AbsoluteURLFor("harmonization_data_element_list", values=dict(context='<context>', entity='<entity>')),
+        'self': ma.AbsoluteURLFor("harmonization_data-element", values=dict(context='<context>', entity='<entity>', attribute='<attribute>')),
+        'entity': ma.AbsoluteURLFor("harmonization_entity-data-elements", values=dict(context='<context>', entity='<entity>')),
         'mapping': ma.AbsoluteURLFor("harmonization_data_element_mapping", values=dict(context='<context>', entity='<entity>', attribute='<attribute>'))
     })
 
@@ -25,6 +25,7 @@ class MappingSetSchema(ma.Schema):
         fields = ('creator_id', 'license', 'mapping_provider', 'comment', 'curie_map', 'mappings')
         ordered = True
     curie_map = ma.Constant({
-        'NCIT': 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#'
+        'NCIT': 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#',
+        'CS:NCIT': '',
     })
     mappings = ma.List(ma.Nested(MappingSchema))
