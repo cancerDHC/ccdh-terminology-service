@@ -39,6 +39,11 @@ class MdrGraph:
     def create_data_element_concept(object_class, prop):
         return Node('DataElementConcept', object_class=object_class, property=prop)
 
+    @staticmethod
+    def build_where_statement(node_str, **kwargs):
+        where_list = [f"{node_str}.{key}='{kwargs[key]}'" for key in kwargs if kwargs[key] is not None]
+        return ' AND '.join(where_list)
+
     def get_node_by_identifier(self, node_type: str,  identifier: str) -> Node:
         return NodeMatcher(self.graph).match(node_type).where(f"_.identifier='{identifier}'").first()
 
@@ -57,14 +62,8 @@ class MdrGraph:
 
     def find_permissible_value_mappings(self, context: str, entity: str, attribute: str, pagination: bool = True,
                                         page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
-        where_list = []
-        if context is not None:
-            where_list.append(f"n.context='{context}'")
-        if entity is not None:
-            where_list.append(f"n.entity='{entity}'")
-        if attribute is not None:
-            where_list.append(f"n.attribute='{attribute}'")
-        where_stmt = 'WHERE ' + ' AND '.join(where_list) if where_list else ''
+        where_stmt = MdrGraph.build_where_statement('n', context=context, entity=entity, attribute=attribute)
+        where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         query = f"""        
@@ -116,15 +115,12 @@ class MdrGraph:
             return None
 
     def find_data_element_concept(self, object_class, prop):
-        where_stmt = f"_.object_class='{object_class}' AND _.property='{prop}'"
+        where_stmt = MdrGraph.build_where_statement('_', object_class=object_class, property=prop)
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
 
-    def find_data_element(self, context, entity, attribute):
-        where_stmt = f"_.context='{context}' AND _.entity='{entity}' AND _.attribute='{attribute}'"
-        return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
+    def find_data_elements(self, context, entity, attribute):
+        where_stmt = MdrGraph.build_where_statement('_', context=context, entity=entity, attribute=attribute)
+        return NodeMatcher(self.graph).match('DataElement').where(where_stmt)
 
-    def find_data_elements(self, context, entity):
-        where_stmt = f"_.context='{context}' AND _.entity='{entity}'"
-        return list(NodeMatcher(self.graph).match('DataElement').where(where_stmt))
 
 
