@@ -40,28 +40,30 @@ class GdcDataDictionaryImporter:
 
         gdc_ncit_map = gdc_ncit_mappings()
         enum_values = props[attribute].get('enum', [])
-        de_node['description'] = props[attribute].get('description', '')
-        de_node['type'] = 'enum'
+        de_node['definition'] = props[attribute].get('description', '')
 
         vd_node = self.mdr_graph.create_value_domain()
         subgraph |= vd_node
-        subgraph |= Relationship(vd_node, 'DOMAIN_OF', de_node)
+        subgraph |= Relationship(de_node, 'USES', vd_node)
 
         value_to_ncit_mapping = gdc_ncit_map.get(attribute, {})
+        code_nodes = {}
         for value in enum_values:
             pv_node = self.mdr_graph.create_permissible_value(value)
             subgraph |= pv_node
-            subgraph |= Relationship(pv_node, 'PART_OF', vd_node)
+            subgraph |= Relationship(vd_node, 'HAS_MEMBER', pv_node)
 
             map_row = value_to_ncit_mapping.get(value, None)
             if map_row:
-                code, display = map_row[0:2]
-                code_system = 'NCIT'
-                vm_node = self.mdr_graph.find_value_meaning(code, code_system)
+                code, definition = map_row[0:2]
+                scheme = 'https://bioportal.bioontology.org/ontologies/NCIT'
+                uri = f'NCIT:{code}'
+                vm_node = self.mdr_graph.find_value_meaning(code, scheme)
                 if vm_node is None:
-                    vm_node = self.mdr_graph.create_value_meaning(code, code_system, display)
+                    vm_node = code_nodes.get(uri, self.mdr_graph.create_value_meaning(uri, code, scheme, definition))
+                    code_nodes[uri] = vm_node
                     subgraph |= vm_node
-                subgraph |= Relationship(vm_node, 'MEANING_OF', pv_node)
+                subgraph |= Relationship(pv_node, 'HAS_MEANING', vm_node)
 
         if commit:
             tx = self.graph.begin()
@@ -84,8 +86,8 @@ class GdcDataDictionaryImporter:
             dec_node = self.mdr_graph.find_data_element_concept(object_class, prop)
             if dec_node is None:
                 dec_node = self.mdr_graph.create_data_element_concept(object_class, prop)
-            subgraph |= dec_node
-            subgraph |= Relationship(de_node, 'REPRESENTS', dec_node)
+                subgraph |= dec_node
+            subgraph |= Relationship(dec_node, 'HAS_REPRESENTATION', de_node)
             tx = neo4j_graph().begin()
             tx.create(subgraph)
             tx.commit()

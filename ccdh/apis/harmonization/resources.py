@@ -54,3 +54,6 @@ class DataElementMapping(Resource):
     @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
     def get(self, context, entity, attribute):
         return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute, pagination=False))
+
+    def post(self):
+        pass

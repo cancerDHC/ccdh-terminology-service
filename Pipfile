@@ -36,6 +36,7 @@ flask = "*"
 shortuuid = "*"
 flask-restx = "*"
 flask-marshmallow = "*"
+pyrdfa3 = "*"
 
 [requires]
 python_version = "3.8"
