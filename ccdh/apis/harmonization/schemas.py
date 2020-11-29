@@ -5,12 +5,12 @@ ma = Marshmallow()
 
 class DataElementSchema(ma.Schema):
     class Meta:
-        fields = ('context', 'entity', 'attribute', 'type', 'description', '_links')
+        fields = ('context', 'entity', 'attribute', 'definition', '_links')
         ordered = True
     _links = ma.Hyperlinks({
         'self': ma.AbsoluteURLFor("harmonization_data-element", values=dict(context='<context>', entity='<entity>', attribute='<attribute>')),
         'entity': ma.AbsoluteURLFor("harmonization_entity-data-elements", values=dict(context='<context>', entity='<entity>')),
-        'mapping': ma.AbsoluteURLFor("harmonization_data_element_mapping", values=dict(context='<context>', entity='<entity>', attribute='<attribute>'))
+        'mapping': ma.AbsoluteURLFor("harmonization_mapping-data-element", values=dict(context='<context>', entity='<entity>', attribute='<attribute>'))
     })
 
 

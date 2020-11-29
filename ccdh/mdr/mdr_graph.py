@@ -97,7 +97,7 @@ class MdrGraph:
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         query = f"""        
-        MATCH (c:DataElementConcept)-[:HAS_REPRESENTATION]->(n:DataElement)->[:USES]-(:ValueDomain)
+        MATCH (c:DataElementConcept)-[:HAS_REPRESENTATION]->(n:DataElement)-[:USES]->(:ValueDomain)
         -[:HAS_MEMBER]->(p:PermissibleValue)
         {where_stmt}
         OPTIONAL MATCH (p:PermissibleValue)<-[:HAS_REPRESENTATION]-(v:ValueMeaning)
