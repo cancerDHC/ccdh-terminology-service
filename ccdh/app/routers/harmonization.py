@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, Request
+from fastapi import APIRouter, File, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from typing import Optional, List, Dict
 
@@ -52,21 +52,21 @@ router = APIRouter(
 
 
 @router.get('/data-elements/{context}/{entity}/{attribute}', response_model=List[DataElement])
-def get_data_elements(context: str, entity: str, attribute: str) -> List[DataElement]:
+async def get_data_elements(context: str, entity: str, attribute: str) -> List[DataElement]:
     return list(mdr_graph.find_data_elements(context, entity, attribute))
 
 
 @router.get('/data-elements/{context}/{entity}', response_model=List[DataElement])
-def get_data_elements(context: str, entity: str) -> List[DataElement]:
+async def get_data_elements(context: str, entity: str) -> List[DataElement]:
     return list(mdr_graph.find_data_elements(context, entity))
 
 
 @router.get('/data-elements/{context}', response_model=List[DataElement])
-def get_data_elements(context: str) -> List[DataElement]:
+async def get_data_elements(context: str) -> List[DataElement]:
     return list(mdr_graph.find_data_elements(context))
 
 
-@router.get('/mapping/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/mappings/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -75,7 +75,7 @@ def get_data_elements(context: str) -> List[DataElement]:
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-def get_data_element_mapping(context: str, entity: str, attribute: str, request: Request) -> MappingSet:
+async def get_data_element_mapping(context: str, entity: str, attribute: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_data_element(context, entity, attribute, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
@@ -83,7 +83,7 @@ def get_data_element_mapping(context: str, entity: str, attribute: str, request:
         return mapping_set.__dict__
 
 
-@router.get('/mapping/data-element-concepts/{object_class}/{property}', response_model=MappingSet,
+@router.get('/mappings/data-element-concepts/{object_class}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -92,12 +92,17 @@ def get_data_element_mapping(context: str, entity: str, attribute: str, request:
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-def get_data_element_concept_mapping(object_class: str, property: str, request: Request) -> MappingSet:
+async def get_data_element_concept_mapping(object_class: str, property: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_data_element_concept(object_class, property, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
         return mapping_set.__dict__
+
+
+@router.put('/mappings/upload')
+async def upload_mappings(file: UploadFile = File(...)):
+    return {"filename": file.filename}
 
 
 def generate_sssom_tsv(data):
