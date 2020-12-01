@@ -37,6 +37,9 @@ shortuuid = "*"
 flask-restx = "*"
 flask-marshmallow = "*"
 pyrdfa3 = "*"
+fastapi = "*"
+uvicorn = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.8"
