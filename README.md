@@ -47,5 +47,21 @@ these commands:
 ```
 git submodule add https://github.com/ncihtan/HTAN-data-pipeline.git
 git submodule set-branch --branch organized-into-packages -- HTAN-data-pipeline/
-git submodule update --remote
+git submodule update --recursive --remote
+```
+
+PDC uses git-lfs for some bigger files. If you don't have git-lfs installed, 
+install it first: 
+
+```
+brew install git-lfs
+```
+
+Use this command to pull the files
+
+```
+cd crdc-nodes/PDC-Public/documentation/prod/json
+# Run the install command only once
+git lfs install
+git lfs pull --include './*.json'
 ```
