@@ -3,10 +3,12 @@ from pathlib import Path
 import json
 from typing import List
 
+from ccdh import ROOT_DIR
+
 logger = logging.getLogger('PdcImporter')
 logger.setLevel(logging.DEBUG)
 
-PDC_JSON_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/PDC-public/documentation/prod/json'
+PDC_JSON_DIR = ROOT_DIR / 'crdc-nodes/PDC-public/documentation/prod/json'
 
 
 class PdcImporter:

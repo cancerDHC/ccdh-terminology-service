@@ -1,12 +1,16 @@
+import csv
 import json
 import logging
 from pathlib import Path
 from typing import List
 
+from ccdh import ROOT_DIR
+
 logger = logging.getLogger('ccdh.importers.GdcImporter')
 logger.setLevel(logging.DEBUG)
 
-GDC_JSON_FILE = Path(__file__).parent.parent.parent / 'data/data_dictionary/gdc/current.json'
+GDC_JSON_FILE = ROOT_DIR / 'data/data_dictionary/gdc/current.json'
+GDC_MAPING_DIR = ROOT_DIR / 'data/mappings/gdc-ncit'
 
 
 class GdcImporter:
@@ -35,4 +39,18 @@ class GdcImporter:
                     }
                     data_elements[f'GDC.{entity_name}.{prop}'] = data_element
         return data_elements
+
+    @staticmethod
+    def read_ncit_mappings():
+        gdc_ncit_map = {}
+        gdc_ncit_file = GDC_MAPING_DIR / 'current.csv'
+        with open(gdc_ncit_file, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            for row in reader:
+                target_code = row[3]
+                if target_code not in gdc_ncit_map:
+                    gdc_ncit_map[target_code] = {}
+                gdc_ncit_map[target_code][row[4]] = row
+        return gdc_ncit_map
 
