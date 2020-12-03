@@ -14,7 +14,7 @@ class PdcImporter:
         self.data_elements = []
 
     @staticmethod
-    def read_json_files() -> List:
+    def read_data_dictionary() -> List:
         data_elements = {}
         files = [f for f in PDC_JSON_DIR.glob('*.json') if f.is_file()]
         for file in files:
