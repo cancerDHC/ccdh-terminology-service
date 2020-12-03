@@ -20,6 +20,7 @@ class PdcImporter:
         for file in files:
             if file.name == 'dictionary.json' or file.name == 'dictionary_item.json':
                 continue
+            logger.info(f'Loading {file.name}')
             entity = json.loads(file.read_text())
             entity_name = entity['title']
             for prop, values in entity['properties'].items():
