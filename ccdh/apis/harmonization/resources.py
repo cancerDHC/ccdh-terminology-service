@@ -4,6 +4,8 @@ from ccdh.apis.harmonization.schemas import DataElementSchema, MappingSetSchema
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
 
+from ccdh.apis.harmonization.parsers import file_upload
+
 ns = Namespace('harmonization', description='CCDH Value Harmonization')
 mdr_graph = MdrGraph(neo4j_graph())
 
@@ -15,7 +17,7 @@ mapping_set_schema = MappingSetSchema()
 param_descriptions = {
     'context': 'The context of the data element',
     'entity': 'The entity that the data element is defined in',
-    'attribute': 'The entity attribute name of the data element',
+    'attribute': 'The attribute name of the data element',
 }
 
 
@@ -53,7 +55,16 @@ class DataElement(Resource):
 class DataElementMapping(Resource):
     @ns.produces(['application/json', 'text/tab-separated-values+sssom'])
     def get(self, context, entity, attribute):
-        return mapping_set_schema.dump(mdr_graph.find_permissible_value_mappings(context, entity, attribute, pagination=False))
+        return mapping_set_schema.dump(mdr_graph.find_mappings_of_data_element(context, entity, attribute, pagination=False))
 
+
+@ns.route('/mapping', endpoint='Upload mapping SSSOM file', doc={
+    'tsv_file': 'TSV format of mapping',
+})
+@ns.expect(file_upload)
+class Mapping(Resource):
     def post(self):
-        pass
+        args = file_upload.parse_args()
+        file = args.get('tsv_file')
+        print(file.filename)
+        return "Uploaded file is " + file.filename

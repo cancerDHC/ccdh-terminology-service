@@ -25,8 +25,8 @@ class MdrGraph:
         return str(CCDH[f'value-domain/{shortuuid.uuid()}'])
 
     @staticmethod
-    def create_data_element_concept_uri(object_class, prop):
-        return str(CCDH[f'data-element-concept/{quote_plus(object_class)}/{quote_plus(prop)}'])
+    def create_data_element_concept_uri(context, object_class, prop):
+        return str(CCDH[f'data-element-concept/{quote_plus(context)}/{quote_plus(object_class)}/{quote_plus(prop)}'])
 
     @staticmethod
     def create_permissible_value_uri():
@@ -65,9 +65,9 @@ class MdrGraph:
         return pv
 
     @staticmethod
-    def create_data_element_concept(object_class: str, prop: str):
-        uri = MdrGraph.create_data_element_concept_uri(object_class, prop)
-        return Node('DataElementConcept', 'Resource', uri=uri, objectClass=object_class, property=prop)
+    def create_data_element_concept(context, object_class: str, prop: str):
+        uri = MdrGraph.create_data_element_concept_uri(context, object_class, prop)
+        return Node('DataElementConcept', 'Resource', uri=uri, context=context, object_class=object_class, property=prop)
 
     @staticmethod
     def build_where_statement(node_str, **kwargs):
@@ -81,6 +81,10 @@ class MdrGraph:
         where_stmt = f"_.context='{context}' AND _.entity='{entity}' AND _.attribute='{attribute}'"
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
 
+    def get_data_element_concept(self, context, objectClass, property):
+        where_stmt = f"_.context='{context}' AND _.objectClass='{objectClass}' AND _.property='{property}'"
+        return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
+
     def assign_data_element_concept(self, data_element: DataElement, data_element_concept: DataElementConcept):
         if len(data_element.data_element_concept) == 1:
             return
@@ -90,12 +94,22 @@ class MdrGraph:
         tx.create(Relationship(dec_node, 'HAS_REPRESENTATION', de_node))
         tx.commit()
 
-    def find_permissible_value_mappings(self, context: str, entity: str, attribute: str, pagination: bool = True,
-                                        page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
-        where_stmt = MdrGraph.build_where_statement('n', context=context, entity=entity, attribute=attribute)
-        where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
+    def find_mappings_of_data_element_concept(self, object_class: str, property: str, pagination: bool = False,
+                                              page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
+        where_stmt = MdrGraph.build_where_statement('c', objectClass=object_class, property=property)
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
+        return self.find_permissible_value_mappings(where_stmt, paging_stmt)
+
+    def find_mappings_of_data_element(self, context: str, entity: str, attribute: str, pagination: bool = True,
+                                      page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
+        where_stmt = MdrGraph.build_where_statement('n', context=context, entity=entity, attribute=attribute)
+        skip_size = (page-1) * page_size
+        paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
+        return self.find_permissible_value_mappings(where_stmt, paging_stmt)
+
+    def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
+        where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
         MATCH (c:DataElementConcept)-[:HAS_REPRESENTATION]->(n:DataElement)-[:USES]->(:ValueDomain)
         -[:HAS_MEMBER]->(p:PermissibleValue)
@@ -131,14 +145,14 @@ class MdrGraph:
             where_stmt += f" AND _.version='{version}'"
         return NodeMatcher(self.graph).match('ValueMeaning').where(where_stmt).first()
 
-    def find_value_domain(self, permissible_values: List[str]) -> Union[str, None]:
-        query = ''
+    def find_value_domain(self, permissible_values: List[str], context, entity, attribute) -> Union[str, None]:
+        query = "MATCH (n:ValueDomain)<-[:USES]-(:DataElement {context: $context, entity: $entity, attribute: $attribute})\n"
         for pv in permissible_values:
-            query += f"MATCH (n:ValueDomain)-[:HAS_MEMBER]->(:PermissibleValue{{value: '{pv}'}})\n"
-        query += f"MATCH (n)->[r:HAS_MEMBER]-(:PermissibleValue)\n"
-        query += f"WHERE count(r)={len(permissible_values)}\n"
+            query += f"MATCH (n:ValueDomain)-[:HAS_MEMBER]->(:PermissibleValue{{value: \"{pv}\"}})\n"
+        query += f"MATCH (n)-[r:HAS_MEMBER]->(:PermissibleValue) WITH n, count(r) as pvcount\n"
+        query += f"WHERE pvcount={len(permissible_values)}\n"
         query += "RETURN n"
-        cursor: Cursor = self.graph.run(query)
+        cursor: Cursor = self.graph.run(query, context=context, entity=entity, attribute=attribute)
         if cursor.forward():
             return cursor.current
         else:
@@ -148,7 +162,7 @@ class MdrGraph:
         where_stmt = MdrGraph.build_where_statement('_', objectClass=object_class, property=prop)
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
 
-    def find_data_elements(self, context, entity, attribute):
+    def find_data_elements(self, context, entity=None, attribute=None):
         where_stmt = MdrGraph.build_where_statement('_', context=context, entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt)
 

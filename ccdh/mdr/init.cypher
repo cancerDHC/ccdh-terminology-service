@@ -35,7 +35,7 @@ call n10s.mapping.add('http://www.iso.org/11179/ValueMeaning', 'ValueMeaning');
 
 // Object Properties
 call n10s.mapping.add('http://www.iso.org/11179/dataElement.hasMeaning', 'HAS_MEANING');
-call n10s.mapping.add('http://www.iso.org/11179/valueMeaning.hasRepresentation', 'HAS_REPRESENTATION');
+call n10s.mapping.add('http://www.iso.org/11179/permissibleValue.hasRepresentation', 'HAS_REPRESENTATION');
 call n10s.mapping.add('http://www.iso.org/11179/uses', 'USES');
 call n10s.mapping.add('http://www.iso.org/11179/dataElementConcept.hasObjectClass', 'HAS_OBJECT_CLASS');
 call n10s.mapping.add('http://www.iso.org/11179/dataElementConcept.hasProperty', 'HAS_PROPERTY');
