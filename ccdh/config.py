@@ -22,3 +22,5 @@ def neo4j_graph() -> Graph:
 
 DEFAULT_PAGE_SIZE = int(config()['pagination']['page_size'])
 MAX_PAGE_SIZE = int(config()['pagination']['max_page_size'])
+
+CDM_GOOGLE_SHEET_ID = config()['ccdh']['cdm_google_sheet_id']

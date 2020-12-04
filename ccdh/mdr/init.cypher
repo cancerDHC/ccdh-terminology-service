@@ -57,3 +57,5 @@ call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#example', 'example');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/context', 'context');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/entity', 'entity');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/attribute', 'attribute');
+call n10s.mapping.add('https://www.cancer.gov/ccdh/objectClass', 'objectClass');
+call n10s.mapping.add('https://www.cancer.gov/ccdh/proprety', 'property');

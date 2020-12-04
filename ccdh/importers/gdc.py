@@ -6,7 +6,7 @@ from typing import List
 
 from ccdh import ROOT_DIR
 
-logger = logging.getLogger('ccdh.importers.GdcImporter')
+logger = logging.getLogger('ccdh.importers.gdc')
 logger.setLevel(logging.DEBUG)
 
 GDC_JSON_FILE = ROOT_DIR / 'data/data_dictionary/gdc/current.json'

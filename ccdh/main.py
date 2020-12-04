@@ -1,4 +1,5 @@
 from ccdh.cdm import cdm_dictionary_sheet
+from ccdh.config import config, CDM_GOOGLE_SHEET_ID
 from ccdh.htan import htan_values
 from ccdh.icdc import icdc_values
 import csv
@@ -19,7 +20,7 @@ smart = client.FHIRClient(settings=settings)
 
 
 def main():
-    rows = cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4')
+    rows = cdm_dictionary_sheet(CDM_GOOGLE_SHEET_ID)
     rows = htan_values(pdc_values(gdc_values(rows)))
     cde_id = None
     values = []

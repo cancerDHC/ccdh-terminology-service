@@ -102,6 +102,9 @@ class GdcDataDictionaryImporter:
                 rows.append(row)
         return rows
 
+    def import_gdc_data_dictionary(category: str):
+        pass
+
 
 if __name__ == '__main__':
     GdcDataDictionaryImporter(neo4j_graph()).import_mvp()

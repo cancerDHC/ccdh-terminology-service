@@ -5,7 +5,7 @@ from typing import List
 
 from ccdh import ROOT_DIR
 
-logger = logging.getLogger('PdcImporter')
+logger = logging.getLogger('ccdh.importers.pdc')
 logger.setLevel(logging.DEBUG)
 
 PDC_JSON_DIR = ROOT_DIR / 'crdc-nodes/PDC-public/documentation/prod/json'
