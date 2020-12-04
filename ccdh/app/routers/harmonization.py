@@ -19,6 +19,13 @@ class DataElement(BaseModel):
     definition: Optional[str]
 
 
+class DataElementConcept(BaseModel):
+    context: str
+    objectClass: str
+    property: str
+    definition: Optional[str]
+
+
 class Mapping(BaseModel):
     subject_id: Optional[str]
     prefix_id: Optional[str]
@@ -49,6 +56,10 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+@router.get('/data-element-concepts/CDM/{objectClass}/{property}', response_model=List[DataElementConcept])
+async def get_data_element_concepts(objectClass: str, property: str) -> List[DataElementConcept]:
+    return list(mdr_graph.find_data_element_concepts('CDM', objectClass, property))
 
 
 @router.get('/data-elements/{context}/{entity}/{attribute}', response_model=List[DataElement])
@@ -83,7 +94,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
         return mapping_set.__dict__
 
 
-@router.get('/mappings/data-element-concepts/{object_class}/{property}', response_model=MappingSet,
+@router.get('/mappings/data-element-concepts/{objectClass}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -92,8 +103,8 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-async def get_data_element_concept_mapping(object_class: str, property: str, request: Request) -> MappingSet:
-    mapping_set = mdr_graph.find_mappings_of_data_element_concept(object_class, property, pagination=False)
+async def get_data_element_concept_mapping(objectClass: str, property: str, request: Request) -> MappingSet:
+    mapping_set = mdr_graph.find_mappings_of_data_element_concept(objectClass, property, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:

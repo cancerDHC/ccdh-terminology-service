@@ -65,9 +65,9 @@ class MdrGraph:
         return pv
 
     @staticmethod
-    def create_data_element_concept(context, object_class: str, prop: str):
-        uri = MdrGraph.create_data_element_concept_uri(context, object_class, prop)
-        return Node('DataElementConcept', 'Resource', uri=uri, context=context, object_class=object_class, property=prop)
+    def create_data_element_concept(context, objectClass: str, prop: str):
+        uri = MdrGraph.create_data_element_concept_uri(context, objectClass, prop)
+        return Node('DataElementConcept', 'Resource', uri=uri, context=context, objectClass=objectClass, property=prop)
 
     @staticmethod
     def build_where_statement(node_str, **kwargs):
@@ -158,9 +158,9 @@ class MdrGraph:
         else:
             return None
 
-    def find_data_element_concept(self, object_class, prop):
-        where_stmt = MdrGraph.build_where_statement('_', objectClass=object_class, property=prop)
-        return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
+    def find_data_element_concepts(self, context, objectClass, prop):
+        where_stmt = MdrGraph.build_where_statement('_', objectClass=objectClass, property=prop)
+        return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt)
 
     def find_data_elements(self, context, entity=None, attribute=None):
         where_stmt = MdrGraph.build_where_statement('_', context=context, entity=entity, attribute=attribute)
