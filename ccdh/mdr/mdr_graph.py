@@ -111,7 +111,7 @@ class MdrGraph:
     def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
         where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
-        MATCH (c:DataElementConcept)-[:HAS_REPRESENTATION]->(n:DataElement)-[:USES]->(:ValueDomain)
+        MATCH (c:DataElementConcept)<-[:HAS_MEANING]->(n:DataElement)-[:USES]->(:ValueDomain)
         -[:HAS_MEMBER]->(p:PermissibleValue)
         {where_stmt}
         OPTIONAL MATCH (p:PermissibleValue)<-[:HAS_REPRESENTATION]-(v:ValueMeaning)
@@ -136,7 +136,6 @@ class MdrGraph:
                 mapping[key] = current[key]
             mappings.append(mapping)
         mapping_set.mappings = mappings
-        df = cursor.to_data_frame()
         return mapping_set
 
     def find_value_meaning(self, notation, scheme, version=None):

@@ -1,7 +1,7 @@
 from typing import List, Dict
 import logging
 from py2neo import Graph, Subgraph, Relationship
-from sssom import Mapping
+from ccdh.app.routers.harmonization import Mapping, MappingSet
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
 from ccdh.importers.cdm import CdmImporter
@@ -91,13 +91,19 @@ class Importer:
 
         logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} was successful')
 
-    def import_mapping(self, mapping: Mapping):
-        context, entity, attribute = mapping.subject_field.split(',')
-        permissible_value = mapping.subject_label
-        object_id = mapping.object_id
+    def import_mapping_set(self, mapping_set: MappingSet):
+        for mapping in mapping_set.mappings:
+            self.import_mapping(mapping)
+
+    def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
+        de_context, entity, attribute = mapping.subject_match_field.split('.')
+        dec_context, object_class, prop = mapping.object_match_field.split('.')
+        de = self.mdr_graph.get_data_element(de_context, entity, attribute)
+        dec = self.mdr_graph.get_data_element_concept(dec_context, object_class, prop)
+        ...
         
 
 if __name__ == '__main__':
     Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
     Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))

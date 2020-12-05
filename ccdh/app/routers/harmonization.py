@@ -57,6 +57,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get('/data-element-concepts/CDM/{objectClass}/{property}', response_model=List[DataElementConcept])
 async def get_data_element_concepts(objectClass: str, property: str) -> List[DataElementConcept]:
     return list(mdr_graph.find_data_element_concepts('CDM', objectClass, property))
@@ -105,6 +106,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
             })
 async def get_data_element_concept_mapping(objectClass: str, property: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_data_element_concept(objectClass, property, pagination=False)
+    mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
