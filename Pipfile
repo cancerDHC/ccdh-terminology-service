@@ -5,7 +5,6 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-pytest-flask = "*"
 pytest-docker = "*"
 docker-compose = "*"
 
@@ -32,10 +31,7 @@ PyGithub = "*"
 py2neo = "*"
 sssom-py = {editable = true, git = "https://github.com/cmungall/sssom-py"}
 prefixcommons = "*"
-flask = "*"
 shortuuid = "*"
-flask-restx = "*"
-flask-marshmallow = "*"
 pyrdfa3 = "*"
 fastapi = "*"
 uvicorn = "*"
