@@ -6,11 +6,12 @@ from py2neo import Relationship, Node, NodeMatcher, Cursor, Subgraph, Graph
 from sssom.io import *
 from prefixcommons import expand_uri, contract_uri
 
-from ccdh.config import DEFAULT_PAGE_SIZE
+# from ccdh.config import DEFAULT_PAGE_SIZE
 from ccdh.mdr.models import *
 
 from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
 
+DEFAULT_PAGE_SIZE = 25
 
 class MdrGraph:
     def __init__(self, graph: Graph):

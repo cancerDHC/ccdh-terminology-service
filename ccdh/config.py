@@ -1,26 +1,30 @@
-import configparser
+from functools import lru_cache
 from py2neo import Graph
 from pathlib import Path
-
+from pydantic import BaseSettings
 
 ROOT_DIR = Path(__file__).parent.parent
 
 
-def config() -> dict:
-    cfg = configparser.ConfigParser()
-    cfg.read(ROOT_DIR / 'config.ini')
-    return cfg
-
-
 def neo4j_graph() -> Graph:
-    cfg = config()
-    bolt_uri = cfg.get('neo4j', 'bolt_uri')
-    user = cfg.get('neo4j', 'user')
-    password = cfg.get('neo4j', 'password')
-    return Graph(bolt_uri, auth=(user, password))
+    settings: Settings = get_settings()
+    return Graph(settings.neo4j_bolt_uri, auth=(settings.neo4j_username, settings.neo4j_password))
 
 
-DEFAULT_PAGE_SIZE = int(config()['pagination']['page_size'])
-MAX_PAGE_SIZE = int(config()['pagination']['max_page_size'])
+class Settings(BaseSettings):
+    app_name: str = 'TCCM API'
+    neo4j_username: str
+    neo4j_password: str
+    neo4j_bolt_uri: str
+    cdm_google_sheet_id: str
 
-CDM_GOOGLE_SHEET_ID = config()['ccdh']['cdm_google_sheet_id']
+    class Config:
+        env_file = ".env"
+
+
+@lru_cache()
+def get_settings():
+    return Settings()
+
+
+CDM_GOOGLE_SHEET_ID = get_settings().cdm_google_sheet_id
