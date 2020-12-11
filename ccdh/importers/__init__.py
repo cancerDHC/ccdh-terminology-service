@@ -1,13 +1,16 @@
 from typing import List, Dict
 import logging
+
+from prefixcommons import contract_uri
 from py2neo import Graph, Subgraph, Relationship
-from ccdh.app.routers.harmonization import Mapping, MappingSet
+from ccdh.api.routers.harmonization import Mapping, MappingSet
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
 from ccdh.importers.cdm import CdmImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
 from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.namespaces import NAMESPACES, NCIT
 
 logger = logging.getLogger('ccdh.importers')
 logger.setLevel(logging.DEBUG)
@@ -91,19 +94,53 @@ class Importer:
 
         logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} was successful')
 
-    def import_mapping_set(self, mapping_set: MappingSet):
+    def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
         for mapping in mapping_set.mappings:
-            self.import_mapping(mapping)
+            self.import_mapping(mapping, curie_map)
 
     def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
+        # check if permissible value exists
+        pv_node = self.mdr_graph.find
+
         de_context, entity, attribute = mapping.subject_match_field.split('.')
         dec_context, object_class, prop = mapping.object_match_field.split('.')
-        de = self.mdr_graph.get_data_element(de_context, entity, attribute)
-        dec = self.mdr_graph.get_data_element_concept(dec_context, object_class, prop)
-        ...
-        
+        curie = mapping.object_id
+        in_scheme, notation = curie.split(':')
+
+        query = '''
+        MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
+          (c:DataElementConcept {context: $dec_context, objectClass: $object_class, property: $property})<-[:HAS_MEANING]-
+          (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
+          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {prefLabel: $pv_prefLabel})
+        MERGE (vm:ValueMeaning:Resource:Concept {prefLabel: $vm_prefLabel, notation: $vm_notation, uri: $vm_uri, inScheme: $vm_in_scheme})
+        MERGE (p)<-[:HAS_REPRESENTATION {predicate_id: $predicate_id, creator_id: $creator_id, comment: $comment}]-(vm)
+        MERGE (vm)<-[:HAS_MEMBER]-(cd)
+        RETURN vm
+        '''
+        params = {
+            'dec_context': dec_context,
+            'entity': entity,
+            'attribute': attribute,
+            'de_context': de_context,
+            'object_class': object_class,
+            'property': prop,
+            'predicate_id': mapping.predicate_id,
+            'pv_prefLabel': mapping.subject_label,
+            'vm_prefLabel': mapping.object_label,
+            'vm_notation': notation,
+            'vm_in_scheme': in_scheme,
+            'vm_uri': curie,
+            'creator_id': mapping.creator_id,
+            'comment': mapping.comment or '',
+        }
+        self.graph.run(query, **params)
+
 
 if __name__ == '__main__':
-    Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
     # Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    # Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    mapping = Mapping(subject_label='G', predicate_id='skos:exactMatch', object_id='NCIT:C128787', object_label='GenomePlex Whole Genome Amplification',
+                      subject_match_field='PDC.Analyte.analyte_type_id', object_match_field='CDM.Specimen.analyte_type', creator_id='ORCID:0000-0000',
+                      comment=None)
+    Importer(neo4j_graph()).import_mapping(mapping, NAMESPACES)

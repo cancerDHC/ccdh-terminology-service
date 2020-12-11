@@ -28,7 +28,7 @@ class DataElementConcept(BaseModel):
 
 class Mapping(BaseModel):
     subject_id: Optional[str]
-    prefix_id: Optional[str]
+    predicate_id: Optional[str]
     object_id: Optional[str]
     subject_label: str
     subject_match_field: str

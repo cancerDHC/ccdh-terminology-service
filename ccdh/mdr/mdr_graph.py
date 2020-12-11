@@ -2,7 +2,7 @@ from typing import List, Union, Tuple
 from urllib.parse import quote_plus
 
 import shortuuid
-from py2neo import Relationship, Node, NodeMatcher, Cursor, Subgraph
+from py2neo import Relationship, Node, NodeMatcher, Cursor, Subgraph, Graph
 from sssom.io import *
 from prefixcommons import expand_uri, contract_uri
 

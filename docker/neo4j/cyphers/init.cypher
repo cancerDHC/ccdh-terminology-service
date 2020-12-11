@@ -1,5 +1,6 @@
 CALL n10s.graphconfig.init();
 
+DROP CONSTRAINT n10s_unique_uri IF EXISTS;
 CREATE CONSTRAINT n10s_unique_uri ON (r:Resource) ASSERT r.uri IS UNIQUE;
 
 CALL n10s.graphconfig.init({
@@ -12,6 +13,7 @@ CALL n10s.nsprefixes.add(
 );
 
 call n10s.nsprefixes.addFromText("
+@prefix neo4voc: <http://neo4j.org/vocab/sw#> .
 @prefix iso-11179: <http://www.iso.org/11179/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -64,12 +66,23 @@ call n10s.mapping.add('https://www.cancer.gov/ccdh/proprety', 'property');
 
 
 // INDEXES
+DROP INDEX data_element_entity_idx IF EXISTS;
 CREATE INDEX data_element_entity_idx FOR (n:DataElement) ON (n.entity);
+
+DROP INDEX data_element_attribute_idx IF EXISTS;
 CREATE INDEX data_element_attribute_idx FOR (n:DataElement) ON (n.attribute);
+
+DROP INDEX data_element_context_idx IF EXISTS;
 CREATE INDEX data_element_context_idx FOR (n:DataElement) ON (n.context);
 
+DROP INDEX data_element_concept_context_idx IF EXISTS;
 CREATE INDEX data_element_concept_context_idx FOR (n:DataElementConcept) ON (n.context);
+
+DROP INDEX data_element_concept_objectClass_idx IF EXISTS;
 CREATE INDEX data_element_concept_objectClass_idx FOR (n:DataElementConcept) ON (n.objectClass);
+
+DROP INDEX data_element_concept_property_idx IF EXISTS;
 CREATE INDEX data_element_concept_property_idx FOR (n:DataElementConcept) ON (n.property);
 
+DROP INDEX permissible_value_prefLabel_idx IF EXISTS;
 CREATE INDEX permissible_value_prefLabel_idx FOR (n:PermissibleValue) ON (n.prefLabel);

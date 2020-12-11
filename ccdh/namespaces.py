@@ -23,13 +23,13 @@ ISO_11179 = Namespace('http://www.iso.org/11179/')
 
 
 # Used by prefixcommons functions
-NAMESPACES = [
-    {'SKOS': SKOS},
-    {'NCIT': NCIT},
-    {'CCDH': CCDH},
-    {'GDC': GDC},
-    {'PDC': PDC},
-    {'HTAN': HTAN},
-    {'ISO-11179': ISO_11179},
-]
+NAMESPACES = [{
+    'SKOS': SKOS,
+    'NCIT': NCIT,
+    'CCDH': CCDH,
+    'GDC': GDC,
+    'PDC': PDC,
+    'HTAN': HTAN,
+    'ISO-11179': ISO_11179,
+}]
 
