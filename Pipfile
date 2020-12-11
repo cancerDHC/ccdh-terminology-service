@@ -29,7 +29,7 @@ PyYAML = "*"
 PyLD = "*"
 PyGithub = "*"
 py2neo = "*"
-sssom-py = {editable = true, git = "https://github.com/cmungall/sssom-py"}
+sssom = {editable = true, git = "https://github.com/cmungall/sssom-py"}
 prefixcommons = "*"
 shortuuid = "*"
 pyrdfa3 = "*"
@@ -37,6 +37,7 @@ fastapi = "*"
 uvicorn = "*"
 pydantic = "*"
 python-multipart = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8"
