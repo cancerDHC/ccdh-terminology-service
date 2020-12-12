@@ -94,14 +94,12 @@ class Importer:
 
         logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} was successful')
 
+
     def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
         for mapping in mapping_set.mappings:
             self.import_mapping(mapping, curie_map)
 
     def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
-        # check if permissible value exists
-        pv_node = self.mdr_graph.find
-
         de_context, entity, attribute = mapping.subject_match_field.split('.')
         dec_context, object_class, prop = mapping.object_match_field.split('.')
         curie = mapping.object_id
@@ -112,8 +110,12 @@ class Importer:
           (c:DataElementConcept {context: $dec_context, objectClass: $object_class, property: $property})<-[:HAS_MEANING]-
           (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
           (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {prefLabel: $pv_prefLabel})
-        MERGE (vm:ValueMeaning:Resource:Concept {prefLabel: $vm_prefLabel, notation: $vm_notation, uri: $vm_uri, inScheme: $vm_in_scheme})
-        MERGE (p)<-[:HAS_REPRESENTATION {predicate_id: $predicate_id, creator_id: $creator_id, comment: $comment}]-(vm)
+        MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
+        ON CREATE SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        ON MATCH SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
+        ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
+        ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
         MERGE (vm)<-[:HAS_MEMBER]-(cd)
         RETURN vm
         '''
@@ -142,5 +144,5 @@ if __name__ == '__main__':
     # Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
     mapping = Mapping(subject_label='G', predicate_id='skos:exactMatch', object_id='NCIT:C128787', object_label='GenomePlex Whole Genome Amplification',
                       subject_match_field='PDC.Analyte.analyte_type_id', object_match_field='CDM.Specimen.analyte_type', creator_id='ORCID:0000-0000',
-                      comment=None)
+                      comment='A test comment')
     Importer(neo4j_graph()).import_mapping(mapping, NAMESPACES)
