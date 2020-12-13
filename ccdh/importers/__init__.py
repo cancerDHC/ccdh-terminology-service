@@ -94,6 +94,39 @@ class Importer:
 
         logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} was successful')
 
+    def import_gdc_ncit_mapping(self, gdc_ncit_mappings):
+        query = '''
+        MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
+          (c:DataElementConcept)<-[:HAS_MEANING]-
+          (de:DataElement {context: 'GDC', attribute: $attribute})-[:USES]->
+          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {prefLabel: $pv_prefLabel})
+        MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
+        ON CREATE SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        ON MATCH SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
+        ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
+        ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
+        MERGE (vm)<-[:HAS_MEMBER]-(cd)
+        RETURN vm
+        '''
+        for _, attr in gdc_ncit_mappings.items():
+            for _, value in attr.items():
+                vm_notation, vm_prefLabel, predicate_id, attribute, pv_prefLabel = list(value[0:5])
+                if predicate_id == 'Has Synonym':
+                    predicate_id = 'skos:exactMatch'
+                elif predicate_id == 'Related To':
+                    predicate_id = 'skos:relatedMatch'
+                params = {
+                    'attribute': attribute,
+                    'predicate_id': predicate_id,
+                    'pv_prefLabel': pv_prefLabel,
+                    'vm_prefLabel': vm_prefLabel,
+                    'vm_notation': vm_notation,
+                    'vm_in_scheme': 'NCIT',
+                    'vm_uri': f'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{vm_notation}',
+                }
+                self.graph.run(query, **params)
+
 
     def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
         for mapping in mapping_set.mappings:
@@ -139,10 +172,8 @@ class Importer:
 
 
 if __name__ == '__main__':
-    # Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-    mapping = Mapping(subject_label='G', predicate_id='skos:exactMatch', object_id='NCIT:C128787', object_label='GenomePlex Whole Genome Amplification',
-                      subject_match_field='PDC.Analyte.analyte_type_id', object_match_field='CDM.Specimen.analyte_type', creator_id='ORCID:0000-0000',
-                      comment='A test comment')
-    Importer(neo4j_graph()).import_mapping(mapping, NAMESPACES)
+    Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+
+    Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
