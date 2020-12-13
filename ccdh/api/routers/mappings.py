@@ -12,20 +12,6 @@ from ccdh.mdr.mdr_graph import MdrGraph
 mdr_graph = MdrGraph(neo4j_graph())
 
 
-class DataElement(BaseModel):
-    context: str
-    entity: str
-    attribute: str
-    definition: Optional[str]
-
-
-class DataElementConcept(BaseModel):
-    context: str
-    objectClass: str
-    property: str
-    definition: Optional[str]
-
-
 class Mapping(BaseModel):
     subject_id: Optional[str]
     predicate_id: Optional[str]
@@ -51,34 +37,13 @@ class MappingSet(BaseModel):
 
 
 router = APIRouter(
-    prefix='/harmonization',
-    tags=['harmonization'],
+    prefix='/mappings',
+    tags=['Mappings'],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
-
-@router.get('/data-element-concepts/CDM/{objectClass}/{property}', response_model=List[DataElementConcept])
-async def get_data_element_concepts(objectClass: str, property: str) -> List[DataElementConcept]:
-    return list(mdr_graph.find_data_element_concepts('CDM', objectClass, property))
-
-
-@router.get('/data-elements/{context}/{entity}/{attribute}', response_model=List[DataElement])
-async def get_data_elements(context: str, entity: str, attribute: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context, entity, attribute))
-
-
-@router.get('/data-elements/{context}/{entity}', response_model=List[DataElement])
-async def get_data_elements(context: str, entity: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context, entity))
-
-
-@router.get('/data-elements/{context}', response_model=List[DataElement])
-async def get_data_elements(context: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context))
-
-
-@router.get('/mappings/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -89,13 +54,14 @@ async def get_data_elements(context: str) -> List[DataElement]:
             })
 async def get_data_element_mapping(context: str, entity: str, attribute: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_data_element(context, entity, attribute, pagination=False)
+    mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
         return mapping_set.__dict__
 
 
-@router.get('/mappings/data-element-concepts/{objectClass}/{property}', response_model=MappingSet,
+@router.get('/data-element-concepts/{object_class}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -104,8 +70,8 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-async def get_data_element_concept_mapping(objectClass: str, property: str, request: Request) -> MappingSet:
-    mapping_set = mdr_graph.find_mappings_of_data_element_concept(objectClass, property, pagination=False)
+async def get_data_element_concept_mapping(object_class: str, property: str, request: Request) -> MappingSet:
+    mapping_set = mdr_graph.find_mappings_of_data_element_concept(object_class, property, pagination=False)
     mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
@@ -113,7 +79,7 @@ async def get_data_element_concept_mapping(objectClass: str, property: str, requ
         return mapping_set.__dict__
 
 
-@router.put('/mappings/upload')
+@router.put('/upload')
 async def upload_mappings(file: UploadFile = File(...)):
     return {"filename": file.filename}
 

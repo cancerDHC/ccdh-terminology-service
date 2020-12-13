@@ -35,7 +35,7 @@ class CdmImporter:
             attribute = values[5].strip()
             key = f'{values[4].strip()}.{attribute}'
             if key not in data_element_concepts:
-                data_element_concepts[key] = {'context': context, 'objectClass': entity, 'property': attribute,
+                data_element_concepts[key] = {'context': context, 'object_class': entity, 'property': attribute,
                                               'definition': values[6].strip(), 'data_elements': []}
             data_element_concept = data_element_concepts[key]
             if len(values) > 13:

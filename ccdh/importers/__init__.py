@@ -3,7 +3,7 @@ import logging
 
 from prefixcommons import contract_uri
 from py2neo import Graph, Subgraph, Relationship
-from ccdh.api.routers.harmonization import Mapping, MappingSet
+from ccdh.api.routers.mappings import Mapping, MappingSet
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
 from ccdh.importers.cdm import CdmImporter
@@ -61,7 +61,7 @@ class Importer:
 
     def import_data_element_concept(self, data_element_concept):
         context = data_element_concept['context']
-        object_class = data_element_concept['objectClass']
+        object_class = data_element_concept['object_class']
         property = data_element_concept['property']
 
         logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} ...')
@@ -99,10 +99,10 @@ class Importer:
         MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
           (c:DataElementConcept)<-[:HAS_MEANING]-
           (de:DataElement {context: 'GDC', attribute: $attribute})-[:USES]->
-          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {prefLabel: $pv_prefLabel})
+          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
         MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
-        ON CREATE SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
-        ON MATCH SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
+        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
         MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
         ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
         ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
@@ -111,7 +111,7 @@ class Importer:
         '''
         for _, attr in gdc_ncit_mappings.items():
             for _, value in attr.items():
-                vm_notation, vm_prefLabel, predicate_id, attribute, pv_prefLabel = list(value[0:5])
+                vm_notation, vm_pref_label, predicate_id, attribute, pv_pref_label = list(value[0:5])
                 if predicate_id == 'Has Synonym':
                     predicate_id = 'skos:exactMatch'
                 elif predicate_id == 'Related To':
@@ -119,8 +119,8 @@ class Importer:
                 params = {
                     'attribute': attribute,
                     'predicate_id': predicate_id,
-                    'pv_prefLabel': pv_prefLabel,
-                    'vm_prefLabel': vm_prefLabel,
+                    'pv_pref_label': pv_pref_label,
+                    'vm_pref_label': vm_pref_label,
                     'vm_notation': vm_notation,
                     'vm_in_scheme': 'NCIT',
                     'vm_uri': f'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{vm_notation}',
@@ -140,12 +140,12 @@ class Importer:
 
         query = '''
         MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-          (c:DataElementConcept {context: $dec_context, objectClass: $object_class, property: $property})<-[:HAS_MEANING]-
+          (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
           (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
-          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {prefLabel: $pv_prefLabel})
+          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
         MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
-        ON CREATE SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
-        ON MATCH SET vm.prefLabel = $vm_prefLabel, vm.notation = $vm_notation, vm.inScheme = $vm_in_scheme
+        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
+        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
         MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
         ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
         ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
@@ -160,8 +160,8 @@ class Importer:
             'object_class': object_class,
             'property': prop,
             'predicate_id': mapping.predicate_id,
-            'pv_prefLabel': mapping.subject_label,
-            'vm_prefLabel': mapping.object_label,
+            'pv_pref_label': mapping.subject_label,
+            'vm_pref_label': mapping.object_label,
             'vm_notation': notation,
             'vm_in_scheme': in_scheme,
             'vm_uri': curie,

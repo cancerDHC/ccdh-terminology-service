@@ -47,21 +47,21 @@ call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#member', 'HAS_MEMBER'
 
 // Datatype Properties
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#definition', 'definition');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#prefLabel', 'prefLabel');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#altLabel', 'altLabel');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#prefLabel', 'pref_label');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#altLabel', 'alt_label');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#notation', 'notation');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#inScheme', 'inScheme');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#inScheme', 'in_scheme');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#note', 'note');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#changeNote', 'changeNote');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#scopeNote', 'scopeNote');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#historyNote', 'historyNote');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#editorialNote', 'editorialNote');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#changeNote', 'change_note');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#scopeNote', 'scope_note');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#historyNote', 'history_note');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#editorialNote', 'editorial_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#example', 'example');
 
 call n10s.mapping.add('https://www.cancer.gov/ccdh/context', 'context');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/entity', 'entity');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/attribute', 'attribute');
-call n10s.mapping.add('https://www.cancer.gov/ccdh/objectClass', 'objectClass');
+call n10s.mapping.add('https://www.cancer.gov/ccdh/objectClass', 'object_class');
 call n10s.mapping.add('https://www.cancer.gov/ccdh/proprety', 'property');
 
 

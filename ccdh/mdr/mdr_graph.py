@@ -55,20 +55,20 @@ class MdrGraph:
     @staticmethod
     def create_value_meaning(uri, notation, scheme, pref_label, version=None, is_curie=True):
         uri = expand_uri(uri, NAMESPACES) if is_curie else uri
-        value_meaning = Node('ValueMeaning', 'Resource', uri=uri, notation=notation, inScheme=scheme,
-                             prefLabel=pref_label, version=version)
+        value_meaning = Node('ValueMeaning', 'Resource', uri=uri, notation=notation, scheme=scheme,
+                             pref_label=pref_label, version=version)
         return value_meaning
 
     @staticmethod
     def create_permissible_value(value: str):
         uri = MdrGraph.create_permissible_value_uri()
-        pv = Node('PermissibleValue', 'Resource', prefLabel=value, uri=uri)
+        pv = Node('PermissibleValue', 'Resource', pref_label=value, uri=uri)
         return pv
 
     @staticmethod
-    def create_data_element_concept(context, objectClass: str, prop: str):
-        uri = MdrGraph.create_data_element_concept_uri(context, objectClass, prop)
-        return Node('DataElementConcept', 'Resource', uri=uri, context=context, objectClass=objectClass, property=prop)
+    def create_data_element_concept(context, object_class: str, prop: str):
+        uri = MdrGraph.create_data_element_concept_uri(context, object_class, prop)
+        return Node('DataElementConcept', 'Resource', uri=uri, context=context, object_class=object_class, property=prop)
 
     @staticmethod
     def build_where_statement(node_str, **kwargs):
@@ -82,8 +82,8 @@ class MdrGraph:
         where_stmt = f"_.context='{context}' AND _.entity='{entity}' AND _.attribute='{attribute}'"
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
 
-    def get_data_element_concept(self, context, objectClass, property):
-        where_stmt = f"_.context='{context}' AND _.objectClass='{objectClass}' AND _.property='{property}'"
+    def get_data_element_concept(self, context, object_class, property):
+        where_stmt = f"_.context='{context}' AND _.object_class='{object_class}' AND _.property='{property}'"
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
 
     def assign_data_element_concept(self, data_element: DataElement, data_element_concept: DataElementConcept):
@@ -97,7 +97,7 @@ class MdrGraph:
 
     def find_mappings_of_data_element_concept(self, object_class: str, property: str, pagination: bool = False,
                                               page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
-        where_stmt = MdrGraph.build_where_statement('c', objectClass=object_class, property=property)
+        where_stmt = MdrGraph.build_where_statement('c', object_class=object_class, property=property)
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
@@ -117,9 +117,9 @@ class MdrGraph:
         {where_stmt}
         OPTIONAL MATCH (p:PermissibleValue)<-[r:HAS_REPRESENTATION]-(v:ValueMeaning)
         RETURN n.context + '.' + n.entity + '.' + n.attribute as subject_match_field,
-        p.prefLabel as subject_label, p.uri as subject_id,
-        v.uri as object_id, v.prefLabel as object_label,
-        'CDM' + '.' + c.objectClass + '.' + c.property as object_match_field,
+        p.pref_label as subject_label, p.uri as subject_id,
+        v.uri as object_id, v.pref_label as object_label,
+        'CDM' + '.' + c.object_class + '.' + c.property as object_match_field,
         r.predicate_id as predicate_id,
         r.creator_id as creator_id,
         r.comment as comment,
@@ -144,7 +144,7 @@ class MdrGraph:
         return mapping_set
 
     def find_value_meaning(self, notation, scheme, version=None):
-        where_stmt = f"_.notation='{notation}' AND _.inScheme='{scheme}'"
+        where_stmt = f"_.notation='{notation}' AND _.scheme='{scheme}'"
         if version:
             where_stmt += f" AND _.version='{version}'"
         return NodeMatcher(self.graph).match('ValueMeaning').where(where_stmt).first()
@@ -162,8 +162,8 @@ class MdrGraph:
         else:
             return None
 
-    def find_data_element_concepts(self, context, objectClass, prop):
-        where_stmt = MdrGraph.build_where_statement('_', objectClass=objectClass, property=prop)
+    def find_data_element_concepts(self, context, object_class, prop):
+        where_stmt = MdrGraph.build_where_statement('_', object_class=object_class, property=prop)
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt)
 
     def find_data_elements(self, context, entity=None, attribute=None):
