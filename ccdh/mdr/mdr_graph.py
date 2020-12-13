@@ -112,14 +112,18 @@ class MdrGraph:
     def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
         where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
-        MATCH (c:DataElementConcept)<-[:HAS_MEANING]->(n:DataElement)-[:USES]->(:ValueDomain)
+        MATCH (c:DataElementConcept)<-[:HAS_MEANING]-(n:DataElement)-[:USES]->(:ValueDomain)
         -[:HAS_MEMBER]->(p:PermissibleValue)
         {where_stmt}
-        OPTIONAL MATCH (p:PermissibleValue)<-[:HAS_REPRESENTATION]-(v:ValueMeaning)
+        OPTIONAL MATCH (p:PermissibleValue)<-[r:HAS_REPRESENTATION]-(v:ValueMeaning)
         RETURN n.context + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.prefLabel as subject_label, p.uri as subject_id,
         v.uri as object_id, v.prefLabel as object_label,
-        'CDM' + '.' + c.object_class + '.' + c.property as object_match_field
+        'CDM' + '.' + c.objectClass + '.' + c.property as object_match_field,
+        r.predicate_id as predicate_id,
+        r.creator_id as creator_id,
+        r.comment as comment,
+        r.mapping_date as mapping_date
         {paging_stmt}
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)
