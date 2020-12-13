@@ -170,5 +170,20 @@ class MdrGraph:
         where_stmt = MdrGraph.build_where_statement('_', context=context, entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt)
 
+    def find_data_element_concepts_complete(self, context, object_class, prop):
+        query = '''
+        MATCH (c:ValueMeaning)<-[:HAS_MEMBER]-(cd:ConceptualDomain)<-[:USES]-
+        (n:DataElementConcept {context: $context, object_class: $object_class, property: $property})
+        <-[:HAS_MEANING]-(d:DataElement)
+        RETURN n, apoc.coll.toSet(COLLECT(d)) as data_elements, apoc.coll.toSet(COLLECT(c)) as value_meanings     
+        '''
+        cursor: Cursor = self.graph.run(query, context=context, object_class=object_class, property=prop)
+        records = []
+        while cursor.forward():
+            dec, des, vms = cursor.current
+            dec['data_elements'] = des
+            dec['value_meanings'] = vms
+            records.append(dec)
+        return records
 
 

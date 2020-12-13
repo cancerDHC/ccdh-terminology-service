@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from fastapi import APIRouter
 from pydantic.main import BaseModel
@@ -9,11 +9,23 @@ from ccdh.mdr.mdr_graph import MdrGraph
 mdr_graph = MdrGraph(neo4j_graph())
 
 
+class ValueMeaning(BaseModel):
+    notation: str
+    scheme: str
+    uri: str
+    pref_label: str
+
 class DataElementConcept(BaseModel):
     context: str
     object_class: str
     property: str
     definition: Optional[str]
+    data_elements: Optional[List['DataElement']]
+    value_meanings: Optional[List[ValueMeaning]]
+
+
+from ccdh.api.routers.data_elements import DataElement
+DataElementConcept.update_forward_refs()
 
 
 router = APIRouter(
@@ -25,8 +37,9 @@ router = APIRouter(
 
 
 @router.get('/{context}/{object_class}/{property}', response_model=List[DataElementConcept])
-async def get_data_element_concepts(context: str, object_class: str, property: str) -> List[DataElementConcept]:
-    return list(mdr_graph.find_data_element_concepts(context, object_class, property))
+async def get_data_element_concepts(context: str, object_class: str, prop: str) -> List[DataElementConcept]:
+    return mdr_graph.find_data_element_concepts_complete(context, object_class, prop)
+
 
 
 

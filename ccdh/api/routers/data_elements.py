@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from typing import Optional, List, Dict
+from typing import Optional, List, TYPE_CHECKING
 
 from pydantic.main import BaseModel
 from datetime import date
@@ -15,37 +15,11 @@ class DataElement(BaseModel):
     entity: str
     attribute: str
     definition: Optional[str]
+    data_element_concept: Optional['DataElementConcept']
 
 
-class DataElementConcept(BaseModel):
-    context: str
-    object_class: str
-    property: str
-    definition: Optional[str]
-
-
-class Mapping(BaseModel):
-    subject_id: Optional[str]
-    predicate_id: Optional[str]
-    object_id: Optional[str]
-    subject_label: str
-    subject_match_field: str
-    object_label: Optional[str]
-    object_match_field: Optional[str]
-    creator_id: Optional[str]
-    comment: Optional[str]
-    mapping_date: Optional[date]
-
-
-class MappingSet(BaseModel):
-    creator_id: str
-    license: str
-    mapping_provider: str
-    curie_map: Dict[str, str] = {
-        'NCIT': 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#',
-        'CS:NCIT': '',
-    }
-    mappings: List[Mapping] = []
+from ccdh.api.routers.data_element_concepts import DataElementConcept
+DataElement.update_forward_refs()
 
 
 router = APIRouter(
