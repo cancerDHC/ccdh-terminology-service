@@ -38,6 +38,7 @@ uvicorn = "*"
 pydantic = "*"
 python-multipart = "*"
 python-dotenv = "*"
+rfc3986 = "*"
 
 [requires]
 python_version = "3.8"

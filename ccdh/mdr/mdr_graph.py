@@ -149,6 +149,19 @@ class MdrGraph:
             where_stmt += f" AND _.version='{version}'"
         return NodeMatcher(self.graph).match('ValueMeaning').where(where_stmt).first()
 
+    def find_value_meaning(self, uri):
+        query = '''
+        MATCH (v:ValueMeaning {uri: $uri})-[:HAS_REPRESENTATION]->(pv:PermissibleValue)
+        RETURN v, apoc.coll.toSet(COLLECT(pv.pref_label)) as pvs
+        '''
+        cursor: Cursor = self.graph.run(query, uri=uri)
+        if cursor.forward():
+            value_meaning, permissible_values = cursor.current
+            value_meaning['representations'] = permissible_values
+            return value_meaning
+        else:
+            return None
+
     def find_value_domain(self, permissible_values: List[str], context, entity, attribute) -> Union[str, None]:
         query = "MATCH (n:ValueDomain)<-[:USES]-(:DataElement {context: $context, entity: $entity, attribute: $attribute})\n"
         for pv in permissible_values:

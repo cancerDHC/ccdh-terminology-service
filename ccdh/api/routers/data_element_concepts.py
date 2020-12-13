@@ -5,15 +5,10 @@ from pydantic.main import BaseModel
 
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.api.routers.value_meanings import ValueMeaning
 
 mdr_graph = MdrGraph(neo4j_graph())
 
-
-class ValueMeaning(BaseModel):
-    notation: str
-    scheme: str
-    uri: str
-    pref_label: str
 
 class DataElementConcept(BaseModel):
     context: str
