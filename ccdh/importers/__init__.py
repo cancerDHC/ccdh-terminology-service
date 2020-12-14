@@ -3,7 +3,9 @@ import logging
 
 from prefixcommons import contract_uri
 from py2neo import Graph, Subgraph, Relationship
-from ccdh.api.routers.mappings import Mapping, MappingSet
+from sssom import MappingSet, Mapping
+
+from ccdh.api.utils import decode_uri
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
 from ccdh.importers.cdm import CdmImporter
@@ -127,7 +129,6 @@ class Importer:
                 }
                 self.graph.run(query, **params)
 
-
     def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
         for mapping in mapping_set.mappings:
             self.import_mapping(mapping, curie_map)
@@ -136,39 +137,61 @@ class Importer:
         de_context, entity, attribute = mapping.subject_match_field.split('.')
         dec_context, object_class, prop = mapping.object_match_field.split('.')
         curie = mapping.object_id
-        in_scheme, notation = curie.split(':')
-
-        query = '''
-        MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-          (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
-          (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
-          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
-        MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
-        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
-        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
-        MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
-        ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
-        ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
-        MERGE (vm)<-[:HAS_MEMBER]-(cd)
-        RETURN vm
-        '''
-        params = {
-            'dec_context': dec_context,
-            'entity': entity,
-            'attribute': attribute,
-            'de_context': de_context,
-            'object_class': object_class,
-            'property': prop,
-            'predicate_id': mapping.predicate_id,
-            'pv_pref_label': mapping.subject_label,
-            'vm_pref_label': mapping.object_label,
-            'vm_notation': notation,
-            'vm_in_scheme': in_scheme,
-            'vm_uri': curie,
-            'creator_id': mapping.creator_id,
-            'comment': mapping.comment or '',
-        }
-        self.graph.run(query, **params)
+        if curie:  # not mapped
+            print(curie)
+            in_scheme, notation = curie.split(':')
+            vm_uri = decode_uri(mapping.object_id)
+            query = '''
+            MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
+              (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
+              (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
+              (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
+            MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
+            ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
+            ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
+            MERGE (vm)<-[:HAS_MEMBER]-(cd)
+            MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
+            ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment
+            ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment        
+            '''
+            params = {
+                'dec_context': dec_context,
+                'entity': entity,
+                'attribute': attribute,
+                'de_context': de_context,
+                'object_class': object_class,
+                'property': prop,
+                'predicate_id': mapping.predicate_id,
+                'pv_pref_label': mapping.subject_label,
+                'vm_pref_label': mapping.object_label,
+                'vm_notation': notation,
+                'vm_in_scheme': in_scheme,
+                'vm_uri': vm_uri,
+                'creator_id': mapping.creator_id,
+                'comment': mapping.comment or '',
+            }
+            self.graph.run(query, **params)
+        else:
+            if mapping.comment:
+                query = '''
+                    MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
+                      (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
+                      (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
+                      (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
+                    SET p.comment = CASE EXISTS(p.comment) WHEN True THEN p.comment + $comment else [$comment] END
+                    '''
+                params = {
+                    'dec_context': dec_context,
+                    'entity': entity,
+                    'attribute': attribute,
+                    'de_context': de_context,
+                    'object_class': object_class,
+                    'property': prop,
+                    'predicate_id': mapping.predicate_id,
+                    'pv_pref_label': mapping.subject_label,
+                    'comment': mapping.comment,
+                }
+                self.graph.run(query, **params)
 
 
 if __name__ == '__main__':

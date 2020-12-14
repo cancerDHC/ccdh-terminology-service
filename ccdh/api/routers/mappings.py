@@ -1,10 +1,16 @@
-from fastapi import APIRouter, File, UploadFile, Request
+from sssom.io import from_dataframe
+import pandas as pd
+from fastapi import APIRouter, File, UploadFile, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import Optional, List, Dict
 from pydantic.main import BaseModel
 from datetime import date
+
+from ccdh.api.utils import decode_uri
 from ccdh.config import neo4j_graph
+from ccdh.importers import Importer
 from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.api.namespaces import NAMESPACES
 
 mdr_graph = MdrGraph(neo4j_graph())
 
@@ -79,7 +85,13 @@ async def get_data_element_concept_mapping(context: str, object_class: str, prop
 
 @router.put('/upload')
 async def upload_mappings(file: UploadFile = File(...)):
-    return {"filename": file.filename}
+    if file.content_type == 'text/tab-separated-values':
+        df = pd.read_csv(file.file, sep='\t', comment='#').fillna('')
+        msd = from_dataframe(df, NAMESPACES, {})
+        Importer(neo4j_graph()).import_mapping_set(msd.mapping_set, NAMESPACES)
+        return {"filename": file.filename, 'mappings': len(msd.mapping_set.mappings)}
+    else:
+        raise HTTPException(status_code=404, detail=f"content type not supported: {file.content_type}")
 
 
 def generate_sssom_tsv(data):
