@@ -83,7 +83,7 @@ async def get_data_element_concept_mapping(context: str, object_class: str, prop
         return mapping_set.__dict__
 
 
-@router.put('/upload')
+@router.post('/upload')
 async def upload_mappings(file: UploadFile = File(...)):
     if file.content_type == 'text/tab-separated-values':
         df = pd.read_csv(file.file, sep='\t', comment='#').fillna('')
