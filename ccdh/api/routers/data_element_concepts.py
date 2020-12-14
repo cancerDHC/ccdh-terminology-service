@@ -1,8 +1,6 @@
-from typing import Optional, List, TYPE_CHECKING
-
+from typing import Optional, List
 from fastapi import APIRouter
 from pydantic.main import BaseModel
-
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
 

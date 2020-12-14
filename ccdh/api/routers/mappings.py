@@ -1,11 +1,8 @@
 from fastapi import APIRouter, File, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from typing import Optional, List, Dict
-
-from fastapi.openapi.models import Response
 from pydantic.main import BaseModel
 from datetime import date
-
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
 
@@ -42,6 +39,7 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
 
 @router.get('/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
             responses={

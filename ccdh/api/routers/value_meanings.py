@@ -1,9 +1,6 @@
 from fastapi import APIRouter
-from typing import Optional, List, TYPE_CHECKING
-
+from typing import Optional, List
 from pydantic.main import BaseModel
-from datetime import date
-
 from ccdh.api.utils import decode_uri
 from ccdh.config import neo4j_graph
 from ccdh.mdr.mdr_graph import MdrGraph
@@ -17,6 +14,7 @@ class ValueMeaning(BaseModel):
     uri: str
     pref_label: str
     representations: Optional[List['PermissibleValue']]
+
 
 from ccdh.api.routers.permissible_values import PermissibleValue
 ValueMeaning.update_forward_refs()
