@@ -13,6 +13,7 @@ class DataElement(BaseModel):
     attribute: str
     definition: Optional[str]
     data_element_concept: Optional['DataElementConcept']
+    permissible_values: Optional[List[str]]
 
 
 from ccdh.api.routers.data_element_concepts import DataElementConcept
@@ -27,17 +28,17 @@ router = APIRouter(
 )
 
 
-@router.get('/{context}/{entity}/{attribute}', response_model=List[DataElement])
+@router.get('/{context}/{entity}/{attribute}', response_model=List[DataElement], response_model_exclude_none=True)
 async def get_data_elements(context: str, entity: str, attribute: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context, entity, attribute))
+    return mdr_graph.find_data_elements_complete(context, entity, attribute)
 
 
-@router.get('/{context}/{entity}', response_model=List[DataElement])
+@router.get('/{context}/{entity}', response_model=List[DataElement], response_model_exclude_none=True)
 async def get_data_elements(context: str, entity: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context, entity))
+    return mdr_graph.find_data_elements_complete(context, entity)
 
 
-@router.get('/{context}', response_model=List[DataElement])
+@router.get('/{context}', response_model=List[DataElement], response_model_exclude_none=True)
 async def get_data_elements(context: str) -> List[DataElement]:
-    return list(mdr_graph.find_data_elements(context))
+    return mdr_graph.find_data_elements_complete(context)
 

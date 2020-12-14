@@ -207,6 +207,24 @@ class MdrGraph:
         where_stmt = MdrGraph.build_where_statement_case_insensitive('_', context=context, entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt)
 
+    def find_data_elements_complete(self, context, entity=None, attribute=None):
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('n', context=context, entity=entity, attribute=attribute)
+        query = f'''
+        MATCH (n:DataElement)
+        WHERE {where_stmt}
+        OPTIONAL MATCH (d:DataElementConcept)<-[:HAS_MEANING]-(n)
+        OPTIONAL MATCH (n)-[:USES]->(:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue)
+        RETURN n, d, COLLECT(p.pref_label) as pvs
+        '''
+        cursor: Cursor = self.graph.run(query)
+        records = []
+        while cursor.forward():
+            n, d, pvs = cursor.current
+            n['data_element_concept'] = d
+            n['permissible_values'] = pvs
+            records.append(n)
+        return records
+
     def find_data_element_concepts_complete(self, context, object_class, prop):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('n', context=context, object_class=object_class, property=prop)
         query = f'''
@@ -216,7 +234,7 @@ class MdrGraph:
         OPTIONAL MATCH (n)<-[:HAS_MEANING]-(d:DataElement)
         RETURN n, apoc.coll.toSet(COLLECT(d)) as data_elements, apoc.coll.toSet(COLLECT(c)) as value_meanings     
         '''
-        cursor: Cursor = self.graph.run(query, context=context, object_class=object_class, property=prop)
+        cursor: Cursor = self.graph.run(query)
         records = []
         while cursor.forward():
             dec, des, vms = cursor.current
