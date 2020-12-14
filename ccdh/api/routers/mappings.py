@@ -59,7 +59,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
         return mapping_set.__dict__
 
 
-@router.get('/data-element-concepts/{object_class}/{property}', response_model=MappingSet,
+@router.get('/data-element-concepts/{context}/{object_class}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -68,8 +68,8 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-async def get_data_element_concept_mapping(object_class: str, property: str, request: Request) -> MappingSet:
-    mapping_set = mdr_graph.find_mappings_of_data_element_concept(object_class, property, pagination=False)
+async def get_data_element_concept_mapping(context: str, object_class: str, property: str, request: Request) -> MappingSet:
+    mapping_set = mdr_graph.find_mappings_of_data_element_concept(context, object_class, property, pagination=False)
     mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')

@@ -75,15 +75,20 @@ class MdrGraph:
         where_list = [f"{node_str}.{key}='{kwargs[key]}'" for key in kwargs if kwargs[key] is not None]
         return ' AND '.join(where_list)
 
+    @staticmethod
+    def build_where_statement_case_insensitive(node_str, **kwargs):
+        where_list = [f"{node_str}.{key} =~ '(?i){kwargs[key]}'" for key in kwargs if kwargs[key] is not None]
+        return ' AND '.join(where_list)
+
     def get_resource_by_uri(self, uri: str) -> Node:
         return NodeMatcher(self.graph).match('Resource').where(f"_.uri='{uri}'").first()
 
     def get_data_element(self, context, entity, attribute):
-        where_stmt = f"_.context='{context}' AND _.entity='{entity}' AND _.attribute='{attribute}'"
+        where_stmt = f"_.context=~'(?i){context}' AND _.entity=~'(?i){entity}' AND _.attribute!='(?i){attribute}'"
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
 
-    def get_data_element_concept(self, context, object_class, property):
-        where_stmt = f"_.context='{context}' AND _.object_class='{object_class}' AND _.property='{property}'"
+    def get_data_element_concept(self, context, object_class, prop):
+        where_stmt = f"_.context=~'(?i){context}' AND _.object_class=~'(?i){object_class}' AND _.property=~'(?i){prop}'"
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt).first()
 
     def assign_data_element_concept(self, data_element: DataElement, data_element_concept: DataElementConcept):
@@ -95,16 +100,16 @@ class MdrGraph:
         tx.create(Relationship(dec_node, 'HAS_REPRESENTATION', de_node))
         tx.commit()
 
-    def find_mappings_of_data_element_concept(self, object_class: str, property: str, pagination: bool = False,
+    def find_mappings_of_data_element_concept(self, context: str, object_class: str, prop: str, pagination: bool = False,
                                               page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
-        where_stmt = MdrGraph.build_where_statement('c', object_class=object_class, property=property)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('c', context=context, object_class=object_class, property=prop)
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
 
     def find_mappings_of_data_element(self, context: str, entity: str, attribute: str, pagination: bool = True,
                                       page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
-        where_stmt = MdrGraph.build_where_statement('n', context=context, entity=entity, attribute=attribute)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('n', context=context, entity=entity, attribute=attribute)
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
@@ -195,16 +200,18 @@ class MdrGraph:
             return None
 
     def find_data_element_concepts(self, context, object_class, prop):
-        where_stmt = MdrGraph.build_where_statement('_', object_class=object_class, property=prop)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('_', object_class=object_class, property=prop)
         return NodeMatcher(self.graph).match('DataElementConcept').where(where_stmt)
 
     def find_data_elements(self, context, entity=None, attribute=None):
-        where_stmt = MdrGraph.build_where_statement('_', context=context, entity=entity, attribute=attribute)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('_', context=context, entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt)
 
     def find_data_element_concepts_complete(self, context, object_class, prop):
-        query = '''
-        MATCH (n:DataElementConcept {context: $context, object_class: $object_class, property: $property})
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('n', context=context, object_class=object_class, property=prop)
+        query = f'''
+        MATCH (n:DataElementConcept)
+        WHERE {where_stmt}
         OPTIONAL MATCH (c:ValueMeaning)<-[:HAS_MEMBER]-(cd:ConceptualDomain)<-[:USES]-(n)        
         OPTIONAL MATCH (n)<-[:HAS_MEANING]-(d:DataElement)
         RETURN n, apoc.coll.toSet(COLLECT(d)) as data_elements, apoc.coll.toSet(COLLECT(c)) as value_meanings     
