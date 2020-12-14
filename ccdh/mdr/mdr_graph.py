@@ -144,15 +144,17 @@ class MdrGraph:
         return mapping_set
 
     def find_permissible_values(self, value: str):
-        query = '''
+        query = '''        
         MATCH (p:PermissibleValue {pref_label: $value})<-[:HAS_MEMBER]-(:ValueDomain)<-[:USES]-(d:DataElement)
-        return p, d
+        OPTIONAL MATCH (v:ValueMeaning)-[:HAS_REPRESENTATION]->(p) 
+        return p, d, v
         '''
         pvs = []
         cursor = self.graph.run(query, value=value)
         while cursor.forward():
-            p, d = cursor.current
+            p, d, v = cursor.current
             p['data_element'] = d
+            p['meaning'] = v
             pvs.append(p)
         return pvs
 
@@ -164,9 +166,8 @@ class MdrGraph:
 
     def find_value_meaning(self, uri):
         query = '''
-        MATCH (v:ValueMeaning {uri: $uri})-[:HAS_REPRESENTATION]->(pv:PermissibleValue)
-        WITH v, pv
-        MATCH (pv)<-[:HAS_MEMBER]-(:ValueDomain)<-[:USES]-(d:DataElement)
+        MATCH (v:ValueMeaning {uri: $uri})
+        OPTIONAL MATCH (v)-[:HAS_REPRESENTATION]->(pv:PermissibleValue)<-[:HAS_MEMBER]-(:ValueDomain)<-[:USES]-(d:DataElement)
         RETURN v, pv, d
         '''
         v = None
@@ -203,9 +204,9 @@ class MdrGraph:
 
     def find_data_element_concepts_complete(self, context, object_class, prop):
         query = '''
-        MATCH (c:ValueMeaning)<-[:HAS_MEMBER]-(cd:ConceptualDomain)<-[:USES]-
-        (n:DataElementConcept {context: $context, object_class: $object_class, property: $property})
-        <-[:HAS_MEANING]-(d:DataElement)
+        MATCH (n:DataElementConcept {context: $context, object_class: $object_class, property: $property})
+        OPTIONAL MATCH (c:ValueMeaning)<-[:HAS_MEMBER]-(cd:ConceptualDomain)<-[:USES]-(n)        
+        OPTIONAL MATCH (n)<-[:HAS_MEANING]-(d:DataElement)
         RETURN n, apoc.coll.toSet(COLLECT(d)) as data_elements, apoc.coll.toSet(COLLECT(c)) as value_meanings     
         '''
         cursor: Cursor = self.graph.run(query, context=context, object_class=object_class, property=prop)
