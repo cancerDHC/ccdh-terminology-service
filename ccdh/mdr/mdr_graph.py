@@ -143,6 +143,19 @@ class MdrGraph:
         mapping_set.mappings = mappings
         return mapping_set
 
+    def find_permissible_values(self, value: str):
+        query = '''
+        MATCH (p:PermissibleValue {pref_label: $value})<-[:HAS_MEMBER]-(:ValueDomain)<-[:USES]-(d:DataElement)
+        return p, d
+        '''
+        pvs = []
+        cursor = self.graph.run(query, value=value)
+        while cursor.forward():
+            p, d = cursor.current
+            p['data_element'] = d
+            pvs.append(p)
+        return pvs
+
     def find_value_meaning(self, notation, scheme, version=None):
         where_stmt = f"_.notation='{notation}' AND _.scheme='{scheme}'"
         if version:
@@ -152,15 +165,20 @@ class MdrGraph:
     def find_value_meaning(self, uri):
         query = '''
         MATCH (v:ValueMeaning {uri: $uri})-[:HAS_REPRESENTATION]->(pv:PermissibleValue)
-        RETURN v, apoc.coll.toSet(COLLECT(pv.pref_label)) as pvs
+        WITH v, pv
+        MATCH (pv)<-[:HAS_MEMBER]-(:ValueDomain)<-[:USES]-(d:DataElement)
+        RETURN v, pv, d
         '''
+        v = None
+        pvs = []
         cursor: Cursor = self.graph.run(query, uri=uri)
-        if cursor.forward():
-            value_meaning, permissible_values = cursor.current
-            value_meaning['representations'] = permissible_values
-            return value_meaning
-        else:
-            return None
+        while cursor.forward():
+            v, pv, d = cursor.current
+            pv['data_element'] = d
+            pvs.append(pv)
+        if v is not None:
+            v['representations'] = pvs
+        return v
 
     def find_value_domain(self, permissible_values: List[str], context, entity, attribute) -> Union[str, None]:
         query = "MATCH (n:ValueDomain)<-[:USES]-(:DataElement {context: $context, entity: $entity, attribute: $attribute})\n"

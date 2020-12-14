@@ -16,8 +16,10 @@ class ValueMeaning(BaseModel):
     scheme: str
     uri: str
     pref_label: str
-    representations: Optional[List[str]]
+    representations: Optional[List['PermissibleValue']]
 
+from ccdh.api.routers.permissible_values import PermissibleValue
+ValueMeaning.update_forward_refs()
 
 router = APIRouter(
     prefix='/value-meanings',
@@ -27,7 +29,7 @@ router = APIRouter(
 )
 
 
-@router.get('/{uri}', response_model=ValueMeaning)
+@router.get('/{uri}', response_model=ValueMeaning, response_model_exclude_none=True)
 async def get_value_meaning(uri: str) -> ValueMeaning:
     uri = decode_uri(uri)
     node = mdr_graph.find_value_meaning(uri)
