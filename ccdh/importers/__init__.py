@@ -198,5 +198,4 @@ if __name__ == '__main__':
     Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
     Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
     Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-
     Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())

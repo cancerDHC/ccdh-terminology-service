@@ -28,13 +28,16 @@ class GdcImporter:
             entity_name = entity['title']
             for prop, values in entity['properties'].items():
                 if 'enum' in values:
+                    permissible_values = values['enum']
+                    if 'deprecated_enum' in values:
+                        permissible_values = list(set(permissible_values).difference(values['deprecated_enum']))
                     cde_id = values.get('termDev', {}).get('cde_id', None)
                     data_element = {
                         'context': 'GDC',
                         'entity': entity_name,
                         'attribute': prop,
                         'definition': values.get('description', None),
-                        'permissible_values': values['enum'],
+                        'permissible_values': permissible_values,
                         'cde': cde_id
                     }
                     data_elements[f'GDC.{entity_name}.{prop}'] = data_element
