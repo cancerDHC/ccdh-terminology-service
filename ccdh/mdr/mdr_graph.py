@@ -13,6 +13,7 @@ from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
 
 DEFAULT_PAGE_SIZE = 25
 
+
 class MdrGraph:
     def __init__(self, graph: Graph):
         self.graph = graph
@@ -84,7 +85,7 @@ class MdrGraph:
         return NodeMatcher(self.graph).match('Resource').where(f"_.uri='{uri}'").first()
 
     def get_data_element(self, context, entity, attribute):
-        where_stmt = f"_.context=~'(?i){context}' AND _.entity=~'(?i){entity}' AND _.attribute!='(?i){attribute}'"
+        where_stmt = f"_.context=~'(?i){context}' AND _.entity=~'(?i){entity}' AND _.attribute=~'(?i){attribute}'"
         return NodeMatcher(self.graph).match('DataElement').where(where_stmt).first()
 
     def get_data_element_concept(self, context, object_class, prop):
@@ -122,7 +123,7 @@ class MdrGraph:
         {where_stmt}
         OPTIONAL MATCH (p:PermissibleValue)<-[r:HAS_REPRESENTATION]-(v:ValueMeaning)
         RETURN n.context + '.' + n.entity + '.' + n.attribute as subject_match_field,
-        p.pref_label as subject_label, p.uri as subject_id,
+        p.pref_label as subject_label,
         v.uri as object_id, v.pref_label as object_label,
         'CDM' + '.' + c.object_class + '.' + c.property as object_match_field,
         r.predicate_id as predicate_id,

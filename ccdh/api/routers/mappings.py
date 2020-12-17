@@ -5,8 +5,6 @@ from fastapi.responses import StreamingResponse
 from typing import Optional, List, Dict
 from pydantic.main import BaseModel
 from datetime import date
-
-from ccdh.api.utils import decode_uri
 from ccdh.config import neo4j_graph
 from ccdh.importers import Importer
 from ccdh.mdr.mdr_graph import MdrGraph
@@ -16,11 +14,11 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 
 class Mapping(BaseModel):
-    subject_id: Optional[str]
+    # subject_id: Optional[str]
+    subject_match_field: str
+    subject_label: str
     predicate_id: Optional[str]
     object_id: Optional[str]
-    subject_label: str
-    subject_match_field: str
     object_label: Optional[str]
     object_match_field: Optional[str]
     creator_id: Optional[str]
@@ -34,7 +32,6 @@ class MappingSet(BaseModel):
     mapping_provider: str
     curie_map: Dict[str, str] = {
         'NCIT': 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#',
-        'CS:NCIT': '',
     }
     mappings: List[Mapping] = []
 
