@@ -1,10 +1,11 @@
-from sssom.io import from_dataframe
+from sssom.io import from_dataframe, Mapping as SssomMapping
 import pandas as pd
 from fastapi import APIRouter, File, UploadFile, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import Optional, List, Dict
 from pydantic.main import BaseModel
 from datetime import date
+from prefixcommons.curie_util import contract_uri
 from ccdh.config import neo4j_graph
 from ccdh.importers import Importer
 from ccdh.mdr.mdr_graph import MdrGraph
@@ -73,7 +74,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
             })
 async def get_data_element_concept_mapping(context: str, object_class: str, property: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_data_element_concept(context, object_class, property, pagination=False)
-    mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
+    mapping_set.mappings = list(map(map_mapping, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
@@ -107,6 +108,12 @@ def generate_sssom_tsv(data):
                 yield f'#  {curie}: "{uri}"\n'
         else:
             yield f'#{key}: {data_dict[key]}\n'
+
+
+def map_mapping(mapping: SssomMapping) -> Dict:
+    if mapping.object_id:
+        mapping.object_id = contract_uri(mapping.object_id, [NAMESPACES])[0]
+    return mapping.__dict__
 
 
 
