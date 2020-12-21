@@ -4,6 +4,8 @@ from rdflib.namespace import SKOS, RDF, RDFS, OWL, XSD, DC, DCTERMS
 NCIT = Namespace('http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 HP = Namespace('http://purl.obolibrary.org/obo/HP_')
+MONDO = Namespace('http://purl.obolibrary.org/obo/MONDO_')
+NCIT_OBO = Namespace('http://purl.obolibrary.org/obo/NCIT_')
 
 # Used by prefixcommons functions
 NAMESPACES = {
@@ -15,5 +17,6 @@ NAMESPACES = {
     'NCIT': NCIT,
     'RDF': RDF,
     'SKOS': SKOS,
+    'MONDO': MONDO
 }
 
