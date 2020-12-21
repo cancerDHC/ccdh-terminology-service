@@ -6,6 +6,8 @@ from typing import Optional, List, Dict
 from pydantic.main import BaseModel
 from datetime import date
 from prefixcommons.curie_util import contract_uri
+
+from ccdh.api.utils import uri_to_curie
 from ccdh.config import neo4j_graph
 from ccdh.importers import Importer
 from ccdh.mdr.mdr_graph import MdrGraph
@@ -112,7 +114,7 @@ def generate_sssom_tsv(data):
 
 def map_mapping(mapping: SssomMapping) -> Dict:
     if mapping.object_id:
-        mapping.object_id = contract_uri(mapping.object_id, [NAMESPACES])[0]
+        mapping.object_id = uri_to_curie(mapping.object_id, NAMESPACES)
     return mapping.__dict__
 
 
