@@ -1,6 +1,7 @@
 from rfc3986 import uri_reference, is_valid_uri
 from urllib.parse import unquote, unquote_plus
 from ccdh.api.namespaces import NAMESPACES
+from prefixcommons.curie_util import contract_uri
 
 
 def decode_uri(uri: str) -> str:
@@ -15,7 +16,7 @@ def decode_uri(uri: str) -> str:
     if is_valid_uri(unq_uri, require_scheme=True, require_authority=True, require_path=True):
         return unq_uri
 
-    exp_uri = expand_curie(uri, NAMESPACES)
+    exp_uri = curie_to_uri(uri, NAMESPACES)
     if is_valid_uri(exp_uri, require_scheme=True, require_authority=True, require_path=True):
         return exp_uri
 
@@ -26,7 +27,7 @@ def decode_uri(uri: str) -> str:
     return uri
 
 
-def expand_curie(curie: str, curie_maps) -> str:
+def curie_to_uri(curie: str, curie_maps) -> str:
     """
     Expands a CURIE/identifier to a URI
     """
@@ -36,3 +37,11 @@ def expand_curie(curie: str, curie_maps) -> str:
     if prefix.upper() in curie_maps:
         return curie_maps[prefix] + local_id
     return curie
+
+
+def uri_to_curie(uri: str, curie_map=NAMESPACES) -> str:
+    curies = contract_uri(uri, [curie_map], shortest=True)
+    if curies:
+        return curies[0]
+    else:
+        return uri
