@@ -40,6 +40,7 @@ python-multipart = "*"
 python-dotenv = "*"
 rfc3986 = "*"
 neo4j = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.8"
