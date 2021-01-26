@@ -4,8 +4,12 @@ from biolinkml.meta import SchemaDefinition, SlotDefinition, ElementName, ClassD
 from typing import List, Tuple
 from ccdh.cdm import class_definition
 import re
+from dotenv import load_dotenv
 
 from biolinkml.utils.yamlutils import extended_str, as_yaml
+
+from pathlib import Path
+env_path = Path('.').parent.parent / '.env'
 
 ccdh_root = 'https://example.org/ccdh'
 
@@ -95,12 +99,16 @@ class TabularSchemaDefinitionLoader(object):
     @classmethod
     def load_model_slot(cls, row: List, entity: str) -> SlotDefinition:
         slot: SlotDefinition = cls.load_data_class_slot(row)
-        mappings = []
-        mappings.extend(['ADM:' + i.strip() for i in row[11].split('\n') if i.strip()])
-        mappings.extend([i.strip().replace('.', ':', 1) for i in row[12].split('\n') if i.strip()])
-        mappings.extend(['FHIR:' + i.strip() for i in row[13].split('\n') if i.strip()])
+        # mappings = []
+        # try:
+        #     mappings.extend(['ADM:' + i.strip() for i in row[11].split('\n') if i.strip()])
+        # except IndexError as err:
+        #     print(row)
+        # mappings.extend([i.strip().replace('.', ':', 1) for i in row[12].split('\n') if i.strip()])
+        # mappings.extend(['FHIR:' + i.strip() for i in row[13].split('\n') if i.strip()])
         # slot.mappings = list(filter(lambda x: re.match(r'^\w+:[\w\-\_]+\.[\w\-\_]+$', x), mappings))
-        slot.comments.extend(filter(lambda a: len(a.strip()) > 0, row[9].split('\n')))
+        if len(row) > 9:
+            slot.comments.extend(filter(lambda a: len(a.strip()) > 0, row[9].split('\n')))
         if slot.range == 'CodableConcept' or slot.range == 'CodeableConcept':
             slot.range = 'CodeableConcept'
             slot.values_from = f'{ccdh_root}/valuesets/CDM/{entity}/{slot.name}'
