@@ -192,7 +192,6 @@ def load_ccdh_sheet(ranges) -> Tuple[SchemaDefinition, SchemaDefinition]:
     data_types_schema.default_prefix = 'types'
     data_types_schema.imports = ['biolinkml:types']
     data_types_schema.types = {
-        'decimal': TypeDefinition(name='decimal', typeof='float'),
         'url': TypeDefinition(name='url', typeof='string')
     }
     data_types_schema.classes = data_types
