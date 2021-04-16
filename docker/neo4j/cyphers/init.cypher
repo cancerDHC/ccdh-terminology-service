@@ -20,7 +20,7 @@ call n10s.nsprefixes.addFromText("
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix ccdh: <https://www.cancer.gov/ccdh/> .
+@prefix ccdh: <http://ccdh.cancer.gov/ccdh/> .
 @prefix gdc: <https://gdc.cancer.gov/> .
 @prefix pdc: <https://pdc.cancer.gov/> .
 @prefix htan: <https://humantumoratlas.org/> .
@@ -36,6 +36,7 @@ call n10s.mapping.add('http://www.iso.org/11179/ValueMeaning', 'ValueMeaning');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'Concept');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Collection', 'CodeSet');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptSheme', 'ConceptScheme');
+call n10s.mappinp.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
 
 // Object Properties
 call n10s.mapping.add('http://www.iso.org/11179/dataElement.hasMeaning', 'HAS_MEANING');
@@ -44,6 +45,7 @@ call n10s.mapping.add('http://www.iso.org/11179/uses', 'USES');
 call n10s.mapping.add('http://www.iso.org/11179/dataElementConcept.hasObjectClass', 'HAS_OBJECT_CLASS');
 call n10s.mapping.add('http://www.iso.org/11179/dataElementConcept.hasProperty', 'HAS_PROPERTY');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#member', 'HAS_MEMBER');
+call n10s.mapping.add('http://purl.org/sssom/meta/creator_id', 'CREATED_BY');
 
 // Datatype Properties
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#definition', 'definition');
@@ -57,12 +59,21 @@ call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#scopeNote', 'scope_no
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#historyNote', 'history_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#editorialNote', 'editorial_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#example', 'example');
+call n10s.mapping.add('http://www.w3.org/'
 
-call n10s.mapping.add('https://www.cancer.gov/ccdh/context', 'context');
-call n10s.mapping.add('https://www.cancer.gov/ccdh/entity', 'entity');
-call n10s.mapping.add('https://www.cancer.gov/ccdh/attribute', 'attribute');
-call n10s.mapping.add('https://www.cancer.gov/ccdh/objectClass', 'object_class');
-call n10s.mapping.add('https://www.cancer.gov/ccdh/proprety', 'property');
+call n10s.mapping.add('http://purl.org/sssom/type/MatchType', 'match_type');
+call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
+call n10s.mapping.add('http://purl.org/sssom/meta/confidence', 'confidence');
+call n10s.mapping.add('http://purl.org/sssom/meta/mapping_date', 'mapping_date');
+call n10s.mapping.add('http://purl.org/sssom/meta/mapping_provider', 'mapping_provider');
+call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
+call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
+call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
+call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
+
+call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/system', 'system');
+call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/entity', 'entity');
+call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/attribute', 'attribute');
 
 
 // INDEXES

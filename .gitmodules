@@ -1,6 +1,7 @@
 [submodule "gdcdictionary"]
 	path = crdc-nodes/gdcdictionary
 	url = https://github.com/NCI-GDC/gdcdictionary.git
+	branch = master
 [submodule "PDC-Public"]
 	path = crdc-nodes/PDC-Public
 	url = https://github.com/esacinc/PDC-Public

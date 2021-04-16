@@ -27,15 +27,15 @@ def decode_uri(uri: str) -> str:
     return uri
 
 
-def curie_to_uri(curie: str, curie_maps) -> str:
+def curie_to_uri(curie: str, curie_map) -> str:
     """
     Expands a CURIE/identifier to a URI
     """
     if curie.find(":") == -1:
         return curie
     [prefix, local_id] = curie.split(":", 1)
-    if prefix.upper() in curie_maps:
-        return curie_maps[prefix] + local_id
+    if prefix.upper() in curie_map:
+        return curie_map[prefix] + local_id
     return curie
 
 
