@@ -20,8 +20,8 @@ from ccdh.api.routers.permissible_values import PermissibleValue
 ValueMeaning.update_forward_refs()
 
 router = APIRouter(
-    prefix='/value-meanings',
-    tags=['Value Meanings (Concepts)'],
+    prefix='/codes',
+    tags=['Concept Codes used in CRDC-H models'],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )

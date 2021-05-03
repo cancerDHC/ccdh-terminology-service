@@ -19,8 +19,8 @@ PermissibleValue.update_forward_refs()
 
 
 router = APIRouter(
-    prefix='/permissible-values',
-    tags=['Permissible Values'],
+    prefix='/values',
+    tags=['Values in CRDC Node Models'],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )

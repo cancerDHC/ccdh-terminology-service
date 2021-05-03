@@ -21,8 +21,8 @@ DataElement.update_forward_refs()
 
 
 router = APIRouter(
-    prefix='/data-elements',
-    tags=['Data Elements'],
+    prefix='/nodes',
+    tags=['CRDC Node Models'],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )

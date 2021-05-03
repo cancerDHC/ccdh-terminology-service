@@ -47,7 +47,7 @@ router = APIRouter(
 )
 
 
-@router.get('/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/nodes/{context}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -65,7 +65,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
         return mapping_set.__dict__
 
 
-@router.get('/data-element-concepts/{context}/{object_class}/{property}', response_model=MappingSet,
+@router.get('/crdc-h/{context}/{object_class}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
