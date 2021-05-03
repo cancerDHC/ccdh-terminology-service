@@ -11,7 +11,7 @@ from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
 from ccdh.importers.cdm import CdmImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 from ccdh.namespaces import NAMESPACES, NCIT
 
 logger = logging.getLogger('ccdh.importers')

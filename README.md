@@ -80,4 +80,4 @@ Then run
 pipenv run python -m ccdh.biolinkml.cdm_biolinkml_loader
 ```
 
-or run `pipenv shell` first and then the python command. 
+or run `pipenv shell` first and then the python command.

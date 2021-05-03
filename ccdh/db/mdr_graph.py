@@ -7,7 +7,7 @@ from sssom.io import *
 from prefixcommons import expand_uri, contract_uri
 
 # from ccdh.config import DEFAULT_PAGE_SIZE
-from ccdh.mdr.models import *
+from ccdh.db.models import *
 
 from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
 

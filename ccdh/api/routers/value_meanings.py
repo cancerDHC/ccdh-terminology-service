@@ -3,7 +3,7 @@ from typing import Optional, List
 from pydantic.main import BaseModel
 from ccdh.api.utils import decode_uri
 from ccdh.config import neo4j_graph
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 
 mdr_graph = MdrGraph(neo4j_graph())
 
