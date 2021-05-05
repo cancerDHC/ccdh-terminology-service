@@ -1,8 +1,11 @@
 import csv
 import json
 import logging
-from pathlib import Path
+import os
 from typing import List
+import requests
+from requests.exceptions import HTTPError
+from datetime import datetime
 
 from ccdh import ROOT_DIR
 
@@ -44,6 +47,27 @@ class GdcImporter:
         return harmonized_attributes
 
     @staticmethod
+    def update_data_dictionary():
+        url = 'https://api.gdc.cancer.gov/v0/submission/_dictionary/_all'
+        try:
+            response = requests.get(url)
+            # If the response was successful, no Exception will be raised
+            data_dictionary = response.text
+            datestr = datetime.today().strftime('%Y-%m-%d')
+            jsonfile = ROOT_DIR / f'data/data_dictionary/gdc/gdc_data_dictionary-{datestr}.json'
+            with open(jsonfile, 'w') as fout:
+                fout.write(data_dictionary)
+            if GDC_JSON_FILE.exists():
+                os.unlink(GDC_JSON_FILE)
+            os.symlink(jsonfile, GDC_JSON_FILE)
+        except HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+        except Exception as err:
+            print(f'Other error occurred: {err}')
+        else:
+            print(f'GDC data dictionary saved to \n{jsonfile}\nand linked to \n{GDC_JSON_FILE}')
+
+    @staticmethod
     def read_ncit_mappings():
         gdc_ncit_map = {}
         gdc_ncit_file = GDC_MAPING_DIR / 'current.csv'
@@ -57,3 +81,6 @@ class GdcImporter:
                 gdc_ncit_map[target_code][row[4]] = row
         return gdc_ncit_map
 
+
+if __name__ == '__main__':
+    GdcImporter.update_data_dictionary()
