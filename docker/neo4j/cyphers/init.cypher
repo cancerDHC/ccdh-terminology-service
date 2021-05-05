@@ -20,22 +20,21 @@ call n10s.nsprefixes.addFromText("
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix ccdh: <http://ccdh.cancer.gov/ccdh/> .
+@prefix ccdh: <https://ccdh.cancer.gov/> .
 @prefix gdc: <https://gdc.cancer.gov/> .
 @prefix pdc: <https://pdc.cancer.gov/> .
-@prefix htan: <https://humantumoratlas.org/> .
 ");
 
 // Nodes
-call n10s.mapping.add('http://www.iso.org/11179/DataElement', 'DataElement');
-call n10s.mapping.add('http://www.iso.org/11179/DataElementConcept', 'DataElementConcept');
-call n10s.mapping.add('http://www.iso.org/11179/ValueDomain', 'ValueDomain');
+call n10s.mapping.add('http://www.iso.org/11179/DataElement', 'NodeAttribute');
+call n10s.mapping.add('http://www.iso.org/11179/DataElementConcept', 'HarmonizedAttribute');
+call n10s.mapping.add('http://www.iso.org/11179/ValueDomain', 'Enumeration');
 call n10s.mapping.add('http://www.iso.org/11179/PermissibleValue', 'PermissibleValue');
-call n10s.mapping.add('http://www.iso.org/11179/ConceptualDomain', 'ConceptualDomain');
-call n10s.mapping.add('http://www.iso.org/11179/ValueMeaning', 'ValueMeaning');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'Concept');
+# Also http://www.iso.org/11179/ValueMeaning
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
+# Also http://www.iso.org/11179/ConceptualDomain
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Collection', 'CodeSet');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptSheme', 'ConceptScheme');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptSheme', 'ConceptSystem');
 call n10s.mappinp.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
 
 // Object Properties
@@ -59,7 +58,6 @@ call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#scopeNote', 'scope_no
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#historyNote', 'history_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#editorialNote', 'editorial_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#example', 'example');
-call n10s.mapping.add('http://www.w3.org/'
 
 call n10s.mapping.add('http://purl.org/sssom/type/MatchType', 'match_type');
 call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
@@ -67,33 +65,30 @@ call n10s.mapping.add('http://purl.org/sssom/meta/confidence', 'confidence');
 call n10s.mapping.add('http://purl.org/sssom/meta/mapping_date', 'mapping_date');
 call n10s.mapping.add('http://purl.org/sssom/meta/mapping_provider', 'mapping_provider');
 call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
-call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
-call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
-call n10s.mapping.add('http://purl.org/sssom/meta/comment', 'comment');
 
-call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/system', 'system');
-call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/entity', 'entity');
-call n10s.mapping.add('http://ccdh.cancer.gov/ccdh/attribute', 'attribute');
+call n10s.mapping.add('https://ccdh.cancer.gov/system', 'system');
+call n10s.mapping.add('https://ccdh.cancer.gov/entity', 'entity');
+call n10s.mapping.add('https://ccdh.cancer.gov/attribute', 'attribute');
 
 
 // INDEXES
-DROP INDEX data_element_entity_idx IF EXISTS;
-CREATE INDEX data_element_entity_idx FOR (n:DataElement) ON (n.entity);
+DROP INDEX node_entity_idx IF EXISTS;
+CREATE INDEX node_entity_idx FOR (n:NodeAttribute) ON (n.entity);
 
-DROP INDEX data_element_attribute_idx IF EXISTS;
-CREATE INDEX data_element_attribute_idx FOR (n:DataElement) ON (n.attribute);
+DROP INDEX node_attribute_idx IF EXISTS;
+CREATE INDEX node_attribute_idx FOR (n:NodeAttribute) ON (n.attribute);
 
-DROP INDEX data_element_context_idx IF EXISTS;
-CREATE INDEX data_element_context_idx FOR (n:DataElement) ON (n.context);
+DROP INDEX node_system_idx IF EXISTS;
+CREATE INDEX node_system_idx FOR (n:NodeAttribute) ON (n.system);
 
-DROP INDEX data_element_concept_context_idx IF EXISTS;
-CREATE INDEX data_element_concept_context_idx FOR (n:DataElementConcept) ON (n.context);
+DROP INDEX harmonizned_system_idx IF EXISTS;
+CREATE INDEX harmonizned_system_idx FOR (n:HarmonizedAttribute) ON (n.system);
 
-DROP INDEX data_element_concept_objectClass_idx IF EXISTS;
-CREATE INDEX data_element_concept_objectClass_idx FOR (n:DataElementConcept) ON (n.objectClass);
+DROP INDEX harmonizned_entity_idx IF EXISTS;
+CREATE INDEX harmonizned_entity_idx FOR (n:HarmoniznedAttribute) ON (n.entity);
 
-DROP INDEX data_element_concept_property_idx IF EXISTS;
-CREATE INDEX data_element_concept_property_idx FOR (n:DataElementConcept) ON (n.property);
+DROP INDEX harmonized_attribute_idx IF EXISTS;
+CREATE INDEX harmonized_attribute_idx FOR (n:HarmoniznedAttribute) ON (n.attribute);
 
-DROP INDEX permissible_value_prefLabel_idx IF EXISTS;
-CREATE INDEX permissible_value_prefLabel_idx FOR (n:PermissibleValue) ON (n.prefLabel);
+DROP INDEX permissible_value_pref_label_idx IF EXISTS;
+CREATE INDEX permissible_value_pref_label_idx FOR (n:PermissibleValue) ON (n.pref_label);
