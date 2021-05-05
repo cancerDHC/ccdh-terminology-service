@@ -24,7 +24,7 @@ class Enumeration(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     node_attribute = RelatedFrom(NodeAttribute, 'USES')
-    permissible_values = RelatedFrom('PermissibleValue', 'PART_OF')
+    permissible_values = RelatedTo('PermissibleValue', 'HAS_PERMISSIBLE_VALUE')
 
 
 @dataclass
@@ -33,7 +33,7 @@ class PermissibleValue(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     value: str = Property()
-    enumerated_value = RelatedTo(Enumeration, 'PART_OF')
+    enumerated_value = RelatedFrom(Enumeration, 'HAS_PERMISSIBLE_VALUE')
     mappings = RelatedFrom('Mapping', 'MAPPED_FROM')
 
 
@@ -69,12 +69,12 @@ class CodeSet(Model):
     identifier: str = Property()
     name: str = Property()
     uri: str = Property()
-    harmonized_attribute = RelatedFrom('HarmanizedAttribute', 'HAS_MEANING')
+    harmonized_attribute = RelatedFrom('HarmonizedAttribute', 'HAS_MEANING')
     concept_references = RelatedTo(ConceptReference, 'HAS_MEMBER')
 
 
 @dataclass
-class HarmanizedAttribute(Model):
+class HarmonizedAttribute(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     system: str = Property()
