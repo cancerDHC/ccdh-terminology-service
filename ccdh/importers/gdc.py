@@ -19,7 +19,7 @@ class GdcImporter:
 
     @staticmethod
     def read_data_dictionary() -> List:
-        data_elements = {}
+        harmonized_attributes = {}
         logger.info(f'Loading {GDC_JSON_FILE}')
         dd = json.loads(GDC_JSON_FILE.read_text())
         for key, entity in dd.items():
@@ -32,16 +32,16 @@ class GdcImporter:
                     if 'deprecated_enum' in values:
                         permissible_values = list(set(permissible_values).difference(values['deprecated_enum']))
                     cde_id = values.get('termDev', {}).get('cde_id', None)
-                    data_element = {
-                        'context': 'GDC',
+                    harmonized_attribute = {
+                        'system': 'GDC',
                         'entity': entity_name,
                         'attribute': prop,
                         'definition': values.get('description', None),
                         'permissible_values': permissible_values,
-                        'cde': cde_id
+                        'cadsr_cde': cde_id
                     }
-                    data_elements[f'GDC.{entity_name}.{prop}'] = data_element
-        return data_elements
+                    harmonized_attributes[f'GDC.{entity_name}.{prop}'] = harmonized_attribute
+        return harmonized_attributes
 
     @staticmethod
     def read_ncit_mappings():

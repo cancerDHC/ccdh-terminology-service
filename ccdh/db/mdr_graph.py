@@ -20,15 +20,15 @@ class MdrGraph:
 
     @staticmethod
     def create_node_attribute_uri(system: str, entity: str, attr: str) -> str:
-        return str(CCDH[f'data-element/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attr)}'])
+        return str(CCDH[f'node-attributes/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attr)}'])
 
     @staticmethod
     def create_enumeration_uri():
-        return str(CCDH[f'value-domain/{shortuuid.uuid()}'])
+        return str(CCDH[f'enumerations/{shortuuid.uuid()}'])
 
     @staticmethod
     def create_harmonized_attribute_uri(system, entity, attribute):
-        return str(CCDH[f'data-element-concept/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attribute)}'])
+        return str(CCDH[f'harmonized-attributes/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attribute)}'])
 
     @staticmethod
     def create_permissible_value_uri():
@@ -36,7 +36,7 @@ class MdrGraph:
 
     @staticmethod
     def create_code_set_uri():
-        return str(CCDH[f'conceptual-domain/{shortuuid.uuid()}'])
+        return str(CCDH[f'code-sets/{shortuuid.uuid()}'])
 
     @staticmethod
     def create_code_set() -> Node:
