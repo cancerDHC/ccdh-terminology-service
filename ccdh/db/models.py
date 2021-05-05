@@ -1,69 +1,88 @@
 from dataclasses import dataclass
-from typing import Optional
+
+import neotime
 from py2neo.ogm import Model, Property, RelatedFrom, RelatedTo
 
 
 @dataclass
-class DataElement(Model):
+class NodeAttribute(Model):
+    # DataElement
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    context: str = Property()
+    system: str = Property()
     entity: str = Property()
     attribute: str = Property()
     version = Property(default=None)
 
-    value_domain = RelatedFrom('ValueDomain', 'DOMAIN_OF')
-    data_element_concept = RelatedTo('DataElementConcept', 'REPRESENTS')
+    enumeration = RelatedTo("Enumeration", 'USES')
+    harmonized_attribute = RelatedTo('HarmonizedAttribute', 'MAPS_TO')
 
 
 @dataclass
-class ValueDomain(Model):
+class Enumeration(Model):
+    # ValueDomain
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    data_elements = RelatedTo(DataElement, 'DOMAIN_OF')
+    node_attribute = RelatedFrom(NodeAttribute, 'USES')
     permissible_values = RelatedFrom('PermissibleValue', 'PART_OF')
 
 
 @dataclass
 class PermissibleValue(Model):
+    # Permissible Value
     __primarykey__ = 'identifier'
     identifier: str = Property()
     value: str = Property()
-    value_domains = RelatedTo(ValueDomain, 'PART_OF')
-    value_meaning = RelatedTo('ValueMeaning', 'MAPS_TO')
+    enumerated_value = RelatedTo(Enumeration, 'PART_OF')
+    mappings = RelatedFrom('Mapping', 'MAPPED_FROM')
 
 
 @dataclass
-class ValueMeaning(Model):
+class ConceptReference(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
     code: str = Property()
     code_system: str = Property()
     display: str = Property()
 
-    permissible_values = RelatedFrom(PermissibleValue, 'MAPS_TO')
-    concept_domain = RelatedTo('ConceptualDomain', 'PART_OF')
+    mappings = RelatedFrom('Mapping', 'MAPPED_TO')
+    code_sets = RelatedFrom('CodeSet', 'HAS_MEMBER')
 
 
 @dataclass
-class ConceptualDomain(Model):
+class Mapping(Model):
+    __primarykey__ = 'identifier'
+    identifier: str = Property()
+    match_type: str = Property()
+    comment: str = Property()
+    mapping_date: neotime.Date = Property()
+    mapping_provider: str = Property()
+
+    permissible_value = RelatedTo(PermissibleValue, 'MAPPED_FROM')
+    concept_reference = RelatedTo(ConceptReference, 'MAPPED_TO')
+
+
+@dataclass
+class CodeSet(Model):
+    # ConceptualDomain
     __primarykey__ = 'identifier'
     identifier: str = Property()
     name: str = Property()
     uri: str = Property()
-    data_element_concepts = RelatedTo('DataElementConcept', 'DOMAIN_OF')
-    value_meanings = RelatedFrom(ValueMeaning, 'PART_OF')
+    harmonized_attribute = RelatedFrom('HarmanizedAttribute', 'HAS_MEANING')
+    concept_references = RelatedTo(ConceptReference, 'HAS_MEMBER')
 
 
 @dataclass
-class DataElementConcept(Model):
+class HarmanizedAttribute(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    object_class: str = Property()
-    property: str = Property()
+    system: str = Property()
+    entity: str = Property()
+    attribute: str = Property()
     version: str = Property(default=None)
-    conceptual_domain = RelatedFrom(ConceptualDomain, 'DOMAIN_OF')
-    data_element = RelatedFrom(DataElement, 'REPRESENTS')
+    code_set = RelatedTo(CodeSet, 'HAS_MEANING')
+    node_attributes = RelatedFrom(NodeAttribute, 'MAPS_TO')
 
 
 
