@@ -8,7 +8,7 @@ from sssom import MappingSet, Mapping
 from ccdh.api.utils import decode_uri
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
-from ccdh.importers.cdm import CdmImporter
+from ccdh.importers.crdc_h import CrdcHImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
 from ccdh.db.mdr_graph import MdrGraph
@@ -195,7 +195,7 @@ class Importer:
 
 
 if __name__ == '__main__':
-    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_harmonized_attributes(CdmImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
     # Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())

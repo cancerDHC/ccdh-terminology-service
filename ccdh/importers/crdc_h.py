@@ -7,19 +7,19 @@ logger = logging.getLogger('ccdh.importers.cdm')
 logger.setLevel(logging.DEBUG)
 
 
-class CdmImporter:
+class CrdcHImporter:
     def __init__(self):
         pass
 
     @staticmethod
-    def read_data_element_concepts(sheet_id: str, ranges: str) -> Dict:
+    def read_harmonized_attributes(sheet_id: str, ranges: str) -> Dict:
         """
         Extract rows of CodeableConcept attributes from Google Drive
         :param str sheet_id: The identifier of the google sheet
         :param str ranges: ranges (tab) in the sheet
         :return: A list of adm values
         """
-        data_element_concepts = {}
+        harmonized_attributes = {}
 
         service = build('sheets', 'v4', credentials=authorize())
 
@@ -31,19 +31,19 @@ class CdmImporter:
                 continue
             elif values[7] != 'CodeableConcept':
                 continue
-            context, entity = values[4].strip().split('.')
+            system, entity = values[4].strip().split('.')
             attribute = values[5].strip()
             key = f'{values[4].strip()}.{attribute}'
-            if key not in data_element_concepts:
-                data_element_concepts[key] = {'context': context, 'object_class': entity, 'property': attribute,
-                                              'definition': values[6].strip(), 'data_elements': []}
-            data_element_concept = data_element_concepts[key]
+            if key not in harmonized_attributes:
+                harmonized_attributes[key] = {'system': system, 'entity': entity, 'attribute': attribute,
+                                              'definition': values[6].strip(), 'node_attributes': []}
+            harmonized_attribute = harmonized_attributes[key]
             if len(values) > 13:
                 for prop in values[12].split('\n'):
                     if len(prop.split('.')) != 3:
                         continue
-                    data_element_concept['data_elements'].append(prop.strip())
-        return data_element_concepts
+                    harmonized_attribute['node_attributes'].append(prop.strip())
+        return harmonized_attributes
 
 
 
