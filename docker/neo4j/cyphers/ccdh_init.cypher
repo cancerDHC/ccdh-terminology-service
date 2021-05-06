@@ -1,28 +1,46 @@
-CALL n10s.graphconfig.init();
+//-- TCCM Models
 
-DROP CONSTRAINT n10s_unique_uri IF EXISTS;
-CREATE CONSTRAINT n10s_unique_uri ON (r:Resource) ASSERT r.uri IS UNIQUE;
+CALL n10s.nsprefixes.add("owl", "http://www.w3.org/2002/07/owl#");
+CALL n10s.nsprefixes.add("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+CALL n10s.nsprefixes.add("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+CALL n10s.nsprefixes.add("skos", "http://www.w3.org/2004/02/skos/core#");
+CALL n10s.nsprefixes.add("xsd", "http://www.w3.org/2001/XMLSchema#");
+CALL n10s.nsprefixes.add("dct", "http://purl.org/dc/terms/");
+CALL n10s.nsprefixes.add("dc", "http://purl.org/dc/elements/1.1/");
+CALL n10s.nsprefixes.add("obo", "http://purl.obolibrary.org/obo/");
+CALL n10s.nsprefixes.add("termci", "https://hotecosystem.org/termci/");
+CALL n10s.nsprefixes.add("sh", "http://www.w3.org/ns/shacl#");
+CALL n10s.nsprefixes.add("biolinkml", "https://w3id.org/biolink/biolinkml/");
 
-CALL n10s.graphconfig.init({
-  handleVocabUris: 'MAP'
-});
+// Node
+call n10s.mapping.add('http://ww.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptScheme', 'ConceptSystem');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#CodeSet', 'CodeSet');
 
-CALL n10s.nsprefixes.add(
-    'neo4voc',
-    'http://neo4j.org/vocab/sw#'
-);
+// Object Properties
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#broader', 'narrower_than');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#inScheme', 'defined_in');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#member', 'has_member');
+
+// Data Type Properties
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#notation', 'code');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#prefLabel', 'designation');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#definition', 'definition');
+call n10s.mapping.add('http://www.w3.org/2000/01/rdf-schema#seeAlso', 'reference');
+
+//-- END OF TCCM
 
 call n10s.nsprefixes.addFromText("
-@prefix neo4voc: <http://neo4j.org/vocab/sw#> .
-@prefix iso-11179: <http://www.iso.org/11179/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix ccdh: <https://ccdh.cancer.gov/> .
-@prefix gdc: <https://gdc.cancer.gov/> .
-@prefix pdc: <https://pdc.cancer.gov/> .
+CALL n10s.nsprefixes.add("neo4voc", "http://neo4j.org/vocab/sw#");
+CALL n10s.nsprefixes.add("iso-11179", "http://www.iso.org/11179/");
+CALL n10s.nsprefixes.add("owl", "http://www.w3.org/2002/07/owl#");
+CALL n10s.nsprefixes.add("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+CALL n10s.nsprefixes.add("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+CALL n10s.nsprefixes.add("skos", "http://www.w3.org/2004/02/skos/core#");
+CALL n10s.nsprefixes.add("xsd", "http://www.w3.org/2001/XMLSchema#");
+CALL n10s.nsprefixes.add("ccdh", "https://ccdh.cancer.gov/");
+CALL n10s.nsprefixes.add("gdc", "https://gdc.cancer.gov/");
+CALL n10s.nsprefixes.add("pdc", "https://pdc.cancer.gov/");
 ");
 
 // Nodes
@@ -30,11 +48,12 @@ call n10s.mapping.add('http://www.iso.org/11179/DataElement', 'NodeAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/DataElementConcept', 'HarmonizedAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/ValueDomain', 'Enumeration');
 call n10s.mapping.add('http://www.iso.org/11179/PermissibleValue', 'PermissibleValue');
-# Also http://www.iso.org/11179/ValueMeaning
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
-# Also http://www.iso.org/11179/ConceptualDomain
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Collection', 'CodeSet');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptSheme', 'ConceptSystem');
+// Also http://www.iso.org/11179/ValueMeaning
+// Added in TCCM Section
+// call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
+// Also http://www.iso.org/11179/ConceptualDomain
+// Added in TCCM Section
+// call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Collection', 'CodeSet');
 call n10s.mappinp.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
 
 // Object Properties
@@ -47,11 +66,6 @@ call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#member', 'HAS_MEMBER'
 call n10s.mapping.add('http://purl.org/sssom/meta/creator_id', 'CREATED_BY');
 
 // Datatype Properties
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#definition', 'definition');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#prefLabel', 'pref_label');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#altLabel', 'alt_label');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#notation', 'notation');
-call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#inScheme', 'in_scheme');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#note', 'note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#changeNote', 'change_note');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#scopeNote', 'scope_note');
