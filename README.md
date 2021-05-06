@@ -1,8 +1,57 @@
-# CRDC Node Model Value Sets
+# CCDH Terminology Service 
 
-Scripts for CRDC node model value sets harmonization
+The terminology services that supports the (CCDH)[https://ccdh.cancer.gov] CRDC-H harmonization model.
 
-Documentation: https://docs.google.com/document/d/1Iu2HrbKykeNe3Q23NYEkHlWONEUV9GuWVNhzElf84TY
+Two major parts of this repo: 
+
+* A terminology service
+* Scripts that transform the CRDC-H model google sheets to [LinkML](https://linkml.github.io/). (To be moved to the ccdhmodel repo) 
+
+## Terminology Service Rest API
+
+The rest api provide endpoints for retreiving the data dictionaries from CRDC nodes, 
+and the CRDC-H model. It is based on the ISO/IEC-11179-3, matadata registry metamodel, and integrates
+the TCCM (Terminology Core Common Model). 
+
+### TCCM Model
+
+## Data
+
+### CRDC Nodes Data Dictionaries
+
+The documentation of the CRDC nodes models can be found here: 
+
+https://docs.google.com/document/d/1Iu2HrbKykeNe3Q23NYEkHlWONEUV9GuWVNhzElf84TY
+
+### Mappings
+
+CCDH-curated mappings
+
+NCIT-GDC mapping
+
+### 
+
+### Other References
+
+References to caDSR CDEs 
+
+## Loaders
+
+The loader scripts load the data models and mappings into the Neo4J graph store. 
+
+Data dictionary loaded:
+
+* GDC
+* PDC
+
+Mappings loaded: 
+
+* NCIT-GDC mapping
+
+Ontologies and Concept Systems: 
+
+* NCIT
+
 
 
 ## Set up
