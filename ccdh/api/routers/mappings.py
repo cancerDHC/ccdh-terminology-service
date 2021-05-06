@@ -10,7 +10,7 @@ from prefixcommons.curie_util import contract_uri
 from ccdh.api.utils import uri_to_curie
 from ccdh.config import neo4j_graph
 from ccdh.importers import Importer
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 from ccdh.api.namespaces import NAMESPACES
 
 mdr_graph = MdrGraph(neo4j_graph())
@@ -47,7 +47,7 @@ router = APIRouter(
 )
 
 
-@router.get('/data-elements/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/nodes/{context}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -65,7 +65,7 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
         return mapping_set.__dict__
 
 
-@router.get('/data-element-concepts/{context}/{object_class}/{property}', response_model=MappingSet,
+@router.get('/crdc-h/{context}/{object_class}/{property}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {

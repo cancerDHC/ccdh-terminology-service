@@ -17,7 +17,7 @@ class PdcImporter:
 
     @staticmethod
     def read_data_dictionary() -> List:
-        data_elements = {}
+        node_attributes = {}
         files = [f for f in PDC_JSON_DIR.glob('*.json') if f.is_file()]
         for file in files:
             if file.name == 'dictionary.json' or file.name == 'dictionary_item.json':
@@ -30,16 +30,16 @@ class PdcImporter:
                     logger.info(file.name + ',' + prop)
                     continue
                 if values.get('type', '') == 'Enumeration':
-                    data_element = {
-                        'context': 'PDC',
+                    node_attribute = {
+                        'system': 'PDC',
                         'entity': entity_name,
                         'attribute': prop,
                         'definition': values['description'],
                         'permissible_values': values['enum'],
-                        'cde': values.get('cde_id', None)
+                        'cadsr_cde': values.get('cde_id', None)
                     }
-                    data_elements[f'PDC.{entity_name}.{prop}'] = data_element
-        return data_elements
+                    node_attributes[f'PDC.{entity_name}.{prop}'] = node_attribute
+        return node_attributes
 
 
 

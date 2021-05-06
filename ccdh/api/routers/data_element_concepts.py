@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi import APIRouter
 from pydantic.main import BaseModel
 from ccdh.config import neo4j_graph
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 
 mdr_graph = MdrGraph(neo4j_graph())
 
@@ -22,14 +22,14 @@ DataElementConcept.update_forward_refs()
 
 
 router = APIRouter(
-    prefix='/data-element-concepts',
-    tags=['Data Element Concepts'],
+    prefix='/crdc-h',
+    tags=['CRDC-H Models'],
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get('/{context}/{object_class}/{property}', response_model=List[DataElementConcept], response_model_exclude_unset=True)
-async def get_data_element_concepts(context: str, object_class: str, prop: str) -> List[DataElementConcept]:
-    return mdr_graph.find_data_element_concepts_complete(context, object_class, prop)
+@router.get('/{context}/{entity}/{attribute}', response_model=List[DataElementConcept], response_model_exclude_unset=True)
+async def get_data_element_concepts(context: str, entity: str, attribute: str) -> List[DataElementConcept]:
+    return mdr_graph.find_data_element_concepts_complete(context, entity, attribute)
 

@@ -8,10 +8,10 @@ from sssom import MappingSet, Mapping
 from ccdh.api.utils import decode_uri
 
 from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
-from ccdh.importers.cdm import CdmImporter
+from ccdh.importers.crdc_h import CrdcHImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 from ccdh.namespaces import NAMESPACES, NCIT
 
 logger = logging.getLogger('ccdh.importers')
@@ -23,91 +23,91 @@ class Importer:
         self.graph = graph
         self.mdr_graph = MdrGraph(graph)
 
-    def import_data_element(self, data_element):
-        entity = data_element['entity']
-        attribute = data_element['attribute']
-        context = data_element['context']
-        logger.info(f'Importing DataElement {context}.{entity}.{attribute} ...')
+    def import_node_attribute(self, node_attribute):
+        entity = node_attribute['entity']
+        attribute = node_attribute['attribute']
+        system = node_attribute['system']
+        logger.info(f'Importing DataElement {system}.{entity}.{attribute} ...')
 
-        de_node = self.mdr_graph.get_data_element(context, entity, attribute)
-        if de_node is not None:  # already exists. Skip
+        na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
+        if na_node is not None:  # already exists. Skip
             return
 
-        de_node = self.mdr_graph.create_data_element(context, entity, attribute)
-        de_node['definition'] = data_element['definition']
-        subgraph = Subgraph([de_node])
+        na_node = self.mdr_graph.create_node_attribute(system, entity, attribute)
+        na_node['definition'] = node_attribute['definition']
+        subgraph = Subgraph([na_node])
 
-        permissible_values = data_element['permissible_values']
-        vd_node = self.mdr_graph.create_value_domain()
-        subgraph |= vd_node
-        subgraph |= Relationship(de_node, 'USES', vd_node)
+        permissible_values = node_attribute['permissible_values']
+        enum_node = self.mdr_graph.create_enumeration()
+        subgraph |= enum_node
+        subgraph |= Relationship(na_node, 'USES', enum_node)
 
         for value in permissible_values:
             pv_node = self.mdr_graph.create_permissible_value(value)
             subgraph |= pv_node
-            subgraph |= Relationship(vd_node, 'HAS_MEMBER', pv_node)
+            subgraph |= Relationship(enum_node, 'HAS_PERMISSIBLE_VALUE', pv_node)
 
         tx = self.graph.begin()
         tx.create(subgraph)
         tx.commit()
 
-        logger.info(f'Importing {context}.{entity}.{attribute} was successful')
+        logger.info(f'Importing {system}.{entity}.{attribute} was successful')
 
-    def import_data_elements(self, data_elements: Dict[str, Dict]):
-        for key, data_element in data_elements.items():
-            self.import_data_element(data_element)
+    def import_node_attributes(self, node_attributes: Dict[str, Dict]):
+        for key, node_attribute in node_attributes.items():
+            self.import_node_attribute(node_attribute)
 
-    def import_data_element_concepts(self, data_element_concepts: Dict[str, Dict]):
-        for key, data_element_concept in data_element_concepts.items():
-            self.import_data_element_concept(data_element_concept)
+    def import_harmonized_attributes(self, harmonized_attributes: Dict[str, Dict]):
+        for key, harmonized_attribute in harmonized_attributes.items():
+            self.import_harmonized_attribute(harmonized_attribute)
 
-    def import_data_element_concept(self, data_element_concept):
-        context = data_element_concept['context']
-        object_class = data_element_concept['object_class']
-        property = data_element_concept['property']
+    def import_harmonized_attribute(self, harmonized_attribute):
+        system = harmonized_attribute['system']
+        entity = harmonized_attribute['entity']
+        attribute = harmonized_attribute['attribute']
 
-        logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} ...')
+        logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} ...')
 
-        dec_node = self.mdr_graph.get_data_element_concept(context, object_class, property)
+        ha_node = self.mdr_graph.get_harmonized_attribute(system, entity, attribute)
 
-        if dec_node is not None:  # already exists. Skip
+        if ha_node is not None:  # already exists. Skip
             return
 
-        dec_node = self.mdr_graph.create_data_element_concept(context, object_class, property)
-        dec_node['definition'] = data_element_concept['definition']
-        subgraph = Subgraph([dec_node])
+        ha_node = self.mdr_graph.create_harmonized_attribute(system, entity, attribute)
+        ha_node['definition'] = harmonized_attribute['definition']
+        subgraph = Subgraph([ha_node])
 
-        cd_node = self.mdr_graph.create_conceptual_domain()
-        subgraph |= cd_node
-        subgraph |= Relationship(dec_node, 'USES', cd_node)
+        cs_node = self.mdr_graph.create_code_set()
+        subgraph |= cs_node
+        subgraph |= Relationship(ha_node, 'HAS_MEANING', cs_node)
 
-        if 'data_elements' in data_element_concept:
-            for data_element in data_element_concept['data_elements']:
-                context, entity, attribute = data_element.split('.')
-                de_node = self.mdr_graph.get_data_element(context, entity, attribute)
-                if de_node is None:
-                    print(data_element + ' not found in database')
+        if 'node_attributes' in harmonized_attribute:
+            for node_attribute in harmonized_attribute['node_attributes']:
+                system, entity, attribute = node_attribute.split('.')
+                na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
+                if na_node is None:
+                    print(node_attribute + ' not found in database')
                 else:
-                    subgraph |= Relationship(de_node, 'HAS_MEANING', dec_node)
+                    subgraph |= Relationship(na_node, 'MAPS_TO', ha_node)
 
         tx = self.graph.begin()
         tx.create(subgraph)
         tx.commit()
 
-        logger.info(f'Importing DataElementConcpet {context}.{object_class}.{property} was successful')
+        logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} was successful')
 
     def import_gdc_ncit_mapping(self, gdc_ncit_mappings):
         query = '''
-        MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-          (c:DataElementConcept)<-[:HAS_MEANING]-
-          (de:DataElement {context: 'GDC', attribute: $attribute})-[:USES]->
-          (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
-        MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
-        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
-        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
-        MERGE (p)<-[rpr:HAS_REPRESENTATION]-(vm)
-        ON CREATE SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
-        ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = 'http://gdc.cancer.gov'
+        MATCH (cd:CodeSet:Resource)<-[:HAS_MEANING]-
+          (c:HarmonizedAttribute)<-[:MAPS_TO]-
+          (de:NodeAttribute {system: 'GDC', attribute: $attribute})-[:USES]->
+          (vd:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue {pref_label: $pv_pref_label})
+        MERGE (vm:ConceptReference:Resource {uri: $vm_uri})
+        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.defined_in = $vm_defined_in
+        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.defined_in = $vm_defined_in
+        MERGE (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(vm)
+        ON CREATE SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
+        ON MATCH SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
         MERGE (vm)<-[:HAS_MEMBER]-(cd)
         RETURN vm
         '''
@@ -134,8 +134,8 @@ class Importer:
             self.import_mapping(mapping, curie_map)
 
     def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
-        de_context, entity, attribute = mapping.subject_match_field.split('.')
-        dec_context, object_class, prop = mapping.object_match_field.split('.')
+        de_system, entity, attribute = mapping.subject_match_field.split('.')
+        dec_system, dec_entity, dec_attribute = mapping.object_match_field.split('.')
         curie = mapping.object_id
         if curie:  # not mapped
             print(curie)
@@ -143,8 +143,8 @@ class Importer:
             vm_uri = decode_uri(mapping.object_id)
             query = '''
             MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-              (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
-              (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
+              (c:DataElementConcept {system: $dec_system, entity: $dec_entity, attribute: $dec_attribute})<-[:HAS_MEANING]-
+              (de:DataElement {system: $de_system, entity: $entity, attribute: $attribute})-[:USES]->
               (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
             MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
             ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
@@ -155,12 +155,12 @@ class Importer:
             ON MATCH SET rpr.predicate_id = $predicate_id, rpr.creator_id = $creator_id, rpr.comment = $comment        
             '''
             params = {
-                'dec_context': dec_context,
+                'dec_system': dec_system,
                 'entity': entity,
                 'attribute': attribute,
-                'de_context': de_context,
-                'object_class': object_class,
-                'property': prop,
+                'de_system': de_system,
+                'dec_entity': dec_entity,
+                'dec_attribute': dec_attribute,
                 'predicate_id': mapping.predicate_id,
                 'pv_pref_label': mapping.subject_label,
                 'vm_pref_label': mapping.object_label,
@@ -175,18 +175,18 @@ class Importer:
             if mapping.comment:
                 query = '''
                     MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-                      (c:DataElementConcept {context: $dec_context, object_class: $object_class, property: $property})<-[:HAS_MEANING]-
-                      (de:DataElement {context: $de_context, entity: $entity, attribute: $attribute})-[:USES]->
+                      (c:DataElementConcept {system: $dec_system, entity: $dec_entity, attribute: $dec_attribute})<-[:HAS_MEANING]-
+                      (de:DataElement {system: $de_system, entity: $entity, attribute: $attribute})-[:USES]->
                       (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
                     SET p.comment = CASE EXISTS(p.comment) WHEN True THEN p.comment + $comment else [$comment] END
                     '''
                 params = {
-                    'dec_context': dec_context,
+                    'dec_system': dec_system,
                     'entity': entity,
                     'attribute': attribute,
-                    'de_context': de_context,
-                    'object_class': object_class,
-                    'property': prop,
+                    'de_system': de_system,
+                    'dec_entity': dec_entity,
+                    'dec_attribute': dec_attribute,
                     'predicate_id': mapping.predicate_id,
                     'pv_pref_label': mapping.subject_label,
                     'comment': mapping.comment,
@@ -195,7 +195,7 @@ class Importer:
 
 
 if __name__ == '__main__':
-    Importer(neo4j_graph()).import_data_elements(PdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_data_elements(GdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_data_element_concepts(CdmImporter.read_data_element_concepts(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-    Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
+    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    # Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())

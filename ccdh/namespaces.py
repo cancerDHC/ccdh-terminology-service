@@ -15,7 +15,7 @@ from rdflib.namespace import SKOS
 # * VOID
 
 NCIT = Namespace('http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
-CCDH = Namespace('https://www.cancer.gov/ccdh/')
+CCDH = Namespace('https://ccdh.cancer.gov/')
 GDC = Namespace('https://gdc.cancer.gov/')
 PDC = Namespace('https://gdc.cancer.gov/')
 HTAN = Namespace('https://humantumoratlas.org/')
