@@ -49,7 +49,7 @@ class Importer:
 
         tx = self.graph.begin()
         tx.create(subgraph)
-        tx.commit()
+        self.graph.commit(tx)
 
         logger.info(f'Importing {system}.{entity}.{attribute} was successful')
 
@@ -92,24 +92,24 @@ class Importer:
 
         tx = self.graph.begin()
         tx.create(subgraph)
-        tx.commit()
+        self.graph.commit(tx)
 
         logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} was successful')
 
     def import_gdc_ncit_mapping(self, gdc_ncit_mappings):
         query = '''
-        MATCH (cd:CodeSet:Resource)<-[:HAS_MEANING]-
-          (c:HarmonizedAttribute)<-[:MAPS_TO]-
-          (de:NodeAttribute {system: 'GDC', attribute: $attribute})-[:USES]->
-          (vd:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue {pref_label: $pv_pref_label})
-        MERGE (vm:ConceptReference:Resource {uri: $vm_uri})
-        ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.defined_in = $vm_defined_in
-        ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.defined_in = $vm_defined_in
-        MERGE (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(vm)
+        MATCH (cs:CodeSet:Resource)<-[:HAS_MEANING]-
+          (:HarmonizedAttribute)<-[:MAPS_TO]-
+          (:NodeAttribute {system: 'GDC', attribute: $attribute})-[:USES]->
+          (:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue {pref_label: $pv_pref_label})
+        MERGE (cr:ConceptReference:Resource {uri: $cr_uri})<-[:MAPPED_TO]-(m:mapping)-[:MAPPED_FROM]->(p)
+        ON CREATE SET cr.pref_label = $cr_pref_label, cr.notation = $cr_notation, cr.defined_in = $cr_defined_in
+        ON MATCH SET cr.pref_label = $cr_pref_label, cr.notation = $cr_notation, cr.defined_in = $cr_defined_in
+        MERGE (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(cr)
         ON CREATE SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
         ON MATCH SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
-        MERGE (vm)<-[:HAS_MEMBER]-(cd)
-        RETURN vm
+        MERGE (cr)<-[:HAS_MEMBER]-(cs)
+        RETURN cr
         '''
         for _, attr in gdc_ncit_mappings.items():
             for _, value in attr.items():
@@ -195,7 +195,7 @@ class Importer:
 
 
 if __name__ == '__main__':
-    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
     Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
     # Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
