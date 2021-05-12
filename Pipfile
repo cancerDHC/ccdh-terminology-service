@@ -40,7 +40,12 @@ python-dotenv = "*"
 rfc3986 = "*"
 neo4j = "*"
 httpx = "*"
-linkml = "*"
+linkml-runtime = "*"
+tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api.git"}
+tccm-model = {editable = true, git = "git@github.com:HOT-Ecosystem/tccm-model.git"}
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
