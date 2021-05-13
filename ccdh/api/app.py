@@ -2,15 +2,17 @@ from fastapi import FastAPI
 from starlette.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from ccdh.api.routers import data_element_concepts, data_elements, mappings, value_meanings, permissible_values
+from ccdh.api.routers import harmonized_attributes, node_attributes, mappings, value_meanings, permissible_values
+from tccm_api.routers import concept_reference
 
 app = FastAPI(title='CCDH Tereminology Harmonization API')
 
-app.include_router(data_element_concepts.router)
-app.include_router(data_elements.router)
+app.include_router(harmonized_attributes.router)
+app.include_router(node_attributes.router)
 app.include_router(permissible_values.router)
 app.include_router(value_meanings.router)
 app.include_router(mappings.router)
+app.include_router(concept_reference.router)
 
 app.add_middleware(
     CORSMiddleware,

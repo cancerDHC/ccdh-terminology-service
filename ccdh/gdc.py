@@ -19,30 +19,19 @@ from gdcdictionary.python import GDCDictionary
 
 
 MOD_DIR = GDC_DIR / 'gdcdictionary'
-MAP_DIR = Path(__file__).parent.parent / 'mappings/gdc-ncit'
+MAP_DIR = Path(__file__).parent.parent / 'data/mappings/gdc-ncit'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
 
 def gdc_ncit_mappings():
-    target_code_map = {}
-    target_code_file = MAP_DIR / 'NCIt_AB_vs_GDC_Property_10_02_2020.csv'
-    with open(target_code_file, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)
-        for row in reader:
-            target_code_map[row[0]] = row[1]
     gdc_ncit_map = {}
-    gdc_ncit_file = MAP_DIR / 'NCIt_Maps_To_GDC.csv'
+    gdc_ncit_file = MAP_DIR / 'current.csv'
     with open(gdc_ncit_file, 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
         for row in reader:
-            # Note, there was one typo in one Target_Code, it has been fixed it in Protege but the data CCDH has
-            # (likely the 20.08e file) will have MOPRH as an abbreviation, which should have been MORPH.
-            if row[3] == 'MOPRH':
-                row[3] = 'MORPH'
-            target_code = target_code_map[row[3]]
+            target_code = row[3]
             if target_code not in gdc_ncit_map:
                 gdc_ncit_map[target_code] = {}
             gdc_ncit_map[target_code][row[4]] = row

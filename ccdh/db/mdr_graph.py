@@ -2,8 +2,9 @@ from typing import List, Union, Tuple
 from urllib.parse import quote_plus
 
 import shortuuid
-from py2neo import Relationship, Node, NodeMatcher, Cursor, Subgraph, Graph
-from sssom.io import *
+from py2neo import Relationship, Node, NodeMatcher, Subgraph, Graph
+from py2neo.cypher import Cursor
+from sssom.sssom_datamodel import MappingSet
 from prefixcommons import expand_uri, contract_uri
 
 # from ccdh.config import DEFAULT_PAGE_SIZE
@@ -93,13 +94,18 @@ class MdrGraph:
         return NodeMatcher(self.graph).match('HarmonizedAttribute').where(where_stmt).first()
 
     def assign_harmonized_attribute(self, node_attribute: NodeAttribute, harmonized_attribute: HarmonizedAttribute):
-        if len(node_attribute.harmonized_attribute) == 1:
-            return
-        tx = self.graph.begin()
-        na_node = self.get_resource_by_uri('NodeAttribute', node_attribute.uri)
-        ha_node = self.get_resource_by_uri('HarmonizedAttribute', harmonized_attribute.uri)
-        tx.create(Relationship(na_node, 'MAPS_TO', ha_node))
-        tx.commit()
+        """
+        Assigns the relationship between a harmonized_attribute and a node_attribte
+        :param node_attribute:
+        :param harmonized_attribute:
+        :return:
+        """
+        if len(node_attribute.harmonized_attribute) == 0:
+            tx = self.graph.begin()
+            na_node = self.get_resource_by_uri('NodeAttribute', node_attribute.uri)
+            ha_node = self.get_resource_by_uri('HarmonizedAttribute', harmonized_attribute.uri)
+            tx.create(Relationship(na_node, 'MAPS_TO', ha_node))
+            tx.commit()
 
     def find_mappings_of_harmonized_attribute(self, system: str, entity: str, attribute: str, pagination: bool = False,
                                               page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
@@ -243,5 +249,3 @@ class MdrGraph:
             dec['concept_references'] = vms
             records.append(dec)
         return records
-
-
