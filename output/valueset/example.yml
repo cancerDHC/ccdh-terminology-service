@@ -1,8 +1,0 @@
-valuesetdefinition:
-  resourceID: TEST
-  about: http://example.org/TEST
-  include:
-    entities:
-      namespace: http://snomed.info/id/
-      codes:
-        - 118338642
