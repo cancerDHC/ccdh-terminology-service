@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import neotime
 from py2neo.ogm import Model, Property, RelatedFrom, RelatedTo
+from tccm_api.db.models import ConceptReference
 
 
 @dataclass
@@ -37,16 +38,44 @@ class PermissibleValue(Model):
     mappings = RelatedFrom('Mapping', 'MAPPED_FROM')
 
 
+from dataclasses import dataclass
+from py2neo.ogm import Model, Property, RelatedFrom, RelatedTo
+from typing import List
+
+
 @dataclass
-class ConceptReference(Model):
+class ConceptSystem(Model):
     __primarykey__ = 'identifier'
     identifier: str = Property()
-    code: str = Property()
-    code_system: str = Property()
-    display: str = Property()
+    uri: str = Property()
+    description: str = Property()
+    prefix: str = Property()
+    reference: List[str] = Property()
+    namespace: str = Property()
 
-    mappings = RelatedFrom('Mapping', 'MAPPED_TO')
-    code_sets = RelatedFrom('CodeSet', 'HAS_MEMBER')
+    root_concept = RelatedTo(ConceptReference, 'ROOT_CONCEPT')
+
+
+@dataclass
+class CodeSet(Model):
+    __primarykey__ = 'identifier'
+    identifier: str = Property()
+    description: str = Property()
+    uri: str = Property()
+
+    members = RelatedTo(ConceptReference, 'HAS_MEMBER')
+
+
+# @dataclass
+# class ConceptReference(Model):
+#     __primarykey__ = 'identifier'
+#     identifier: str = Property()
+#     code: str = Property()
+#     code_system: str = Property()
+#     display: str = Property()
+#
+#     mappings = RelatedFrom('Mapping', 'MAPPED_TO')
+#     code_sets = RelatedFrom('CodeSet', 'HAS_MEMBER')
 
 
 @dataclass
