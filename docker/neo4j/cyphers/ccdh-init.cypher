@@ -13,7 +13,7 @@ CALL n10s.nsprefixes.add("sh", "http://www.w3.org/ns/shacl#");
 CALL n10s.nsprefixes.add("biolinkml", "https://w3id.org/biolink/biolinkml/");
 
 // Node
-call n10s.mapping.add('http://ww.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptScheme', 'ConceptSystem');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#CodeSet', 'CodeSet');
 
@@ -30,7 +30,6 @@ call n10s.mapping.add('http://www.w3.org/2000/01/rdf-schema#seeAlso', 'reference
 
 //-- END OF TCCM
 
-call n10s.nsprefixes.addFromText("
 CALL n10s.nsprefixes.add("neo4voc", "http://neo4j.org/vocab/sw#");
 CALL n10s.nsprefixes.add("iso-11179", "http://www.iso.org/11179/");
 CALL n10s.nsprefixes.add("owl", "http://www.w3.org/2002/07/owl#");
@@ -41,19 +40,12 @@ CALL n10s.nsprefixes.add("xsd", "http://www.w3.org/2001/XMLSchema#");
 CALL n10s.nsprefixes.add("ccdh", "https://ccdh.cancer.gov/");
 CALL n10s.nsprefixes.add("gdc", "https://gdc.cancer.gov/");
 CALL n10s.nsprefixes.add("pdc", "https://pdc.cancer.gov/");
-");
 
 // Nodes
 call n10s.mapping.add('http://www.iso.org/11179/DataElement', 'NodeAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/DataElementConcept', 'HarmonizedAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/ValueDomain', 'Enumeration');
 call n10s.mapping.add('http://www.iso.org/11179/PermissibleValue', 'PermissibleValue');
-// Also http://www.iso.org/11179/ValueMeaning
-// Added in TCCM Section
-// call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
-// Also http://www.iso.org/11179/ConceptualDomain
-// Added in TCCM Section
-// call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Collection', 'CodeSet');
 call n10s.mappinp.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
 
 // Object Properties
