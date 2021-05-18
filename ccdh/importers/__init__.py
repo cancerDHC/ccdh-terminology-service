@@ -12,7 +12,7 @@ from ccdh.importers.crdc_h import CrdcHImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
 from ccdh.db.mdr_graph import MdrGraph
-from ccdh.namespaces import NAMESPACES, NCIT
+from ccdh.namespaces import NAMESPACES, NCIT, SKOS
 
 logger = logging.getLogger('ccdh.importers')
 logger.setLevel(logging.DEBUG)
@@ -27,10 +27,11 @@ class Importer:
         entity = node_attribute['entity']
         attribute = node_attribute['attribute']
         system = node_attribute['system']
-        logger.info(f'Importing DataElement {system}.{entity}.{attribute} ...')
+        logger.info(f'Importing NodeAttribute {system}.{entity}.{attribute} ...')
 
         na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
         if na_node is not None:  # already exists. Skip
+            # TODO: Update the node
             return
 
         na_node = self.mdr_graph.create_node_attribute(system, entity, attribute)
@@ -101,31 +102,27 @@ class Importer:
         MATCH (cs:CodeSet:Resource)<-[:HAS_MEANING]-
           (:HarmonizedAttribute)<-[:MAPS_TO]-
           (:NodeAttribute {system: 'GDC', attribute: $attribute})-[:USES]->
-          (:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue {pref_label: $pv_pref_label})
-        MERGE (cr:ConceptReference:Resource {uri: $cr_uri})<-[:MAPPED_TO]-(m:mapping)-[:MAPPED_FROM]->(p)
-        ON CREATE SET cr.pref_label = $cr_pref_label, cr.notation = $cr_notation, cr.defined_in = $cr_defined_in
-        ON MATCH SET cr.pref_label = $cr_pref_label, cr.notation = $cr_notation, cr.defined_in = $cr_defined_in
-        MERGE (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(cr)
-        ON CREATE SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
-        ON MATCH SET m.predicate_id = $predicate_id, m.creator_id = 'https://gdc.cancer.gov'
-        MERGE (cr)<-[:HAS_MEMBER]-(cs)
+          (:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(pv:PermissibleValue {pref_label: $pv_label})
+        MATCH (cr:ConceptReference:Resource {uri: $cr_uri})
+        MERGE (cr)<-[:MAPPED_TO]-(m:Mapping)-[:MAPPED_FROM]->(pv)
+        ON CREATE SET m.predicate_id = $predicate_id, m.creator_id = $creator_id
+        ON MATCH SET m.predicate_id = $predicate_id, m.creator_id = $creator_id
+        MERGE (cs)-[:HAS_MEMBER]->(cr)
         RETURN cr
         '''
         for _, attr in gdc_ncit_mappings.items():
             for _, value in attr.items():
-                vm_notation, vm_pref_label, predicate_id, attribute, pv_pref_label = list(value[0:5])
+                code, _pref_label, predicate_id, attribute, pv_label = list(value[0:5])
                 if predicate_id == 'Has Synonym':
-                    predicate_id = 'skos:exactMatch'
+                    predicate_id = SKOS.exactMatch
                 elif predicate_id == 'Related To':
-                    predicate_id = 'skos:relatedMatch'
+                    predicate_id = SKOS.relatedMatch
                 params = {
                     'attribute': attribute,
                     'predicate_id': predicate_id,
-                    'pv_pref_label': pv_pref_label,
-                    'vm_pref_label': vm_pref_label,
-                    'vm_notation': vm_notation,
-                    'vm_in_scheme': 'NCIT',
-                    'vm_uri': f'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{vm_notation}',
+                    'pv_label': pv_label,
+                    'creator_id': 'https://gdc.cancer.gov',
+                    'cr_uri': f'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{code}',
                 }
                 self.graph.run(query, **params)
 
@@ -142,11 +139,11 @@ class Importer:
             in_scheme, notation = curie.split(':')
             vm_uri = decode_uri(mapping.object_id)
             query = '''
-            MATCH (cd:ConceptualDomain:Resource:CodeSet)<-[:USES]-
-              (c:DataElementConcept {system: $dec_system, entity: $dec_entity, attribute: $dec_attribute})<-[:HAS_MEANING]-
-              (de:DataElement {system: $de_system, entity: $entity, attribute: $attribute})-[:USES]->
-              (vd:ValueDomain)-[:HAS_MEMBER]->(p:PermissibleValue {pref_label: $pv_pref_label})
-            MERGE (vm:ValueMeaning:Resource:Concept {uri: $vm_uri})
+            MATCH (cd:CodeSet:Resource)<-[:HAS_MEANING]-
+              (c:HarmonizedAttribute {system: $dec_system, entity: $dec_entity, attribute: $dec_attribute})<-[:MAPS_TO]-
+              (de:NodeAttribute {system: $de_system, entity: $entity, attribute: $attribute})-[:USES]->
+              (vd:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(pv:PermissibleValue {pref_label: $pv_pref_label})
+            MERGE (cr:ConcepTREFERENCE:Resource {uri: $cr_uri})
             ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
             ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
             MERGE (vm)<-[:HAS_MEMBER]-(cd)
@@ -193,9 +190,15 @@ class Importer:
                 }
                 self.graph.run(query, **params)
 
+    def import_ncit(self):
+        query = ('n10s.rdf.import.fetch("file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle", {' 
+                 'predicateExclusionList : [ "https://hotecosystem.org/termci/contents"] })')
+        self.graph.call(query)
+
 
 if __name__ == '__main__':
-    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-    # Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
+    # Importer(neo4j_graph()).import_ncit()
+    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
