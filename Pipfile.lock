@@ -412,10 +412,11 @@
         },
         "linkml-runtime": {
             "hashes": [
-                "sha256:029654e3f1efa535a316e45da75433c647f463e88aee3194b761c215c56636af"
+                "sha256:d9930b50a0cca2ccf2a5426ef8aa19e4071ee52d732cf500b76acafb85bfb62f",
+                "sha256:e08a5b1a134688035760a29477ded3b2c8d4c6701f3d3576af48fa11528314ac"
             ],
             "index": "pypi",
-            "version": "==1.0.3"
+            "version": "==1.0.5"
         },
         "lxml": {
             "hashes": [
@@ -1088,12 +1089,12 @@
         "tccm-api": {
             "editable": true,
             "git": "ssh://git@github.com/HOT-Ecosystem/tccm-api.git",
-            "ref": "03944f3567a4b515b20f4587e99644057c556195"
+            "ref": "f1f6814d4b13c96f087d979c53c7793d497bc142"
         },
         "tccm-model": {
             "editable": true,
             "git": "ssh://git@github.com/HOT-Ecosystem/tccm-model.git",
-            "ref": "5a7fa15f2996dfe0d34abc1bee83f2fdf80318a0"
+            "ref": "796428775edead4cb4ae8d56d3f03e76848b54a1"
         },
         "testfixtures": {
             "hashes": [
