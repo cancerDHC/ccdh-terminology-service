@@ -58,7 +58,6 @@ router = APIRouter(
             })
 async def get_data_element_mapping(system: str, entity: str, attribute: str, request: Request) -> MappingSet:
     mapping_set = mdr_graph.find_mappings_of_node_attribute(system, entity, attribute, pagination=False)
-    # mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:

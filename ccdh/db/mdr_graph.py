@@ -8,6 +8,7 @@ from sssom.sssom_datamodel import MappingSet
 from prefixcommons import expand_uri, contract_uri
 
 # from ccdh.config import DEFAULT_PAGE_SIZE
+from ccdh.api.utils import uri_to_curie
 from ccdh.db.models import *
 
 from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
@@ -130,7 +131,7 @@ class MdrGraph:
         OPTIONAL MATCH (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(v:ConceptReference)
         RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.pref_label as subject_label,
-        v.uri as object_id, v.pref_label as object_label,
+        v.uri as object_id, v.designation as object_label,
         'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
         m.predicate_id as predicate_id,
         m.creator_id as creator_id,
@@ -147,11 +148,12 @@ class MdrGraph:
                                  license='https://creativecommons.org/publicdomain/zero/1.0/')
         mappings = []
         while cursor.forward():
-            current = cursor.current
-            # mapping = dict()
-            # for key in current.keys():
-            #     mapping[key] = current[key]
-            mappings.append(dict(current))
+            current = dict(cursor.current)
+            if current['object_id']:
+                current['object_id'] = uri_to_curie(current['object_id'])
+            if current['predicate_id']:
+                current['predicate_id'] = uri_to_curie(current['predicate_id'])
+            mappings.append(current)
         mapping_set.mappings = mappings
         return mapping_set
 
