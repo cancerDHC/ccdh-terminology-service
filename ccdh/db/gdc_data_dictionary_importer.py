@@ -7,7 +7,7 @@ from py2neo import Subgraph, Relationship
 from sssom.io import *
 
 from ccdh.config import ROOT_DIR, neo4j_graph
-from ccdh.mdr.mdr_graph import MdrGraph
+from ccdh.db.mdr_graph import MdrGraph
 from ccdh.gdc import gdc_ncit_mappings
 
 GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
@@ -22,12 +22,12 @@ class GdcDataDictionaryImporter:
         self.gdc_dictionary = GDCDictionary()
         self.mdr_graph = MdrGraph(graph)
 
-    def add_data_element(self, entity, attribute, commit=False) -> Subgraph:
-        context = 'GDC'
-        de_node = self.mdr_graph.get_data_element(context, entity, attribute)
-        if de_node is None:
-            de_node = self.mdr_graph.create_data_element(context, entity, attribute)
-        subgraph = Subgraph([de_node])
+    def add_node_attribute(self, entity, attribute, commit=False) -> Subgraph:
+        system = 'GDC'
+        node_attribute = self.mdr_graph.get_node_attribute(system, entity, attribute)
+        if node_attribute is None:
+            node_attribute = self.mdr_graph.create_node_attribute(system, entity, attribute)
+        subgraph = Subgraph([node_attribute])
 
         yaml_file = f'{entity.lower()}.yaml'
         if yaml_file not in self.gdc_dictionary.resolvers:
@@ -40,11 +40,11 @@ class GdcDataDictionaryImporter:
 
         gdc_ncit_map = gdc_ncit_mappings()
         enum_values = props[attribute].get('enum', [])
-        de_node['definition'] = props[attribute].get('description', '')
+        node_attribute['definition'] = props[attribute].get('description', '')
 
-        vd_node = self.mdr_graph.create_value_domain()
+        vd_node = self.mdr_graph.create_enumeration()
         subgraph |= vd_node
-        subgraph |= Relationship(de_node, 'USES', vd_node)
+        subgraph |= Relationship(node_attribute, 'USES', vd_node)
 
         value_to_ncit_mapping = gdc_ncit_map.get(attribute, {})
         code_nodes = {}
@@ -58,9 +58,9 @@ class GdcDataDictionaryImporter:
                 code, definition = map_row[0:2]
                 scheme = 'https://bioportal.bioontology.org/ontologies/NCIT'
                 uri = f'NCIT:{code}'
-                vm_node = self.mdr_graph.find_value_meaning(code, scheme)
+                vm_node = self.mdr_graph.find_concept_reference(code, scheme)
                 if vm_node is None:
-                    vm_node = code_nodes.get(uri, self.mdr_graph.create_value_meaning(uri, code, scheme, definition))
+                    vm_node = code_nodes.get(uri, self.mdr_graph.create_concept_reference(uri, code, scheme, definition))
                     code_nodes[uri] = vm_node
                     subgraph |= vm_node
                 subgraph |= Relationship(pv_node, 'HAS_MEANING', vm_node)
@@ -69,23 +69,23 @@ class GdcDataDictionaryImporter:
             tx = self.graph.begin()
             tx.create(subgraph)
             tx.commit()
-        return de_node, subgraph
+        return node_attribute, subgraph
 
     def import_mvp(self):
         # rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
         rows = GdcDataDictionaryImporter.read_mvp_tsv()
         importer = GdcDataDictionaryImporter(self.graph)
-        data_elements = dict()
+        node_attributes = dict()
         for row in rows:
             if row[0].startswith('GDC'):
-                data_elements[row[0]] = row[3]
-        for gdc_tuple, cdm_tuple in data_elements.items():
+                node_attributes[row[0]] = row[3]
+        for gdc_tuple, cdm_tuple in node_attributes.items():
             _, entity, attribute = gdc_tuple.split('.')
-            de_node, subgraph = importer.add_data_element(entity, attribute, commit=False)
-            _, object_class, prop = cdm_tuple.split('.')
-            dec_node = self.mdr_graph.find_data_element_concept(object_class, prop)
+            de_node, subgraph = importer.add_node_attribute(entity, attribute, commit=False)
+            _, dec_entity, dec_attribute = cdm_tuple.split('.')
+            dec_node = self.mdr_graph.find_harmonized_attribute(dec_entity, dec_attribute)
             if dec_node is None:
-                dec_node = self.mdr_graph.create_data_element_concept(object_class, prop)
+                dec_node = self.mdr_graph.create_harmonized_attribute(dec_entity, dec_attribute)
                 subgraph |= dec_node
             subgraph |= Relationship(dec_node, 'HAS_REPRESENTATION', de_node)
             tx = neo4j_graph().begin()

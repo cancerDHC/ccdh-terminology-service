@@ -5,9 +5,6 @@ import pytest
 import requests
 from ccdh.biolinkml.cdm_biolinkml_loader import load_ccdh_specimen
 from requests.exceptions import ConnectionError
-from typing import List
-from biolinkml.meta import SchemaDefinition
-from biolinkml.utils.yamlutils import as_yaml
 from py2neo import Graph
 
 

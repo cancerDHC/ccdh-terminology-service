@@ -1,7 +1,9 @@
 from typing import Optional, List
 from fastapi import APIRouter
 from pydantic.main import BaseModel
-from ccdh.api.routers.data_elements import DataElement
+from tccm_api.routers.concept_reference import ConceptReference
+
+from ccdh.api.routers.node_attributes import NodeAttribute
 from ccdh.config import neo4j_graph
 from ccdh.db.mdr_graph import MdrGraph
 
@@ -10,11 +12,10 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 class PermissibleValue(BaseModel):
     pref_label: str
-    data_element: Optional[DataElement]
-    meaning: Optional['ValueMeaning']
+    data_element: Optional[NodeAttribute]
+    meaning: Optional[ConceptReference]
 
 
-from ccdh.api.routers.value_meanings import ValueMeaning
 PermissibleValue.update_forward_refs()
 
 
