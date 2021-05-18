@@ -47,7 +47,7 @@ router = APIRouter(
 )
 
 
-@router.get('/nodes/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/nodes/{system}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -56,16 +56,15 @@ router = APIRouter(
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-async def get_data_element_mapping(context: str, entity: str, attribute: str, request: Request) -> MappingSet:
-    mapping_set = mdr_graph.find_mappings_of_data_element(context, entity, attribute, pagination=False)
-    mapping_set.mappings = list(map(lambda x: x.__dict__, mapping_set.mappings))
+async def get_node_attribute_value_mapping(system: str, entity: str, attribute: str, request: Request) -> MappingSet:
+    mapping_set = mdr_graph.find_mappings_of_node_attribute(system, entity, attribute, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
         return mapping_set.__dict__
 
 
-@router.get('/crdc-h/{context}/{entity}/{attribute}', response_model=MappingSet,
+@router.get('/crdc-h/{system}/{entity}/{attribute}', response_model=MappingSet,
             responses={
                 200: {
                     "content": {
@@ -74,9 +73,8 @@ async def get_data_element_mapping(context: str, entity: str, attribute: str, re
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
-async def get_data_element_concept_mapping(context: str, entity: str, attribute: str, request: Request) -> MappingSet:
-    mapping_set = mdr_graph.find_mappings_of_data_element_concept(context, entity, attribute, pagination=False)
-    mapping_set.mappings = list(map(map_mapping, mapping_set.mappings))
+async def get_harmonized_attribute_value_mapping(system: str, entity: str, attribute: str, request: Request) -> MappingSet:
+    mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(system, entity, attribute, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:

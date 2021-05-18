@@ -8,6 +8,7 @@ from sssom.sssom_datamodel import MappingSet
 from prefixcommons import expand_uri, contract_uri
 
 # from ccdh.config import DEFAULT_PAGE_SIZE
+from ccdh.api.utils import uri_to_curie
 from ccdh.db.models import *
 
 from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
@@ -127,15 +128,15 @@ class MdrGraph:
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         {where_stmt}
-        OPTIONAL MATCH (p:PermissibleValue)<-[r:HAS_REPRESENTATION]-(v:ConceptReference)
+        OPTIONAL MATCH (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(v:ConceptReference)
         RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.pref_label as subject_label,
-        v.uri as object_id, v.pref_label as object_label,
+        v.uri as object_id, v.designation as object_label,
         'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
-        r.predicate_id as predicate_id,
-        r.creator_id as creator_id,
-        r.comment as comment,
-        r.mapping_date as mapping_date
+        m.predicate_id as predicate_id,
+        m.creator_id as creator_id,
+        m.comment as comment,
+        m.mapping_date as mapping_date
         {paging_stmt}
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)
@@ -147,11 +148,12 @@ class MdrGraph:
                                  license='https://creativecommons.org/publicdomain/zero/1.0/')
         mappings = []
         while cursor.forward():
-            current = cursor.current
-            mapping = Mapping()
-            for key in current.keys():
-                mapping[key] = current[key]
-            mappings.append(mapping)
+            current = dict(cursor.current)
+            if current['object_id']:
+                current['object_id'] = uri_to_curie(current['object_id'])
+            if current['predicate_id']:
+                current['predicate_id'] = uri_to_curie(current['predicate_id'])
+            mappings.append(current)
         mapping_set.mappings = mappings
         return mapping_set
 
