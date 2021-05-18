@@ -8,11 +8,11 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 
 class NodeAttribute(BaseModel):
-    context: str
+    system: str
     entity: str
     attribute: str
     definition: Optional[str]
-    data_element_concept: Optional['HarmonizedAttribute']
+    harmonized_attribute: Optional['HarmonizedAttribute']
     permissible_values: Optional[List[str]]
 
 

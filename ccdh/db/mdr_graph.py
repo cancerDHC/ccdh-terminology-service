@@ -237,7 +237,7 @@ class MdrGraph:
         query = f'''
         MATCH (n:HarmonizedAttribute)
         WHERE {where_stmt}
-        OPTIONAL MATCH (c:ConceptReference)<-[:HAS_MEMBER]-(cd:CodeSet)<-[:HAS_MEAMING]-(n)        
+        OPTIONAL MATCH (c:ConceptReference)<-[:HAS_MEMBER]-(cd:CodeSet)<-[:HAS_MEANING]-(n)        
         OPTIONAL MATCH (n)<-[:MAPS_TO]-(d:NodeAttribute)
         RETURN n, apoc.coll.toSet(COLLECT(d)) as node_attributes, apoc.coll.toSet(COLLECT(c)) as concept_references     
         '''
