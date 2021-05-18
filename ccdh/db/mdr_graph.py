@@ -127,15 +127,15 @@ class MdrGraph:
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         {where_stmt}
-        OPTIONAL MATCH (p:PermissibleValue)<-[r:HAS_REPRESENTATION]-(v:ConceptReference)
+        OPTIONAL MATCH (p)<-[:MAPPED_FROM]-(m:Mapping)-[:MAPPED_TO]->(v:ConceptReference)
         RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.pref_label as subject_label,
         v.uri as object_id, v.pref_label as object_label,
         'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
-        r.predicate_id as predicate_id,
-        r.creator_id as creator_id,
-        r.comment as comment,
-        r.mapping_date as mapping_date
+        m.predicate_id as predicate_id,
+        m.creator_id as creator_id,
+        m.comment as comment,
+        m.mapping_date as mapping_date
         {paging_stmt}
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)
@@ -148,10 +148,10 @@ class MdrGraph:
         mappings = []
         while cursor.forward():
             current = cursor.current
-            mapping = Mapping()
-            for key in current.keys():
-                mapping[key] = current[key]
-            mappings.append(mapping)
+            # mapping = dict()
+            # for key in current.keys():
+            #     mapping[key] = current[key]
+            mappings.append(dict(current))
         mapping_set.mappings = mappings
         return mapping_set
 
