@@ -172,6 +172,48 @@ class MdrGraph:
             pvs.append(p)
         return pvs
 
+    def find_permissible_values_of(self, system: str, entity: str, attribute: str):
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
+                                                                     attribute=attribute)
+        query = f'''
+        MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
+        -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
+        WHERE {where_stmt}
+        RETURN DISTINCT p.pref_label as pref_label
+        '''
+        ret = []
+        cursor: Cursor = self.graph.run(query)
+        while cursor.forward():
+            ret.append(cursor.current)
+        return ret
+
+    def find_concept_references_and_permissible_values_of(self, system: str, entity: str, attribute: str):
+        where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
+                                                                     attribute=attribute)
+        query = f'''
+        MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute {{system: 'GDC'}})-[:USES]->(:Enumeration)
+        -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
+        WHERE {where_stmt} AND NOT (p)<-[:MAPPED_FROM]-(:Mapping)
+        RETURN DISTINCT p.pref_label as pref_label, 
+        n.system as system, 
+        n.entity as entity, 
+        n.attribute as attribute
+        '''
+        pvs = []
+        cursor: Cursor = self.graph.run(query)
+        while cursor.forward():
+            pvs.append(cursor.current)
+        crs = []
+        query = f'''
+        MATCH (c:HarmonizedAttribute)-[:HAS_MEANING]->(:CodeSet)-[:HAS_MEMBER]->(cr:ConceptReference)
+        WHERE {where_stmt}
+        RETURN cr
+        '''
+        cursor: Cursor = self.graph.run(query)
+        while cursor.forward():
+            crs.append(cursor.current)
+        return crs, pvs
+
     def find_concept_reference(self, notation, defined_in, version=None):
         where_stmt = f"_.notation='{notation}' AND _.defined_in='{defined_in}'"
         if version:
