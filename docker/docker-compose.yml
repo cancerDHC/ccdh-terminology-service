@@ -28,7 +28,9 @@ services:
       - "47687:7687"
       - "47474:7474"
     environment:
-      - NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD
+      NEO4J_AUTH: $NEO4J_USERNAME/$NEO4J_PASSWORD
+      NEO4J_dbms_memory_heap_max__size: 8G
+
     env_file:
       - .env
     healthcheck:

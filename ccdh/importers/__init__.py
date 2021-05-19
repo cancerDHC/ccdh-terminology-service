@@ -36,6 +36,8 @@ class Importer:
 
         na_node = self.mdr_graph.create_node_attribute(system, entity, attribute)
         na_node['definition'] = node_attribute['definition']
+        if 'cadsr_cde' in node_attribute:
+            na_node['reference'] = f'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId={node_attribute["cadsr_cde"]}'
         subgraph = Subgraph([na_node])
 
         permissible_values = node_attribute['permissible_values']
@@ -97,11 +99,11 @@ class Importer:
 
         logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} was successful')
 
-    def import_gdc_ncit_mapping(self, gdc_ncit_mappings):
+    def import_ncit_mapping(self, gdc_ncit_mappings, system):
         query = '''
         MATCH (cs:CodeSet:Resource)<-[:HAS_MEANING]-
           (:HarmonizedAttribute)<-[:MAPS_TO]-
-          (:NodeAttribute {system: 'GDC', attribute: $attribute})-[:USES]->
+          (:NodeAttribute {system: $system, attribute: $attribute})-[:USES]->
           (:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(pv:PermissibleValue {pref_label: $pv_label})
         MATCH (cr:ConceptReference:Resource {uri: $cr_uri})
         MERGE (cr)<-[:MAPPED_TO]-(m:Mapping)-[:MAPPED_FROM]->(pv)
@@ -118,6 +120,7 @@ class Importer:
                 elif predicate_id == 'Related To':
                     predicate_id = SKOS.relatedMatch
                 params = {
+                    'system': system,
                     'attribute': attribute,
                     'predicate_id': predicate_id,
                     'pv_label': pv_label,
@@ -191,14 +194,15 @@ class Importer:
                 self.graph.run(query, **params)
 
     def import_ncit(self):
-        query = ('n10s.rdf.import.fetch("file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle", {' 
-                 'predicateExclusionList : [ "https://hotecosystem.org/termci/contents"] })')
-        self.graph.call(query)
+        # CALL 'n10s.rdf.import.fetch("file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle", {predicateExclusionList : [ "https://hotecosystem.org/termci/contents"] })'
+        self.graph.call('n10s.rdf.import.fetch', "file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle",
+                        {'predicateExclusionList': ["https://hotecosystem.org/termci/contents"]})
 
 
 if __name__ == '__main__':
-    # Importer(neo4j_graph()).import_ncit()
+    Importer(neo4j_graph()).import_ncit()
     # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
     # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
     # Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-    Importer(neo4j_graph()).import_gdc_ncit_mapping(GdcImporter.read_ncit_mappings())
+    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
+    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')

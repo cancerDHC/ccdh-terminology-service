@@ -158,16 +158,17 @@ class MdrGraph:
         return mapping_set
 
     def find_permissible_values(self, value: str):
-        query = '''        
-        MATCH (p:PermissibleValue {pref_label: $value})<-[:HAS_PERMISSIBLE_VALUE]-(:Enumeration)<-[:USES]-(d:NodeAttribute)
+        query = f'''        
+        MATCH (p:PermissibleValue)<-[:HAS_PERMISSIBLE_VALUE]-(:Enumeration)<-[:USES]-(d:NodeAttribute)
+        WHERE p.pref_label=~'(?i){value}'
         OPTIONAL MATCH (v:ConceptReference)<-[:MAPPED_TO]-(m:Mapping)-[:MAPPED_FROM]->(p) 
         return p, d, v
         '''
         pvs = []
-        cursor = self.graph.run(query, value=value)
+        cursor = self.graph.run(query)
         while cursor.forward():
             p, d, v = cursor.current
-            p['node_attribute'] = d
+            p['node_attribute'] = f'{d["system"]}.{d["entity"]}.{d["attribute"]}'
             p['meaning'] = v
             pvs.append(p)
         return pvs
@@ -179,7 +180,7 @@ class MdrGraph:
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         WHERE {where_stmt}
-        RETURN DISTINCT p.pref_label as pref_label
+        RETURN DISTINCT p.pref_label as pref_label, apoc.coll.toSet(COLLECT(n)) as node_attributes
         '''
         ret = []
         cursor: Cursor = self.graph.run(query)
@@ -191,13 +192,10 @@ class MdrGraph:
         where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
                                                                      attribute=attribute)
         query = f'''
-        MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute {{system: 'GDC'}})-[:USES]->(:Enumeration)
+        MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         WHERE {where_stmt} AND NOT (p)<-[:MAPPED_FROM]-(:Mapping)
-        RETURN DISTINCT p.pref_label as pref_label, 
-        n.system as system, 
-        n.entity as entity, 
-        n.attribute as attribute
+        RETURN DISTINCT p.pref_label as pref_label, apoc.coll.toSet(COLLECT(n)) as node_attributes
         '''
         pvs = []
         cursor: Cursor = self.graph.run(query)
@@ -205,9 +203,10 @@ class MdrGraph:
             pvs.append(cursor.current)
         crs = []
         query = f'''
-        MATCH (c:HarmonizedAttribute)-[:HAS_MEANING]->(:CodeSet)-[:HAS_MEMBER]->(cr:ConceptReference)
+        MATCH (c:HarmonizedAttribute)-[:HAS_MEANING]->(:CodeSet)-[:HAS_MEMBER]->(cr:ConceptReference)<-[:MAPPED_TO]
+        -(:Mapping)-[:MAPPED_FROM]->(pv:PermissibleValue)
         WHERE {where_stmt}
-        RETURN cr
+        RETURN DISTINCT cr, apoc.coll.toSet(COLLECT(pv)) as pv
         '''
         cursor: Cursor = self.graph.run(query)
         while cursor.forward():

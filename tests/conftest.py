@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 import requests
-from ccdh.biolinkml.cdm_biolinkml_loader import load_ccdh_specimen
 from requests.exceptions import ConnectionError
 from py2neo import Graph
 
@@ -15,11 +14,6 @@ def is_responsive(url):
             return True
     except ConnectionError:
         return False
-
-
-@pytest.fixture
-def specimen():
-    return load_ccdh_specimen()
 
 
 @pytest.fixture(scope='session')

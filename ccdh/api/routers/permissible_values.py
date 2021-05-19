@@ -12,7 +12,7 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 class PermissibleValue(BaseModel):
     pref_label: str
-    data_element: Optional[NodeAttribute]
+    node_attribute: Optional[str]
     meaning: Optional[ConceptReference]
 
 
