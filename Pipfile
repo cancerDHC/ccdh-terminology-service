@@ -7,6 +7,7 @@ verify_ssl = true
 pytest = "*"
 pytest-docker = "*"
 docker-compose = "*"
+faker = "*"
 
 [packages]
 google-api-python-client = "==1.7.9"
