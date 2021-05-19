@@ -146,7 +146,7 @@ class Importer:
               (c:HarmonizedAttribute {system: $dec_system, entity: $dec_entity, attribute: $dec_attribute})<-[:MAPS_TO]-
               (de:NodeAttribute {system: $de_system, entity: $entity, attribute: $attribute})-[:USES]->
               (vd:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(pv:PermissibleValue {pref_label: $pv_pref_label})
-            MERGE (cr:ConcepTREFERENCE:Resource {uri: $cr_uri})
+            MERGE (cr:ConceptReference:Resource {uri: $cr_uri})
             ON CREATE SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
             ON MATCH SET vm.pref_label = $vm_pref_label, vm.notation = $vm_notation, vm.scheme = $vm_in_scheme
             MERGE (vm)<-[:HAS_MEMBER]-(cd)
@@ -201,8 +201,8 @@ class Importer:
 
 if __name__ == '__main__':
     Importer(neo4j_graph()).import_ncit()
-    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
-    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
-    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
+    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
+    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
