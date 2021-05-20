@@ -6,7 +6,7 @@ from tccm_api.db.tccm_graph import TccmGraph
 from ccdh.api.routers import harmonized_attributes, node_attributes, mappings, permissible_values, enumerations
 from tccm_api.routers import concept_reference
 
-app = FastAPI(title='CCDH Tereminology Harmonization API')
+app = FastAPI(title='CCDH Tereminology Service API')
 
 app.include_router(harmonized_attributes.router)
 app.include_router(node_attributes.router)
