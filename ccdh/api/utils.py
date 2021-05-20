@@ -27,7 +27,7 @@ def decode_uri(uri: str) -> str:
     return uri
 
 
-def curie_to_uri(curie: str, curie_map) -> str:
+def curie_to_uri(curie: str, curie_map=NAMESPACES) -> str:
     """
     Expands a CURIE/identifier to a URI
     """
