@@ -8,7 +8,7 @@ from sssom.sssom_datamodel import MappingSet
 from prefixcommons import expand_uri, contract_uri
 
 # from ccdh.config import DEFAULT_PAGE_SIZE
-from ccdh.api.utils import uri_to_curie
+from ccdh.api.utils import uri_to_curie, curie_to_uri
 from ccdh.db.models import *
 
 from ccdh.namespaces import CCDH, GDC, PDC, NAMESPACES
@@ -122,6 +122,38 @@ class MdrGraph:
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
 
+    def find_mappings_of_concept_reference(self, curie: str) -> MappingSet:
+        uri = curie_to_uri(curie)
+        query = """        
+        MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
+        -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)<-[:MAPPED_FROM]-(m:Mapping)
+        -[:MAPPED_TO]->(v:ConceptReference {uri: $uri})
+        RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
+        p.pref_label as subject_label,
+        v.uri as object_id, v.designation as object_label,
+        'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
+        m.predicate_id as predicate_id,
+        m.creator_id as creator_id,
+        m.comment as comment,
+        m.mapping_date as mapping_date
+        """
+        cursor: Cursor = self.graph.run(query, uri=uri)
+        mapping_set = MappingSet(mapping_provider=str(CCDH),
+                                 creator_id='https://orcid.org/0000-0000-0000-0000',
+                                 creator_label='CCDH',
+                                 license='https://creativecommons.org/publicdomain/zero/1.0/')
+        mappings = []
+        while cursor.forward():
+            current = dict(cursor.current)
+            if current['object_id']:
+                current['object_id'] = uri_to_curie(current['object_id'])
+            if current['predicate_id']:
+                current['predicate_id'] = uri_to_curie(current['predicate_id'])
+            mappings.append(current)
+        mapping_set.mappings = mappings
+        return mapping_set
+
+
     def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
         where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
@@ -140,7 +172,6 @@ class MdrGraph:
         {paging_stmt}
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)
-        print(query)
         cursor: Cursor = self.graph.run(query)
         mapping_set = MappingSet(mapping_provider=str(CCDH),
                                  creator_id='https://orcid.org/0000-0000-0000-0000',

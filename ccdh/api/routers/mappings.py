@@ -92,6 +92,23 @@ async def upload_mappings(file: UploadFile = File(...)):
         raise HTTPException(status_code=404, detail=f"content type not supported: {file.content_type}")
 
 
+@router.get('/conceptreferences/{curie}', response_model=MappingSet,
+            responses={
+                200: {
+                    "content": {
+                        'text/tab-separated-values+sssom': {}
+                    },
+                    "description": "Retrieve the mappings from terms in nodes data dictionaries to a concept reference"
+                }
+            })
+async def get_concept_reference_mappings(request: Request, curie: str):
+    mapping_set = mdr_graph.find_mappings_of_concept_reference(curie)
+    if request.headers['accept'] == 'text/tab-separated-values+sssom':
+        return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
+    else:
+        return mapping_set.__dict__
+
+
 def generate_sssom_tsv(data):
     data_dict = dict(data)
     for key in data_dict:
