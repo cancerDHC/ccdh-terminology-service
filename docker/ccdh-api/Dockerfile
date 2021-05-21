@@ -8,4 +8,4 @@ COPY . /app
 COPY docker/.env /app/.env
 
 WORKDIR /app
-CMD uvicorn ccdh.api.app:app $ROOT_PATH --host 0.0.0.0 --port 80
+CMD pipenv run uvicorn ccdh.api.app:app $ROOT_PATH --host 0.0.0.0 --port 8000
