@@ -42,8 +42,8 @@ rfc3986 = "*"
 neo4j = "*"
 httpx = "*"
 linkml-runtime = "*"
-tccm-api = {editable = true, git = "git@github.com:HOT-Ecosystem/tccm-api.git"}
-tccm-model = {editable = true, git = "git@github.com:HOT-Ecosystem/tccm-model.git"}
+tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api"}
+tccm-model = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-model"}
 
 [requires]
 python_version = "3.8"
