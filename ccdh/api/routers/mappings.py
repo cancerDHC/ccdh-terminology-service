@@ -81,17 +81,6 @@ async def get_harmonized_attribute_value_mapping(system: str, entity: str, attri
         return mapping_set.__dict__
 
 
-@router.post('/upload')
-async def upload_mappings(file: UploadFile = File(...)):
-    if file.content_type == 'text/tab-separated-values':
-        df = pd.read_csv(file.file, sep='\t', comment='#').fillna('')
-        msd = from_dataframe(df, NAMESPACES, {})
-        Importer(neo4j_graph()).import_mapping_set(msd.mapping_set, NAMESPACES)
-        return {"filename": file.filename, 'mappings': len(msd.mapping_set.mappings)}
-    else:
-        raise HTTPException(status_code=404, detail=f"content type not supported: {file.content_type}")
-
-
 @router.get('/conceptreferences/{curie}', response_model=MappingSet,
             responses={
                 200: {
@@ -107,6 +96,17 @@ async def get_concept_reference_mappings(request: Request, curie: str):
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
         return mapping_set.__dict__
+
+
+@router.post('/upload')
+async def upload_mappings(file: UploadFile = File(...)):
+    if file.content_type == 'text/tab-separated-values':
+        df = pd.read_csv(file.file, sep='\t', comment='#').fillna('')
+        msd = from_dataframe(df, NAMESPACES, {})
+        Importer(neo4j_graph()).import_mapping_set(msd.mapping_set, NAMESPACES)
+        return {"filename": file.filename, 'mappings': len(msd.mapping_set.mappings)}
+    else:
+        raise HTTPException(status_code=404, detail=f"content type not supported: {file.content_type}")
 
 
 def generate_sssom_tsv(data):
