@@ -9,7 +9,7 @@ from datetime import date
 
 from ccdh.api.utils import uri_to_curie
 from ccdh.config import neo4j_graph
-from ccdh.importers import Importer
+from ccdh.importers.importer import Importer
 from ccdh.db.mdr_graph import MdrGraph
 from ccdh.api.namespaces import NAMESPACES
 
