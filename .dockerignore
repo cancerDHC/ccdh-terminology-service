@@ -1,2 +1,4 @@
 .git
-crdc-nodes
+docker/neo4j
+crdc-nodes/PDC-Public/ui-app
+crdc-nodes/PDC-Public/graphql
