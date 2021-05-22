@@ -1,5 +1,12 @@
 # Set Up CCDH Terminology Service
 
+Clone this repo, and pull the submodules. 
+
+```shell
+git clone 
+git submodule update --init --recursive
+```
+
 ## Using Docker
 
 This is the prefered approach to set up the service. You need to have
@@ -25,6 +32,8 @@ NEO4J_BOLT_PORT=port
 CDM_GOOGLE_SHEET_ID=google_sheet_id_to_the_CDM_definitions
 ```
 
+Add a file called `google_api_credentials.json`. 
+
 Then run the docker-compose build to build the images
 
 ```shell
@@ -37,13 +46,3 @@ If everything works, spin up the containers
 ```shell
 docker-compose up
 ```
-
-## Rebuilding the docker image
-
-If you use docker-compose to rebuild the ccdh-api image, you may see this error: 
-
-```
-error checking context: 'can't stat '/your/path/to/ccdh-terminology-service/docker/neo4j/conf''. 
-```
-
-You can reset the permission for that folder to the current user and rerun the build. 
