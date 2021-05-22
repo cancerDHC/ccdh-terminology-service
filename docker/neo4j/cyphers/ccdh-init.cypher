@@ -1,5 +1,6 @@
 CALL n10s.nsprefixes.add("neo4voc", "http://neo4j.org/vocab/sw#");
-CALL n10s.nsprefixes.add("sssom", "http://purl.org/sssom/type/");
+CALL n10s.nsprefixes.add("sssom-type", "http://purl.org/sssom/type/");
+CALL n10s.nsprefixes.add("sssom-meta", "http://purl.org/sssom/meta/");
 CALL n10s.nsprefixes.add("iso-11179", "http://www.iso.org/11179/");
 CALL n10s.nsprefixes.add("owl", "http://www.w3.org/2002/07/owl#");
 CALL n10s.nsprefixes.add("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
