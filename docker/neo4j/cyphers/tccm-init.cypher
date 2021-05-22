@@ -8,10 +8,10 @@ CALL n10s.nsprefixes.add("dc", "http://purl.org/dc/elements/1.1/");
 CALL n10s.nsprefixes.add("obo", "http://purl.obolibrary.org/obo/");
 CALL n10s.nsprefixes.add("termci", "https://hotecosystem.org/termci/");
 CALL n10s.nsprefixes.add("sh", "http://www.w3.org/ns/shacl#");
-CALL n10s.nsprefixes.add("biolinkml", "https://w3id.org/biolink/biolinkml/");
+CALL n10s.nsprefixes.add("linkml", "https://w3id.org/linkml/");
 
 // Node
-call n10s.mapping.add('http://ww.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
+call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#Concept', 'ConceptReference');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#ConceptScheme', 'ConceptSystem');
 call n10s.mapping.add('http://www.w3.org/2004/02/skos/core#CodeSet', 'CodeSet');
 
