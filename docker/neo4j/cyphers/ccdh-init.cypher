@@ -46,7 +46,7 @@ call n10s.mapping.add('http://www.iso.org/11179/DataElement', 'NodeAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/DataElementConcept', 'HarmonizedAttribute');
 call n10s.mapping.add('http://www.iso.org/11179/ValueDomain', 'Enumeration');
 call n10s.mapping.add('http://www.iso.org/11179/PermissibleValue', 'PermissibleValue');
-call n10s.mappinp.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
+call n10s.mapping.add('http://purl.org/sssom/type/TermMatch', 'Mapping');
 
 // Object Properties
 call n10s.mapping.add('http://www.iso.org/11179/dataElement.hasMeaning', 'HAS_MEANING');
