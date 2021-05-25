@@ -7,6 +7,14 @@ git clone
 git submodule update --init --recursive
 ```
 
+Because the PDC json files are under git lfs, install git-lfs if you 
+haven't, then pull the content with git lfs. 
+
+```shell
+cd crdc-nodes/PDC-Public/documentation/prod/json
+git lfs pull --include ./*.json
+```
+
 ## Using Docker
 
 This is the prefered approach to set up the service. You need to have
@@ -45,4 +53,12 @@ If everything works, spin up the containers
 
 ```shell
 docker-compose up
+```
+
+After the docker containers are up, log onto the ccdh-api container and
+load data. 
+
+```shell
+docker exec -it ccdh-api /bin/bash
+python -m ccdh.importers.importer
 ```

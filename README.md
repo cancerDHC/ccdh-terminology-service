@@ -66,7 +66,7 @@ Save the file as `google_api_credentials.json` in the root directory of this pro
 
 The first time running the scripts, you will see a browser page asking
 for you to log in. Folow the instructions. The script will download a token
-and store it locally. You won't need to log in in the future. 
+and store it locally. You won't need to log in again in the future. 
 
 ### Python packages
 

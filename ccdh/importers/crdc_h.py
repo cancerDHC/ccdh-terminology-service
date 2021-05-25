@@ -12,6 +12,10 @@ class CrdcHImporter:
         pass
 
     @staticmethod
+    def read_harmonized_attributes(yaml: str) -> Dict:
+        ...
+
+    @staticmethod
     def read_harmonized_attributes(sheet_id: str, ranges: str) -> Dict:
         """
         Extract rows of CodeableConcept attributes from Google Drive
