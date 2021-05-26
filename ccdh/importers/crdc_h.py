@@ -26,6 +26,11 @@ class CrdcHImporter:
 
     @staticmethod
     def read_harmonized_attributes(yaml: str = read_ccdh_model_yaml()) -> Dict:
+        """
+        Extract the attributes from the ccdhmodel YAML
+        :param yaml:
+        :return: a dictionary of the attributes.
+        """
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)
         harmonized_attributes = {}
         for cls in model.classes.values():
@@ -47,6 +52,7 @@ class CrdcHImporter:
     def read_harmonized_attributes_from_google_sheet(sheet_id: str, ranges: str) -> Dict:
         """
         Extract rows of CodeableConcept attributes from Google Drive
+        This function is out-dated. The attributes are being pulled from the YAML file in ccdhmodel github repo
         :param str sheet_id: The identifier of the google sheet
         :param str ranges: ranges (tab) in the sheet
         :return: A list of adm values
