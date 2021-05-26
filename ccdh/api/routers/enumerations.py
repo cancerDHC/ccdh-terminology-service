@@ -29,7 +29,7 @@ router = APIRouter(
                     "description": "Return the Enumerations",
                 }
             })
-async def get_enumeration(name: str, value_only: bool) -> Response:
+async def get_enumeration(name: str, value_only: bool = False) -> Response:
     if len(name.split('.')) != 2:
         raise HTTPException(status_code=404, detail='Enumeration not found.')
     entity, attribute = name.split('.')
