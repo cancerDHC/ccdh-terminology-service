@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from pydantic.main import BaseModel
 from tccm_api.routers.concept_reference import ConceptReference
 
-from ccdh.api.routers.node_attributes import NodeAttribute
+from ccdh.api.routers.models import NodeAttribute
 from ccdh.config import neo4j_graph
 from ccdh.db.mdr_graph import MdrGraph
 
