@@ -32,15 +32,6 @@ class Enumeration(BaseModel):
     name: str
 
 
-class HarmonizedAttribute(BaseModel):
-    system: str
-    entity: str
-    attribute: str
-    definition: Optional[str]
-    mapped_attributes: Optional[List['NodeAttribute']]
-    concept_references: Optional[List[ConceptReference]]
-
-
 class Mapping(BaseModel):
     # subject_id: Optional[str]
     subject_match_field: str
@@ -64,8 +55,25 @@ class MappingSet(BaseModel):
     mappings: List[Mapping] = []
 
 
+class NodeAttribute(BaseModel):
+    system: str
+    entity: str
+    attribute: str
+    definition: Optional[str]
+    harmonized_attribute: Optional['HarmonizedAttribute']
+    permissible_values: Optional[List[str]]
 
-from ccdh.api.routers.node_attributes import NodeAttribute
+
+class HarmonizedAttribute(BaseModel):
+    system: str
+    entity: str
+    attribute: str
+    definition: Optional[str]
+    node_attributes: Optional[List['NodeAttribute']]
+    concept_references: Optional[List[ConceptReference]]
+
+
+NodeAttribute.update_forward_refs()
 HarmonizedAttribute.update_forward_refs()
 
 
