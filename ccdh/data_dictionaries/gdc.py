@@ -1,13 +1,7 @@
 from collections import namedtuple
-from jsonschema import RefResolver
 
-import glob
-import logging
-import os
-import yaml
 from pathlib import Path
-from ccdh.cdm import cdm_dictionary_sheet
-from copy import deepcopy
+from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
 import csv
 from typing import List
 import sys

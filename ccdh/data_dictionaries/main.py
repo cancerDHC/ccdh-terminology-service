@@ -1,13 +1,11 @@
-from ccdh.cdm import cdm_dictionary_sheet
-from ccdh.config import config, CDM_GOOGLE_SHEET_ID
-from ccdh.htan import htan_values
-from ccdh.icdc import icdc_values
+from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
+from ccdh.config import CDM_GOOGLE_SHEET_ID
+from ccdh.data_dictionaries.htan import htan_values
 import csv
 from fhirclient import client
 from fhirclient.models.valueset import ValueSet
-from ccdh.gdc import gdc_values
-from ccdh.pdc import pdc_values
-from ccdh.icdc import icdc_values
+from ccdh.data_dictionaries.gdc import gdc_values
+from ccdh.data_dictionaries.pdc import pdc_values
 from pathlib import Path
 from datetime import date
 

@@ -1,18 +1,13 @@
 import sys
-from copy import deepcopy
 from collections import namedtuple
-from contextlib import contextmanager
-from jsonschema import RefResolver
 
 import glob
 import logging
-import os
 import yaml
 from pathlib import Path
-from copy import deepcopy
 import csv
-from ccdh.gdc import expand_rows
-from ccdh.cdm import cdm_dictionary_sheet
+from ccdh.data_dictionaries.gdc import expand_rows
+from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
 
 GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
