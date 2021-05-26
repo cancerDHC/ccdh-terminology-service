@@ -335,6 +335,17 @@ class MdrGraph:
             res.append(value['model'])
         return res
 
+    def list_harmonized_models(self):
+        query = '''
+        MATCH (n) WHERE n:HarmonizedAttribute RETURN DISTINCT n.system as model
+        '''
+        cursor: Cursor = self.graph.run(query)
+        res = []
+        while cursor.forward():
+            value = cursor.current
+            res.append(value['model'])
+        return res
+
     def list_entities(self, model: str):
         query = '''
         MATCH (n {system: $system}) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN DISTINCT n.entity as entity

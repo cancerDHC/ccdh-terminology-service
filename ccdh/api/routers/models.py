@@ -211,10 +211,10 @@ async def get_model_entity_attributes(model: str, entity: str):
                 }
             })
 async def get_model_entity_attribute(model: str, entity: str, attribute: str) -> Union[HarmonizedAttribute, NodeAttribute]:
-    if model in ['GDC', 'PDC']:
-        return mdr_graph.find_node_attributes_complete(model, entity, attribute)[0]
-    else:
+    if model in mdr_graph.list_harmonized_models():
         return mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)[0]
+    else:
+        return mdr_graph.find_node_attributes_complete(model, entity, attribute)[0]
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/enumerations',
@@ -234,7 +234,7 @@ async def get_model_entity_attribute(model: str, entity: str, attribute: str) ->
                 }
             })
 async def get_model_entity_attribute_enums(model: str, entity: str, attribute: str) -> List[Enumeration]:
-    return [Enumeration(name=entity + '.' + attribute)]
+    return [Enumeration(name=model + '.' + entity + '.' + attribute)]
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/mappings',
@@ -250,10 +250,10 @@ async def get_model_entity_attribute_enums(model: str, entity: str, attribute: s
                 }
             })
 async def get_model_entity_attribute_mappings(request: Request, model: str, entity: str, attribute: str) -> MappingSet:
-    if model in ['GDC', 'PDC']:
-        mapping_set = mdr_graph.find_mappings_of_node_attribute(model, entity, attribute, pagination=False)
-    else:
+    if model in mdr_graph.list_harmonized_models():
         mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(model, entity, attribute, pagination=False)
+    else:
+        mapping_set = mdr_graph.find_mappings_of_node_attribute(model, entity, attribute, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
         return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
     else:
