@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get('/{enum_name}',
+@router.get('/{name}',
             response_model_exclude_none=True,
             response_model_exclude_unset=True,
             response_class=Response,
