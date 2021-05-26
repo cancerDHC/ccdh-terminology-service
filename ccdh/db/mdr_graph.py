@@ -323,3 +323,37 @@ class MdrGraph:
             dec['concept_references'] = vms
             records.append(dec)
         return records
+
+    def list_models(self):
+        query = '''
+        MATCH (n) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN DISTINCT n.system as model
+        '''
+        cursor: Cursor = self.graph.run(query)
+        res = []
+        while cursor.forward():
+            value = cursor.current
+            res.append(value['model'])
+        return res
+
+    def list_entities(self, model: str):
+        query = '''
+        MATCH (n {system: $system}) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN DISTINCT n.entity as entity
+        '''
+        cursor: Cursor = self.graph.run(query, system=model)
+        res = []
+        while cursor.forward():
+            value = cursor.current
+            res.append(value['entity'])
+        return res
+
+    def list_attributes(self, model: str, entity: str):
+        query = '''
+        MATCH (n {system: $system, entity: $entity}) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN n.attribute as attribute
+        '''
+        cursor: Cursor = self.graph.run(query, system=model, entity=entity)
+        res = []
+        while cursor.forward():
+            value = cursor.current
+            res.append(value['attribute'])
+        return res
+

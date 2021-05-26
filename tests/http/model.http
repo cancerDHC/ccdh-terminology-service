@@ -1,0 +1,32 @@
+GET {{host_port}}/models
+Accept: application/json
+
+###
+
+GET {{host_port}}/models/GDC
+Accept: application/json
+
+###
+
+
+GET {{host_port}}/models/CDM/entities
+Accept: application/json
+
+###
+
+
+GET {{host_port}}/models/CDM/entities/Specimen
+Accept: application/json
+
+###
+
+
+GET {{host_port}}/models/CDM/entities/Specimen/attributes
+Accept: application/json
+
+###
+
+GET {{host_port}}/models/CDM/entities/Specimen/attributes/analyte_type
+Accept: application/json
+
+###
