@@ -1,4 +1,4 @@
-from ccdh.gdc import *
+from ccdh.data_dictionaries.gdc import *
 
 
 def test_gdc_ncit_map():

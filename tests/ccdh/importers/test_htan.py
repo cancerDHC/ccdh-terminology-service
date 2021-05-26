@@ -1,4 +1,4 @@
-from ccdh.htan import *
+from ccdh.data_dictionaries.htan import *
 
 
 def test_field_name():

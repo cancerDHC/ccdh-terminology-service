@@ -1,4 +1,4 @@
-from ccdh.main import get_ncit_code
+from ccdh.data_dictionaries.main import get_ncit_code
 
 
 def test_get_ncit_code():

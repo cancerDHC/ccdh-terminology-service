@@ -1,6 +1,6 @@
 from rfc3986 import uri_reference, is_valid_uri
 from urllib.parse import unquote, unquote_plus
-from ccdh.api.namespaces import NAMESPACES
+from ccdh.namespaces import NAMESPACES
 from prefixcommons.curie_util import contract_uri
 
 

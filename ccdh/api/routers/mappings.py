@@ -11,7 +11,7 @@ from ccdh.api.utils import uri_to_curie
 from ccdh.config import neo4j_graph
 from ccdh.importers.importer import Importer
 from ccdh.db.mdr_graph import MdrGraph
-from ccdh.api.namespaces import NAMESPACES
+from ccdh.namespaces import NAMESPACES
 
 mdr_graph = MdrGraph(neo4j_graph())
 

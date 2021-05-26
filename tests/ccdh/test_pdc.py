@@ -1,5 +1,5 @@
 import pytest
-from ccdh.pdc import PDCDictionary, PDC_ROOT
+from ccdh.data_dictionaries.pdc import PDCDictionary, PDC_ROOT
 
 
 @pytest.fixture

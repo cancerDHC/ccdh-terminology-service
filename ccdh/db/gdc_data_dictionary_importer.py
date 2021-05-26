@@ -4,11 +4,10 @@ from pathlib import Path
 from typing import List
 
 from py2neo import Subgraph, Relationship
-from sssom.io import *
 
 from ccdh.config import ROOT_DIR, neo4j_graph
 from ccdh.db.mdr_graph import MdrGraph
-from ccdh.gdc import gdc_ncit_mappings
+from ccdh.data_dictionaries.gdc import gdc_ncit_mappings
 
 GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))

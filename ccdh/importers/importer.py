@@ -86,7 +86,13 @@ class Importer:
 
         if 'node_attributes' in harmonized_attribute:
             for node_attribute in harmonized_attribute['node_attributes']:
-                system, entity, attribute = node_attribute.split('.')
+                try:
+                    system, entity_attribute = node_attribute.split(':')
+                    entity, attribute = entity_attribute.split('.')
+                except ValueError as e:
+                    logger.error(f'Failed to parse the mapping attribute name: {node_attribute}')
+                    logger.error(e)
+                    continue
                 na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
                 if na_node is None:
                     print(node_attribute + ' not found in database')
@@ -202,8 +208,8 @@ class Importer:
 if __name__ == '__main__':
     print('test')
     # Importer(neo4j_graph()).import_ncit()
-    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
     # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-    # Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes(CDM_GOOGLE_SHEET_ID, 'MVPv0'))
+    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes())
     # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
     # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
