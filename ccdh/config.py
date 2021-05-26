@@ -8,14 +8,16 @@ ROOT_DIR = Path(__file__).parent.parent
 
 def neo4j_graph() -> Graph:
     settings: Settings = get_settings()
-    return Graph(settings.neo4j_bolt_uri, auth=(settings.neo4j_username, settings.neo4j_password))
+    neo4j_bolt_uri = f'bolt://{settings.neo4j_host}:{settings.neo4j_bolt_port}'
+    return Graph(neo4j_bolt_uri, auth=(settings.neo4j_username, settings.neo4j_password))
 
 
 class Settings(BaseSettings):
     app_name: str = 'TCCM API'
     neo4j_username: str
     neo4j_password: str
-    neo4j_bolt_uri: str
+    neo4j_host: str
+    neo4j_bolt_port: str
     cdm_google_sheet_id: str
 
     class Config:
