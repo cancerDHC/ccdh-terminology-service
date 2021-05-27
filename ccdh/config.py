@@ -3,6 +3,7 @@ from py2neo import Graph
 from pathlib import Path
 from pydantic import BaseSettings
 import logging
+from typing import Optional
 
 ROOT_DIR = Path(__file__).parent.parent
 
@@ -26,7 +27,7 @@ class Settings(BaseSettings):
     neo4j_password: str
     neo4j_host: str
     neo4j_bolt_port: str
-    ccdhmodel_branch: str
+    ccdhmodel_branch: Optional[str] = 'main'
 
     class Config:
         env_file = ".env"
