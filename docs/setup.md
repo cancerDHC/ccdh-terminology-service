@@ -36,11 +36,14 @@ NEO4J_USERNAME=username
 NEO4J_PASSWORD=password
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=port
-
-CDM_GOOGLE_SHEET_ID=google_sheet_id_to_the_CDM_definitions
 ```
 
-Add a file called `google_api_credentials.json`. 
+By default, the importer will pull the CRDC-H YAML from the main branch of the ccdhmodel GitHub repo. 
+If another branch is preferred, you can add this line in the .env file.
+
+```shell
+CCDHMODEL_BRANCH=ccdhmodel_branch_name_or_full_sha_commit_id
+```
 
 Then run the docker-compose build to build the images
 
@@ -62,3 +65,6 @@ load data.
 docker exec -it ccdh-api /bin/bash
 python -m ccdh.importers.importer
 ```
+
+After data is loaded, the server will be running on a local port at 7070. You can visit
+http://localhost:7070. 
