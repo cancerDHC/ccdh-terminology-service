@@ -1,5 +1,6 @@
 from typing import List, Dict
 import logging
+import sys
 
 from prefixcommons import contract_uri
 from py2neo import Graph, Subgraph, Relationship
@@ -7,15 +8,14 @@ from sssom import MappingSet, Mapping
 
 from ccdh.api.utils import decode_uri
 
-from ccdh.config import neo4j_graph, CDM_GOOGLE_SHEET_ID
+from ccdh.config import neo4j_graph
 from ccdh.importers.crdc_h import CrdcHImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
 from ccdh.db.mdr_graph import MdrGraph
 from ccdh.namespaces import NAMESPACES, NCIT, SKOS
 
-logger = logging.getLogger('ccdh.importers')
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger('ccdh.importers.importer')
 
 
 class Importer:
@@ -61,8 +61,11 @@ class Importer:
             self.import_node_attribute(node_attribute)
 
     def import_harmonized_attributes(self, harmonized_attributes: Dict[str, Dict]):
+        logger.info("Importing CRDC-H model -- started")
         for key, harmonized_attribute in harmonized_attributes.items():
             self.import_harmonized_attribute(harmonized_attribute)
+        logger.info("Processed attributes: " + str(len(harmonized_attributes)))
+        logger.info("Importing CRDC-H model -- completed")
 
     def import_harmonized_attribute(self, harmonized_attribute):
         system = harmonized_attribute['system']
@@ -206,9 +209,9 @@ class Importer:
 
 
 if __name__ == '__main__':
-    Importer(neo4j_graph()).import_ncit()
-    Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_ncit()
+    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
     Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes())
-    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
-    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
+    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
+    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
