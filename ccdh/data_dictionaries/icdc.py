@@ -8,13 +8,12 @@ from pathlib import Path
 
 import yaml
 
-from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
-GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
+GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import visit_directory
 
-ICDC_ROOT = Path(__file__).parent.parent / 'icdc-biolinkml-tool/biolinkml-desc'
+ICDC_ROOT = Path(__file__).parent.parent.parent / 'crdc-nodes/icdc-model-tool/model-desc'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
@@ -63,8 +62,8 @@ class ICDCDictionary(object):
         """Load and reslove all schemas from directory"""
 
         yamls = self.load_schemas_from_dir(directory)
-        self.properties = yamls['icdc-biolinkml-props.yml']['PropDefinitions']
-        self.entities = yamls['icdc-biolinkml.yml']['Nodes']
+        self.properties = yamls['icdc-model-props.yml']['PropDefinitions']
+        self.entities = yamls['icdc-model.yml']['Nodes']
 
 
 def icdc_values(rows):
@@ -90,15 +89,3 @@ def icdc_values(rows):
             new_row[-1] = code
             new_rows.append(new_row)
     return new_rows
-
-
-def main():
-    rows = icdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
-    with open('icdc.tsv', 'w', newline='') as f_output:
-        tsv_output = csv.writer(f_output, delimiter='\t')
-        for row in rows:
-            tsv_output.writerow(row)
-
-
-if __name__ == '__main__':
-    main()

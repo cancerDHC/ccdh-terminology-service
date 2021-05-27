@@ -1,19 +1,19 @@
 from collections import namedtuple
 
 from pathlib import Path
-from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
 import csv
 from typing import List
 import sys
 
-GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
+GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
+print(GDC_DIR)
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import GDCDictionary
 
 
 MOD_DIR = GDC_DIR / 'gdcdictionary'
-MAP_DIR = Path(__file__).parent.parent / 'data/mappings/gdc-ncit'
+MAP_DIR = Path(__file__).parent.parent.parent / 'data/mappings/gdc-ncit'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
@@ -76,14 +76,3 @@ def gdc_values(rows):
             new_rows.extend(expand_rows(row, codes, cde_id))
     return new_rows
 
-
-def main():
-    rows = gdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
-    with open('gdc.tsv', 'w', newline='') as f_output:
-        tsv_output = csv.writer(f_output, delimiter='\t')
-        for row in rows:
-            tsv_output.writerow(row)
-
-
-if __name__ == '__main__':
-    main()

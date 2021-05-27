@@ -7,15 +7,14 @@ import yaml
 from pathlib import Path
 import csv
 from ccdh.data_dictionaries.gdc import expand_rows
-from ccdh.data_dictionaries.cdm import cdm_dictionary_sheet
 
-GDC_DIR = Path(__file__).parent.parent / 'crdc-nodes/gdcdictionary'
+GDC_DIR = Path(__file__).parent.parent.parent / 'crdc-nodes/gdcdictionary'
 sys.path.append(str(GDC_DIR))
 
 from gdcdictionary.python import visit_directory
 
 
-PDC_ROOT = Path(__file__).parent.parent / 'PDC-public/documentation/prod/yaml'
+PDC_ROOT = Path(__file__).parent.parent.parent / 'crdc-nodes/PDC-public/documentation/prod/yaml'
 
 ResolverPair = namedtuple('ResolverPair', ['resolver', 'source'])
 
@@ -40,7 +39,7 @@ class PDCDictionary(object):
         # But allow unicode through the terms and definitions
         with open(name, 'r') as f:
             try:
-                f.read().encode("ascii")
+                f.read().encode("utf-8")
                 f.seek(0)
             except Exception as e:
                 self.logger.error("Error in file: {}".format(name))
@@ -103,15 +102,3 @@ def pdc_values(rows):
             codes = props[attr].get('enum', [])
             new_rows.extend(expand_rows(row, codes, cde_id))
     return new_rows
-
-
-def main():
-    rows = pdc_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
-    with open('pdc.tsv', 'w', newline='') as f_output:
-        tsv_output = csv.writer(f_output, delimiter='\t')
-        for row in rows:
-            tsv_output.writerow(row)
-
-
-if __name__ == '__main__':
-    main()

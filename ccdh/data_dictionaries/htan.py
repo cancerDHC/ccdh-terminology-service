@@ -43,15 +43,3 @@ def htan_values(rows: iter):
         codes = [split_term(term) for term in schema_explorer.find_children_classes(attr_name)]
         new_rows.extend(expand_rows(row, codes, ''))
     return new_rows
-
-
-def main():
-    rows = htan_values(cdm_dictionary_sheet('1oWS7cao-fgz2MKWtyr8h2dEL9unX__0bJrWKv6mQmM4'))
-    with open('htan.tsv', 'w', newline='') as f_output:
-        tsv_output = csv.writer(f_output, delimiter='\t')
-        for row in rows:
-            tsv_output.writerow(row)
-
-
-if __name__ == '__main__':
-    main()

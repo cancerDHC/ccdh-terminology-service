@@ -1,11 +1,7 @@
 # CCDH Terminology Service 
 
-The terminology services that supports the (CCDH)[https://ccdh.cancer.gov] CRDC-H harmonization model.
-
-Two major parts of this repo: 
-
-* A terminology service
-* Scripts that transform the CRDC-H model google sheets to [LinkML](https://linkml.github.io/). (To be moved to the ccdhmodel repo) 
+The CCDH terminology service is a RESTful API that supports the validation, lookup, binding, and mapping of the concepts 
+in the CCDH data harmonization process and the transformation and validation workflow.  
 
 ## Terminology Service Rest API
 
@@ -51,8 +47,6 @@ Mappings loaded:
 Ontologies and Concept Systems: 
 
 * NCIT
-
-
 
 ## Set up
 

@@ -1,6 +1,5 @@
 from googleapiclient.discovery import build
 
-from ccdh.config import CDM_GOOGLE_SHEET_ID
 from ccdh.gdrive.authorize import authorize
 from typing import List
 import pprint
@@ -53,15 +52,3 @@ def cdm_dictionary_sheet(sheet_id: str, ranges: str) -> List[List]:
             row[3] = f'{values[4]}.{values[5]}'
             rows.append(row)
     return rows
-
-
-def main():
-    rows = cdm_dictionary_sheet(sheet_id=CDM_GOOGLE_SHEET_ID, ranges='MVPv0')
-    with open('output.tsv', 'w', newline='') as f_output:
-        tsv_output = csv.writer(f_output, delimiter='\t')
-        for row in rows:
-            tsv_output.writerow(row)
-
-
-if __name__ == '__main__':
-    main()
