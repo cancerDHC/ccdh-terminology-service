@@ -5,8 +5,8 @@ services:
     image: neo4j:latest
     container_name: ccdh-test-neo4j-container
     environment:
-      - NEO4J_AUTH=neo4j/harmonization
-      - NEO4JLABS_PLUGINS=["apoc"]
+      - NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD
+      - NEO4JLABS_PLUGINS=["apoc", "n10s"]
     ports:
-      - "7768:7687"
-      - "4747:7474"
+      - $NEO4J_BOLT_PORT:7687
+      - "7474:7474"
