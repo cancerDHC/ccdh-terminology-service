@@ -1,9 +1,6 @@
 from sssom.sssom_datamodel import Mapping, MappingSet
-from sssom.io import *
 import pytest
-from ccdh.api.routers.mappings import generate_sssom_tsv
 from ccdh.namespaces import NAMESPACES
-# Some tests to demonstrate how to use sssom-py
 
 
 @pytest.fixture
