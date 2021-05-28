@@ -20,10 +20,7 @@ jobs:
         submodules: true
     - name: git lfs
       run: |
-        sudo apt-get install git-lfs
-        cd crdc-nodes/PDC-Public/documentation/prod/json
-        git lfs pull --include ./*.json
-        cd ../../../../../
+        git lfs pull --include crdc-nodes/PDC-Public/documentation/prod/json/*.json
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
