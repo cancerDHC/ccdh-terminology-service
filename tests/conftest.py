@@ -6,6 +6,8 @@ import requests
 from requests.exceptions import ConnectionError
 from py2neo import Graph
 
+from ccdh.config import get_settings
+
 
 def is_responsive(url):
     try:
@@ -18,6 +20,7 @@ def is_responsive(url):
 
 @pytest.fixture(scope='session')
 def neo4j_graph(docker_ip, docker_services):
+    settings = get_settings()
     port = docker_services.port_for('ccdh-neo4j', 7474)
     url = f'http://{docker_ip}:{port}'
     docker_services.wait_until_responsive(
@@ -25,5 +28,5 @@ def neo4j_graph(docker_ip, docker_services):
     )
     bolt_port = docker_services.port_for('ccdh-neo4j', 7687)
     bolt_url = f'bolt://{docker_ip}:{bolt_port}'
-    graph = Graph(bolt_url, auth=('neo4j', 'harmonization'))
+    graph = Graph(bolt_url, auth=(settings.neo4j_username, settings.neo4j_password))
     yield graph
