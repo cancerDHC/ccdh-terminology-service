@@ -2,12 +2,13 @@ import csv
 import json
 import logging
 import os
-from typing import List
+from typing import List, Union
 import requests
 from requests.exceptions import HTTPError
 from datetime import datetime
 
 from ccdh import ROOT_DIR
+from ccdh.importers.cadsr import get_cadsr_values
 
 logger = logging.getLogger('ccdh.importers.gdc')
 logger.setLevel(logging.DEBUG)
@@ -19,6 +20,19 @@ GDC_MAPING_DIR = ROOT_DIR / 'data/mappings/gdc-ncit'
 class GdcImporter:
     def __init__(self):
         ...
+
+    @staticmethod
+    def get_value_descriptions_from_cadsr(cde_id: Union[str, None]):
+        if cde_id is None:
+            return {}
+        values = get_cadsr_values(cde_id)
+        value_desc = {}
+        if values is None:
+            logger.warning("CDE ID contains no values: " + cde_id)
+            return {}
+        for v in values:
+            value_desc[v.code] = v.display
+        return value_desc
 
     @staticmethod
     def read_data_dictionary() -> List:
@@ -34,15 +48,28 @@ class GdcImporter:
                     permissible_values = values['enum']
                     if 'deprecated_enum' in values:
                         permissible_values = list(set(permissible_values).difference(values['deprecated_enum']))
-                    cde_id = values.get('termDev', {}).get('cde_id', None)
+                    cde_id = values.get('termDef', {}).get('cde_id', None)
                     harmonized_attribute = {
                         'system': 'GDC',
                         'entity': entity_name,
                         'attribute': prop,
                         'definition': values.get('description', None),
-                        'permissible_values': permissible_values,
-                        'cadsr_cde': cde_id
+                        # 'permissible_values': permissible_values,
+                        # 'cadsr_cde': cde_id
                     }
+                    permissible_values = values['enum']
+                    if 'deprecated_enum' in values:
+                        permissible_values = list(set(permissible_values).difference(values['deprecated_enum']))
+                    pvs = {}
+                    for pv in permissible_values:
+                        pvs[pv] = None
+                    if cde_id is not None:
+                        value_desc = GdcImporter.get_value_descriptions_from_cadsr(str(cde_id))
+                        for pv in permissible_values:
+                            if pv in value_desc:
+                                pvs[pv] = value_desc[pv]
+                        harmonized_attribute['cadsr_cde'] = str(cde_id)
+                    harmonized_attribute['permissible_values'] = pvs
                     harmonized_attributes[f'GDC.{entity_name}.{prop}'] = harmonized_attribute
         return harmonized_attributes
 

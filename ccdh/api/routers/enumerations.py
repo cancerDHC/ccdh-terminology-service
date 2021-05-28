@@ -38,17 +38,16 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
     if value_only:
         values = mdr_graph.find_permissible_values_of(system, entity, attribute)
         for v in values:
-            enum.permissible_values.append(PermissibleValue(text=v['pref_label'], description=v['pref_label']))
+            enum.permissible_values.append(PermissibleValue(text=v['pref_label'], description=v['description']))
     else:
         concepts, values = mdr_graph.find_concept_references_and_permissible_values_of(system, entity, attribute)
-        for value in values:
-            pref_label = value['pref_label']
-            node_attributes = value['node_attributes']
+        for v in values:
+            node_attributes = v['node_attributes']
             contexts = []
             for attr in node_attributes:
                 contexts.append(f'{attr["system"]}.{attr["entity"]}.{attr["attribute"]}')
             extensions = {'CCDH:context': '; '.join(contexts)}
-            pv = PermissibleValue(text=pref_label, description=pref_label)
+            pv = PermissibleValue(text=v['pref_label'], description=v['description'])
             enum.permissible_values.append(pv)
         for concept in concepts:
             concept = dict(concept['cr'])

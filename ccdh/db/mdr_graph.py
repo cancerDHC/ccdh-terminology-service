@@ -56,16 +56,12 @@ class MdrGraph:
         return Node('Enumeration', 'Resource', uri=uri)
 
     @staticmethod
-    def create_concept_reference(uri, notation, defined_in, pref_label, version=None, is_curie=True):
-        uri = expand_uri(uri, NAMESPACES) if is_curie else uri
-        concept_reference = Node('ConceptReference', 'Resource', uri=uri, notation=notation,
-                                 defined_in=defined_in, pref_label=pref_label, version=version)
-        return concept_reference
-
-    @staticmethod
-    def create_permissible_value(value: str):
+    def create_permissible_value(value: str, description: str):
         uri = MdrGraph.create_permissible_value_uri()
-        pv = Node('PermissibleValue', 'Resource', pref_label=value, uri=uri)
+        if description is None:
+            pv = Node('PermissibleValue', 'Resource', pref_label=value, uri=uri)
+        else:
+            pv = Node('PermissibleValue', 'Resource', pref_label=value, description=description, uri=uri)
         return pv
 
     @staticmethod
@@ -211,7 +207,7 @@ class MdrGraph:
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         WHERE {where_stmt}
-        RETURN DISTINCT p.pref_label as pref_label, apoc.coll.toSet(COLLECT(n)) as node_attributes
+        RETURN DISTINCT p.pref_label as pref_label, p.description as description, apoc.coll.toSet(COLLECT(n)) as node_attributes
         '''
         ret = []
         cursor: Cursor = self.graph.run(query)
@@ -226,7 +222,7 @@ class MdrGraph:
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
         WHERE {where_stmt} AND NOT (p)<-[:MAPPED_FROM]-(:Mapping)
-        RETURN DISTINCT p.pref_label as pref_label, apoc.coll.toSet(COLLECT(n)) as node_attributes
+        RETURN DISTINCT p.pref_label as pref_label, p.description as description, apoc.coll.toSet(COLLECT(n)) as node_attributes
         '''
         pvs = []
         cursor: Cursor = self.graph.run(query)

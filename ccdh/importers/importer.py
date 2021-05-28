@@ -45,8 +45,8 @@ class Importer:
         subgraph |= enum_node
         subgraph |= Relationship(na_node, 'USES', enum_node)
 
-        for value in permissible_values:
-            pv_node = self.mdr_graph.create_permissible_value(value)
+        for value, description in permissible_values.items():
+            pv_node = self.mdr_graph.create_permissible_value(value, description)
             subgraph |= pv_node
             subgraph |= Relationship(enum_node, 'HAS_PERMISSIBLE_VALUE', pv_node)
 
@@ -115,7 +115,7 @@ class Importer:
           (:NodeAttribute {system: $system, attribute: $attribute})-[:USES]->
           (:Enumeration)-[:HAS_PERMISSIBLE_VALUE]->(pv:PermissibleValue {pref_label: $pv_label})
         MATCH (cr:ConceptReference:Resource {uri: $cr_uri})
-        MERGE (cr)<-[:MAPPED_TO]-(m:Mapping)-[:MAPPED_FROM]->(pv)
+        MERGE (cr)<-[:MAPPED_TO]-(m:Mapping:Resource)-[:MAPPED_FROM]->(pv)
         ON CREATE SET m.predicate_id = $predicate_id, m.creator_id = $creator_id
         ON MATCH SET m.predicate_id = $predicate_id, m.creator_id = $creator_id
         MERGE (cs)-[:HAS_MEMBER]->(cr)
