@@ -35,7 +35,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Create .env file
       run: |
-        echo -en "NEO4J_USERNAME=neo4j\nNEO4J_PASSWORD=ccdh\nNEO4J_HOST=localhost\nNEO4J_BOLT_PORT=7687" > .env
+        echo -en "NEO4J_USERNAME=neo4j\nNEO4J_PASSWORD=ccdh\nNEO4J_HOST=localhost\nNEO4J_BOLT_PORT=7687\nCCDHMODEL_BRANCH=7d377740f17ad0cb1bf716483f64a55fd6fabf34" > .env
     - name: Test with pytest
       run: |
         pytest
