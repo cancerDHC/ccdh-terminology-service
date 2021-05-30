@@ -1,20 +1,24 @@
 import logging
 from typing import Dict
 import requests
-from googleapiclient.discovery import build
 from linkml.loaders import yaml_loader
 from linkml.utils.yamlutils import YAMLRoot
 
 from ccdh.config import get_settings
 
+logger = logging.getLogger('ccdh.importers.crcd_h')
+
 
 def read_ccdh_model_yaml():
     branch = get_settings().ccdhmodel_branch
     yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/{branch}/src/schema/ccdhmodel.yaml'
+    logger.info("Retrieving CCDH Model YAML: " + yaml_url)
     r = requests.get(yaml_url)
     if r.status_code == 200:
         return r.content
     else:
+        logger.info(f"Failed to Retrieving CCDH Model YAML: {r.status_code}")
+        logger.info(r.content)
         raise ValueError('Failed to fetch yaml from ' + yaml_url)
 
 
@@ -33,14 +37,19 @@ class CrdcHImporter:
         harmonized_attributes = {}
         for cls in model.classes.values():
             for attribute in cls.get('attributes', {}).values():
-                if attribute['range'] == 'CodeableConcept':
+                if attribute['range'] == f'CCDH_{cls["name"]}_{attribute["name"]}':
                     key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
                     harmonized_attribute = {
                         'system': model.name, 'entity': cls["name"], 'attribute': attribute["name"],
                         'definition': attribute["description"], 'node_attributes': []
                     }
-                    if "related_mappings" in attribute:
-                        for m in attribute["related_mappings"]:
+                    if "exact_mappings" in attribute:
+                        for m in attribute["exact_mappings"]:
                             harmonized_attribute['node_attributes'].append(m)
+                    # if "related_mappings" in attribute:
+                    #     for m in attribute["related_mappings"]:
+                    #         harmonized_attribute['node_attributes'].append(m)
+                    # harmonized_attribute['node_attributes'] = list(set(harmonized_attribute['node_attributes']))
                     harmonized_attributes[key] = harmonized_attribute
+        logger.info("Parsed the content in the CCDH Model YAML")
         return harmonized_attributes

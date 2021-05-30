@@ -98,7 +98,7 @@ class Importer:
                     continue
                 na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
                 if na_node is None:
-                    print(node_attribute + ' not found in database')
+                    logger.warning(node_attribute + ' not found in database')
                 else:
                     subgraph |= Relationship(na_node, 'MAPS_TO', ha_node)
 
