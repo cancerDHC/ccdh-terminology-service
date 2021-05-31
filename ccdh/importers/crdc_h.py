@@ -37,7 +37,7 @@ class CrdcHImporter:
         harmonized_attributes = {}
         for cls in model.classes.values():
             for attribute in cls.get('attributes', {}).values():
-                if attribute['range'] == f'CCDH_{cls["name"]}_{attribute["name"]}':
+                if attribute['range'] == f'enum_CCDH_{cls["name"]}_{attribute["name"]}':
                     key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
                     harmonized_attribute = {
                         'system': model.name, 'entity': cls["name"], 'attribute': attribute["name"],
