@@ -1,4 +1,4 @@
-# Set Up CCDH Terminology Service
+# Quick start
 
 Clone this repo, and pull the submodules. 
 
