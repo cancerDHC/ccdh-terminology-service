@@ -127,7 +127,7 @@ class MdrGraph:
         RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.pref_label as subject_label,
         v.uri as object_id, v.designation as object_label,
-        'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
+        c.system + '.' + c.entity + '.' + c.attribute as object_match_field,
         m.predicate_id as predicate_id,
         m.creator_id as creator_id,
         m.comment as comment,
@@ -149,7 +149,6 @@ class MdrGraph:
         mapping_set.mappings = mappings
         return mapping_set
 
-
     def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
         where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
@@ -160,7 +159,7 @@ class MdrGraph:
         RETURN n.system + '.' + n.entity + '.' + n.attribute as subject_match_field,
         p.pref_label as subject_label,
         v.uri as object_id, v.designation as object_label,
-        'CDM' + '.' + c.entity + '.' + c.attribute as object_match_field,
+        c.system + '.' + c.entity + '.' + c.attribute as object_match_field,
         m.predicate_id as predicate_id,
         m.creator_id as creator_id,
         m.comment as comment,
