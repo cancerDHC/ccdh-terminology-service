@@ -7,8 +7,7 @@ git clone
 git submodule update --init --recursive
 ```
 
-Because the PDC json files are under git lfs, install git-lfs if you 
-haven't, then pull the content with git lfs. 
+Because the PDC json files are under Git LFS (Large File Storage), it must be installed in the repository. Follow [these instrucions](https://git-lfs.github.com/) for installling Git LFS on your machine. Then, install it in the repo via `git lfs install`. Then, pull the content with git lfs.
 
 ```shell
 cd crdc-nodes/PDC-Public/documentation/prod/json
