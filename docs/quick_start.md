@@ -25,9 +25,9 @@ First copy the TCCM NCIT Turtle RDF to the docker import directory for neo4j.
 cp data/tccm/ncit-termci.ttl docker/neo4j/import
 ```
 
-Create a .env file with required environment variables. 
+In the `docker/` folder, Create a `.env` file with required environment variables.
 
-The .env file should contain the following:
+The `.env` file should contain the following:
 
 ```
 NEO4J_BOLT_URI=bolt://host:port
@@ -36,6 +36,8 @@ NEO4J_PASSWORD=password
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=port
 ```
+
+Choose whatever username, password, and port you want. The typical default port number for NEO4J projects is `7687`, if you'd like to use that.
 
 By default, the importer will pull the CRDC-H YAML from the main branch of the ccdhmodel GitHub repo. 
 If another branch is preferred, you can add this line in the .env file.
