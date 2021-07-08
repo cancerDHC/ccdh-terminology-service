@@ -1,0 +1,18 @@
+name: Test Refresh Terminology Service and CCDH Model
+on:
+  workflow_dispatch:
+jobs:
+  ccdh-terminology-service__build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echoStuff
+        run: |
+          echo Integration success. Was able to run workflow in one repository from workflow in another repository.
+        # TODO: This won't work; will need to do a diff way
+#      - name: testIntegration
+#        run: |
+#          echo Running 2nd integration test.
+#          echo Step 2/3: Model-->(Service)-->Model
+#        with:
+#          workflow: Test Refresh Terminology Service and CCDH Model
+#          repo: joeflack4/ccdhmodel
