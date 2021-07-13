@@ -1,0 +1,68 @@
+# Re-build and re-deploy on production and trigger CCDH model refresh
+name: Re-build and re-deploy on production and trigger CCDH model refresh
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebuild_redeploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: multiple commands
+      shell: bash
+      env:
+        DOCKER_USER_TOKEN_LIMITED: ${{ secrets.DOCKER_USER_TOKEN_LIMITED }}
+        DOCKER_USER_PASSWORD: ${{ secrets.DOCKER_USER_PASSWORD }}
+      uses: appleboy/ssh-action@master  # https://github.com/appleboy/ssh-action
+      with:
+        host: terminology.ccdh.io
+        username: docker
+        password: ${{ secrets.DOCKER_USER_PASSWORD }}
+        # key: ${{ secrets.KEY }}  # not needed
+        # port: ${{ secrets.PORT }}  # default: 22
+        # TODO: Which script to use? Both? Or some other script?
+        script: |
+          # Step 1
+          cd /opt/Projects/ccdh-terminology-service
+          docker-compose down
+
+          git pull
+          # Is this necessary? Maybe just because I hadn't set SSH key up w/ GitHub was the issue:
+          # echo "$DOCKER_USER_PASSWORD" | sudo -S git pull
+
+          # Step 2: Deploy
+          cd docker
+          # TODO: just need to build the API service
+          docker-compose build ccdh-api
+          docker-compose up
+          docker exec -it ccdh-api /bin/bash
+          python -m ccdh.importers.importer
+
+          # Script 3: Trigger refresh of CCDH model
+          # https://docs.github.com/en/rest/reference/repos#create-a-repository-dispatch-event
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer '$DOCKER_USER_TOKEN_LIMITED'" \
+            https://api.github.com/repos/joeflack4/ccdhmodel/dispatches \
+            -d '{"event_type":"Re-build and re-deploy (repository_dispatch from ccdh-terminology-service)"}'
+    # TODO (A. above): Does repository dispatch above trigger correctly?
+    # TODO (B. below): Do these run at the same time as the previous step? Probably. If so, use (A).
+#    - name: echoStuff
+#      run: |
+#        echo Integration success. Was able to run workflow in one repository from workflow in another repository.
+#        echo Running 2nd integration test.
+#        echo "Step 2/3: Model-->(Service)-->Model"
+#    - name: Rebuild CCDH Model
+#      uses: convictional/trigger-workflow-and-wait@v1.3.0  # https://github.com/convictional/trigger-workflow-and-wait
+#      with:
+#        owner: joeflack4  # TODO: changeTo: cancerDHC
+#        repo: ccdhmodel
+#        github_token: ${{ secrets.GH_LIMITED_PERSONAL_ACCESS_TOKEN }}  # TODO: create one for the organization
+#        workflow_file_name: testIntegration.yml  # TODO: changeTo: codeql-analysis.yml? or something new?
+#        ref: main  # change or just use 'main'/'master' branches corresponding to each repo?
+#        wait_interval: 10  # seconds
+#        inputs: '{}'  # JSON
+#        propagate_failure: false  # Fail current job if downstream job fails.
+#        wait_workflow: true  # Wait for workflow to finish.
