@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Run script on server
-      # shell: bash  # this ensures that env variable usage syntax is correct
+      # shell: bash  # Usage: this ensures that env variable usage syntax is correct; Disabled because: causes yaml file syntax error
       uses: appleboy/ssh-action@master  # https://github.com/appleboy/ssh-action
       env:
         DOCKER_USER_TOKEN_LIMITED: ${{ secrets.DOCKER_USER_TOKEN_LIMITED }}
@@ -21,6 +21,8 @@ jobs:
         # port: ${{ secrets.PORT }}  # default: 22
         # TODO: Change curl script repo from "joeflack4" to "cancerDHC"
         envs: DOCKER_USER_TOKEN_LIMITED,DOCKER_USER_PASSWORD
+        # timeout: 30s  # timeout - timeout for ssh to remote host, default is 30s
+        command_timeout: 60m  # command_timeout - timeout for ssh command, default is 10m
         script: |
           # Step 1/4: Stop service
           cd /opt/Projects/ccdh-terminology-service
