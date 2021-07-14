@@ -35,9 +35,10 @@ NEO4J_USERNAME=username
 NEO4J_PASSWORD=password
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=port
+USER_ACCESS_TOKEN=token
 ```
 
-Choose whatever username, password, and port you want. The typical default port number for NEO4J projects is `7687`, if you'd like to use that.
+Choose whatever username, password, and port you want. The typical default port number for NEO4J projects is `7687`, if you'd like to use that. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that.
 
 By default, the importer will pull the CRDC-H YAML from the main branch of the ccdhmodel GitHub repo. 
 If another branch is preferred, you can add this line in the .env file.

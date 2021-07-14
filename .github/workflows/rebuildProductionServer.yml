@@ -19,6 +19,8 @@ jobs:
         password: ${{ secrets.DOCKER_USER_PASSWORD }}
         # key: ${{ secrets.KEY }}  # not needed
         # port: ${{ secrets.PORT }}  # default: 22
+        # TODO: Include 'git checkout master'? Or allow other branches?
+        # TODO: Is 'exit' necessary? I'm not 100% sure, but the last time I ran the action, it seemed to stay running indefinitely.
         # TODO: Change curl script repo from "joeflack4" to "cancerDHC"
         envs: DOCKER_USER_TOKEN_LIMITED,DOCKER_USER_PASSWORD
         # timeout: 30s  # timeout - timeout for ssh to remote host, default is 30s
@@ -29,6 +31,7 @@ jobs:
           docker-compose down
 
           # Step 2/4: Update codebase
+          # git checkout master
           git pull
           # Is this necessary? Maybe just because I hadn't set SSH key up w/ GitHub was the issue:
           # echo "$DOCKER_USER_PASSWORD" | sudo -S git pull
@@ -40,6 +43,7 @@ jobs:
           docker-compose up
           docker exec -it ccdh-api /bin/bash
           python -m ccdh.importers.importer
+          exit
 
           # Step 4/4: Trigger refresh of CCDH model
           # https://docs.github.com/en/rest/reference/repos#create-a-repository-dispatch-event
