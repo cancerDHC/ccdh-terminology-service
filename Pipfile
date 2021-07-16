@@ -29,7 +29,7 @@ PyYAML = "*"
 PyLD = "*"
 PyGithub = "*"
 py2neo = "*"
-sssom = {editable = true, git = "https://github.com/mapping-commons/sssom-py"}
+sssom = {editable = true, git = "https://github.com/mapping-commons/sssom-py", ref = "b5ffb0d71f7ec6d06991be25f5853682c1c107d9"}
 prefixcommons = "*"
 shortuuid = "*"
 pyrdfa3 = "*"
