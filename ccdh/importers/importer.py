@@ -228,7 +228,7 @@ if __name__ == '__main__':
             file=sys.stderr)
     else:
         r = requests.post(
-            'https://api.github.com/repos/joeflack4/ccdhmodel/dispatches',
+            'https://api.github.com/repos/cancerDHC/ccdhmodel/dispatches',
             headers={
                 "Accept": "application/vnd.github.v3+json",
                 "Content-Type": "application/json",
