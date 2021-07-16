@@ -8,6 +8,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -35,7 +36,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Create .env file
       run: |
-        echo -en "NEO4J_USERNAME=neo4j\nNEO4J_PASSWORD=ccdh\nNEO4J_HOST=localhost\nNEO4J_BOLT_PORT=7687\nCCDHMODEL_BRANCH=improvement-batch" > .env
+        echo -en "NEO4J_USERNAME=neo4j\nNEO4J_PASSWORD=ccdh\nNEO4J_HOST=localhost\nNEO4J_BOLT_PORT=7687\nCCDHMODEL_BRANCH=main" > .env
     - name: Test with pytest
       run: |
         pytest
