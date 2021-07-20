@@ -29,7 +29,13 @@ PyYAML = "*"
 PyLD = "*"
 PyGithub = "*"
 py2neo = "*"
-sssom = {editable = true, git = "https://github.com/mapping-commons/sssom-py", ref = "b5ffb0d71f7ec6d06991be25f5853682c1c107d9"}
+# sssom: This is a dependency we want to use, but the maintainers have let us
+# ...know it is currently unstable. Therefore I've forked it and made the fixes
+# ...we need. I've commented out the line using 'mapping-commons/sssom-py' for
+# ...now at the most stable commit, though it still causes critical errors.
+# - jef 2021/07/20
+sssom = {editable = true, git = "https://github.com/joeflack4/sssom-py", ref = "dependency-lock_ccdh-terminology-service"}
+# sssom = {editable = true, git = "https://github.com/mapping-commons/sssom-py", ref = "b5ffb0d71f7ec6d06991be25f5853682c1c107d9"}
 prefixcommons = "*"
 shortuuid = "*"
 pyrdfa3 = "*"
