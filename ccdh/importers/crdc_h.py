@@ -1,8 +1,8 @@
 import logging
 from typing import Dict
 import requests
-from linkml.loaders import yaml_loader
-from linkml.utils.yamlutils import YAMLRoot
+from linkml_runtime.loaders import yaml_loader
+from linkml_runtime.utils.yamlutils import YAMLRoot
 
 from ccdh.config import get_settings
 

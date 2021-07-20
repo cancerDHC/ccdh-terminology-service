@@ -1,10 +1,10 @@
-from linkml.generators.pythongen import PythonGenerator
-from linkml.utils.compile_python import compile_python
-from linkml_model import EnumDefinition, PermissibleValue, SchemaDefinition
 from faker import Faker
+
+from linkml.generators.pythongen import PythonGenerator
+from linkml_model import EnumDefinition, PermissibleValue, SchemaDefinition
 from linkml_runtime.dumpers.yaml_dumper import YAMLDumper
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
-
+from linkml_runtime.utils.compile_python import compile_python
 
 fake = Faker()
 
