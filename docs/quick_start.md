@@ -30,15 +30,15 @@ In the `docker/` folder, Create a `.env` file with required environment variable
 The `.env` file should contain the following:
 
 ```
-NEO4J_BOLT_URI=bolt://host:port
-NEO4J_USERNAME=username
-NEO4J_PASSWORD=password
+NEO4J_BOLT_URI=bolt://ccdh-neo4j:7687
+NEO4J_USERNAME=<username>
+NEO4J_PASSWORD=<password>
 NEO4J_HOST=ccdh-neo4j
-NEO4J_BOLT_PORT=port
+NEO4J_BOLT_PORT=7687
 USER_ACCESS_TOKEN=token
 ```
 
-Choose whatever username, password, and port you want. The typical default port number for NEO4J projects is `7687`, if you'd like to use that. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that.
+Choose a <username> and <password>. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
 
 By default, the importer will pull the CRDC-H YAML from the main branch of the ccdhmodel GitHub repo. 
 If another branch is preferred, you can add this line in the .env file.
