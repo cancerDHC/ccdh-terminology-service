@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from linkml_model import EnumDefinition, PermissibleValue
+from linkml_runtime.linkml_model import EnumDefinition, PermissibleValue
 from linkml_runtime.dumpers.yaml_dumper import YAMLDumper
 from starlette.responses import Response
 
