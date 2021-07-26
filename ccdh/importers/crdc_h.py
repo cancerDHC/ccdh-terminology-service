@@ -40,8 +40,12 @@ class CrdcHImporter:
         :return: a dictionary of the attributes.
         """
         # Variables
+        # close/related disabled: We've heard these mappings will all soon be
+        # merged. - jef 2021/07/26
         mapping_types = (
-            'close_mappings', 'exact_mappings', 'related_mappings')
+            # 'close_mappings',
+            # 'related_mappings',
+            'exact_mappings')
         err_msg = 'Tried to use model.classes as a dictionary ' \
             'object while it was actually a jsonObj.\n'
 
@@ -69,10 +73,6 @@ class CrdcHImporter:
                 # harmonized_attribute['node_attributes'] = \
                 #     list(set(harmonized_attribute['node_attributes']))
                 harmonized_attributes[key] = harmonized_attribute
-        # TODO: Temp: print and format json after; can test like this
-        # or query graph
-        import json
-        # noinspection PyUnusedLocal
-        xxx = json.dumps(harmonized_attributes)
+
         logger.info("Parsed the content in the CCDH Model YAML")
         return harmonized_attributes

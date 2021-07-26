@@ -58,8 +58,8 @@ class GdcImporter:
                     'entity': entity_name,
                     'attribute': prop,
                     'definition': values.get('description', None),
-                    # 'permissible_values': permissible_values,
                     'cadsr_cde': str(cde_id)
+                    # 'permissible_values': permissible_values,
                 }
                 if 'enum' in values:
                     permissible_values = values['enum']

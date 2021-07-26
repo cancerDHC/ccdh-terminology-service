@@ -219,44 +219,4 @@ class Importer:
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     Importer.import_all()
-=======
-    # 1. Run importers
-    # TODO: Uncomment out all of these; are these commented out for debugging? - jef 2021/07/25
-    # Importer(neo4j_graph()).import_ncit()
-    # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
-    # GDC: This is causing an erro
-    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-
-    Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes())
-    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
-    # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
-
-    # 2. Trigger CCDH model updates
-    # TODO: Pass this param to the importer script instead of declaring here
-    refresh_ccdh_model = False
-
-    if refresh_ccdh_model:
-        # TODO: move this to some other folder/module; like 'integrations/ccdh_model/trigger_refresh.py' ?
-        token = os.getenv('USER_ACCESS_TOKEN')
-        if not token:
-            print(
-                'Error: Attempted to trigger update in CCDH Model repository, but "USER_ACCESS_TOKEN" was not found in environment.',
-                file=sys.stderr)
-        else:
-            r = requests.post(
-                'https://api.github.com/repos/cancerDHC/ccdhmodel/dispatches',
-                headers={
-                    "Accept": "application/vnd.github.v3+json",
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                json={
-                    "event_type": "Re-build and re-deploy (repository_dispatch from ccdh-terminology-service)"
-                })
-            if r.status_code >= 400:  # errors defined as codes 400 and above
-                print(
-                    'Error: Triggering update in CCDH Model repository failed.',
-                    file=sys.stderr)
->>>>>>> a82a827 (Updates)
