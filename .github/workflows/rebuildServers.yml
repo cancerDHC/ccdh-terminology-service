@@ -1,0 +1,66 @@
+name: Re-build and re-deploy on test & production servers && trigger CCDH model refresh
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebuild_redeploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run script on server
+      # shell: bash  # Usage: this ensures that env variable usage syntax is correct; Disabled because: causes yaml file syntax error
+      uses: appleboy/ssh-action@master  # https://github.com/appleboy/ssh-action
+      with:
+        host: terminology.ccdh.io
+        username: docker
+        password: ${{ secrets.DOCKER_USER_PASSWORD }}
+        # key: ${{ secrets.KEY }}  # not needed
+        # port: ${{ secrets.PORT }}  # default: 22
+        # TODO: Is 'exit' necessary? I'm not 100% sure, but the last time I ran
+        #   the action, it seemed to stay running indefinitely. - jef 2021/07/15
+        # timeout: 30s  # timeout - timeout for ssh to remote host, default is 30s
+        command_timeout: 60m  # command_timeout - timeout for ssh command, default is 10m
+        # TODO: Since we run this in test and production, should we create a
+        #   .sh script for this and re-use the code instead of have it copied
+        #   2x here? - jef 2021/07/26
+        script: |
+          # 1. Test env
+          # - Update codebase
+          cd /opt/Projects/ccdh-terminology-service-test  # test env
+          # git checkout master
+          git pull
+          # - Deploy
+          cd docker
+          docker-compose down
+          docker-compose build ccdh-api
+          docker-compose up
+          docker exec -it ccdh-api /bin/bash
+          python -m ccdh.importers.importer
+          # python -m ccdh.integrations.crdc_h  # only do this on prod
+
+          # TODO: Wait until this is done, and trigger build production
+          # Options:
+          # a. write shellscript here to wait & check when done. how?
+          # b. do it in python, running from 'test', using .env variable
+          #    'ENVIRONMENT_NAME'. At end of importer, if 'test', exec:
+               A. ccdh-terminology-service/scripts/refreshServer.sh ?
+               B. GH action: triggered by repository_dispatch. We can have
+                 an action for rebuildTest.yml, rebuildSevers.yml, and
+                 rebuildProduction.yml.
+
+          # 2. Production env
+          # - Update codebase
+          cd /opt/Projects/ccdh-terminology-service  # prod env
+          # git checkout master
+          git pull
+          # - Deploy
+          cd docker
+          docker-compose down
+          docker-compose build ccdh-api
+          docker-compose up
+          docker exec -it ccdh-api /bin/bash
+          python -m ccdh.importers.importer
+          python -m ccdh.integrations.crdc_h
+
+          # 3. Exit
+          exit
