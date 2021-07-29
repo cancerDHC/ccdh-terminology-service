@@ -1,10 +1,13 @@
 import logging
-from typing import Dict
+
 import requests
+from typing import Dict
+
 from linkml_runtime.loaders import yaml_loader
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
 from ccdh.config import get_settings
+
 
 logger = logging.getLogger('ccdh.importers.crcd_h')
 
@@ -35,7 +38,11 @@ class CrdcHImporter:
         """
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)
         harmonized_attributes = {}
-        for cls in model.classes.values():
+        # Ideally, would use dict(model.classes).values, but got error:
+        # ... "{ValueError}dictionary update sequence element #0 has length 11; 2 is required" - jef 2021/07/29
+        # noinspection PyProtectedMember
+        class_values = model.classes._as_dict.values()
+        for cls in class_values:
             for attribute in cls.get('attributes', {}).values():
                 if attribute['range'] == f'enum_CCDH_{cls["name"]}_{attribute["name"]}':
                     key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
