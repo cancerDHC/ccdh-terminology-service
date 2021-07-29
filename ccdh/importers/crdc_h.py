@@ -1,7 +1,6 @@
 import logging
 
 import requests
-import sys
 from typing import Dict
 
 from linkml_runtime.loaders import yaml_loader
@@ -39,13 +38,10 @@ class CrdcHImporter:
         """
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)
         harmonized_attributes = {}
-        try:
-            class_values = model.classes.values()
-        except AttributeError as err:
-            print('Warning: Tried to use model.classes as a dictionary object '
-                  'while it was actually a jsonObj.', file=sys.stderr)
-            print(err, file=sys.stderr)
-            class_values = model.classes._as_dict.values()
+        # Ideally, would use dict(model.classes).values, but got error:
+        # ... "{ValueError}dictionary update sequence element #0 has length 11; 2 is required" - jef 2021/07/29
+        # noinspection PyProtectedMember
+        class_values = model.classes._as_dict.values()
         for cls in class_values:
             for attribute in cls.get('attributes', {}).values():
                 if attribute['range'] == f'enum_CCDH_{cls["name"]}_{attribute["name"]}':
