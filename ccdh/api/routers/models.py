@@ -1,5 +1,7 @@
 from typing import Optional, List, Dict, Union
+
 from fastapi import APIRouter
+from fastapi_redis_cache import cache
 from pydantic.main import BaseModel
 from starlette.responses import StreamingResponse
 from tccm_api.routers.concept_reference import ConceptReference
@@ -101,6 +103,7 @@ router = APIRouter(
                     }
                 }
             })
+@cache()
 async def get_models(request: Request):
     models = mdr_graph.list_models()
     res = []
@@ -122,6 +125,7 @@ async def get_models(request: Request):
                     }
                 }
             })
+@cache()
 async def get_model(model: str):
     return Model(name=model)
 
@@ -141,6 +145,7 @@ async def get_model(model: str):
                     }
                 }
             })
+@cache()
 async def get_model_entities(request: Request, model: str):
     entities = mdr_graph.list_entities(model)
     res = []
@@ -164,6 +169,7 @@ async def get_model_entities(request: Request, model: str):
                     }
                 }
             })
+@cache()
 async def get_model_entity(model: str, entity: str):
     return Entity(name=entity)
 
@@ -184,6 +190,7 @@ async def get_model_entity(model: str, entity: str):
                     }
                 }
             })
+@cache()
 async def get_model_entity_attributes(model: str, entity: str):
     models = mdr_graph.list_attributes(model, entity)
     res = []
@@ -210,6 +217,7 @@ async def get_model_entity_attributes(model: str, entity: str):
                     }
                 }
             })
+@cache()
 async def get_model_entity_attribute(model: str, entity: str, attribute: str) -> Union[HarmonizedAttribute, NodeAttribute]:
     if model in mdr_graph.list_harmonized_models():
         return mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)[0]
@@ -233,6 +241,7 @@ async def get_model_entity_attribute(model: str, entity: str, attribute: str) ->
                     }
                 }
             })
+@cache()
 async def get_model_entity_attribute_enums(model: str, entity: str, attribute: str) -> List[Enumeration]:
     return [Enumeration(name=model + '.' + entity + '.' + attribute)]
 
@@ -249,6 +258,7 @@ async def get_model_entity_attribute_enums(model: str, entity: str, attribute: s
                     "description": "Return the JSON mapping set or a TSV file.",
                 }
             })
+@cache()
 async def get_model_entity_attribute_mappings(request: Request, model: str, entity: str, attribute: str) -> MappingSet:
     if model in mdr_graph.list_harmonized_models():
         mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(model, entity, attribute, pagination=False)
