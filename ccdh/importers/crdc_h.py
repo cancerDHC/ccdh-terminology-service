@@ -1,5 +1,5 @@
+"""Importer for CRDC-H Model"""
 import logging
-
 import requests
 from typing import Dict
 
@@ -13,8 +13,10 @@ logger = logging.getLogger('ccdh.importers.crcd_h')
 
 
 def read_ccdh_model_yaml():
+    """Read model yaml from CCDH Model GH repository"""
     branch = get_settings().ccdhmodel_branch
-    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/{branch}/src/schema/ccdhmodel.yaml'
+    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/' \
+               f'{branch}/src/schema/ccdhmodel.yaml'
     logger.info("Retrieving CCDH Model YAML: " + yaml_url)
     r = requests.get(yaml_url)
     if r.status_code == 200:
@@ -26,6 +28,7 @@ def read_ccdh_model_yaml():
 
 
 class CrdcHImporter:
+    """CRDC (Cancer Research Data Commons) Harmonization Importer"""
     def __init__(self):
         pass
 
@@ -36,6 +39,17 @@ class CrdcHImporter:
         :param yaml:
         :return: a dictionary of the attributes.
         """
+        # Variables
+        # close/related disabled: We've heard these mappings will all soon be
+        # merged. - jef 2021/07/26
+        mapping_types = (
+            # 'close_mappings',
+            # 'related_mappings',
+            'exact_mappings')
+        err_msg = 'Tried to use model.classes as a dictionary ' \
+            'object while it was actually a jsonObj.\n'
+
+        # Execution
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)
         harmonized_attributes = {}
         # Ideally, would use dict(model.classes).values, but got error:
@@ -44,19 +58,21 @@ class CrdcHImporter:
         class_values = model.classes._as_dict.values()
         for cls in class_values:
             for attribute in cls.get('attributes', {}).values():
-                if attribute['range'] == f'enum_CCDH_{cls["name"]}_{attribute["name"]}':
-                    key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
-                    harmonized_attribute = {
-                        'system': model.name, 'entity': cls["name"], 'attribute': attribute["name"],
-                        'definition': attribute["description"], 'node_attributes': []
-                    }
-                    if "exact_mappings" in attribute:
-                        for m in attribute["exact_mappings"]:
+                key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
+                harmonized_attribute = {
+                    'system': model.name,
+                    'entity': cls["name"],
+                    'attribute': attribute["name"],
+                    'definition': attribute["description"],
+                    'node_attributes': []
+                }
+                for mapping in mapping_types:
+                    if mapping in attribute:
+                        for m in attribute[mapping]:
                             harmonized_attribute['node_attributes'].append(m)
-                    # if "related_mappings" in attribute:
-                    #     for m in attribute["related_mappings"]:
-                    #         harmonized_attribute['node_attributes'].append(m)
-                    # harmonized_attribute['node_attributes'] = list(set(harmonized_attribute['node_attributes']))
-                    harmonized_attributes[key] = harmonized_attribute
+                # harmonized_attribute['node_attributes'] = \
+                #     list(set(harmonized_attribute['node_attributes']))
+                harmonized_attributes[key] = harmonized_attribute
+
         logger.info("Parsed the content in the CCDH Model YAML")
         return harmonized_attributes
