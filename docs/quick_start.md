@@ -38,7 +38,7 @@ NEO4J_USERNAME=<username>
 NEO4J_PASSWORD=<password>
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=7687
-REDIS_URL=redis://127.0.0.1:6379
+REDIS_URL=redis://ccdh-redis:6379
 USER_ACCESS_TOKEN=token
 ```
 

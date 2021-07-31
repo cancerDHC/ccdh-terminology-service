@@ -1,7 +1,8 @@
+"""Models: classes and endpoints"""
 from typing import Optional, List, Dict, Union
 
 from fastapi import APIRouter
-from fastapi_redis_cache import cache
+from fastapi_cache.decorator import cache
 from pydantic.main import BaseModel
 from starlette.responses import StreamingResponse
 from tccm_api.routers.concept_reference import ConceptReference
@@ -17,24 +18,32 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 
 class Model(BaseModel):
+    """Model"""
     name: str
     description: Optional[str]
 
 
 class Entity(BaseModel):
+    """Entity"""
     name: str
     description: Optional[str]
 
 
 class Attribute(BaseModel):
+    """Attribute"""
     name: str
 
 
 class Enumeration(BaseModel):
+    """Enumeration"""
     name: str
 
 
 class Mapping(BaseModel):
+    """Mapping
+        TODO: @Dazhi: This class is exactly the same as the 'Mapping' class
+        in the 'models' module. - jef 2021/07/30
+    """
     # subject_id: Optional[str]
     subject_match_field: str
     subject_label: str
@@ -48,6 +57,7 @@ class Mapping(BaseModel):
 
 
 class MappingSet(BaseModel):
+    """Mapping set"""
     creator_id: str
     license: str
     mapping_provider: str
@@ -58,6 +68,7 @@ class MappingSet(BaseModel):
 
 
 class NodeAttribute(BaseModel):
+    """Node attribute"""
     system: str
     entity: str
     attribute: str
@@ -67,6 +78,7 @@ class NodeAttribute(BaseModel):
 
 
 class HarmonizedAttribute(BaseModel):
+    """Harmonized attribute"""
     system: str
     entity: str
     attribute: str
@@ -104,7 +116,8 @@ router = APIRouter(
                 }
             })
 @cache()
-async def get_models(request: Request):
+async def get_models():
+    """Get models"""
     models = mdr_graph.list_models()
     res = []
     for model in models:
@@ -127,6 +140,7 @@ async def get_models(request: Request):
             })
 @cache()
 async def get_model(model: str):
+    """Get a single model"""
     return Model(name=model)
 
 
@@ -146,7 +160,8 @@ async def get_model(model: str):
                 }
             })
 @cache()
-async def get_model_entities(request: Request, model: str):
+async def get_model_entities(model: str):
+    """Get a model's entities"""
     entities = mdr_graph.list_entities(model)
     res = []
     for entity in entities:
@@ -170,7 +185,8 @@ async def get_model_entities(request: Request, model: str):
                 }
             })
 @cache()
-async def get_model_entity(model: str, entity: str):
+async def get_model_entity(entity: str):
+    """Get an entity from a model"""
     return Entity(name=entity)
 
 
@@ -192,6 +208,7 @@ async def get_model_entity(model: str, entity: str):
             })
 @cache()
 async def get_model_entity_attributes(model: str, entity: str):
+    """Get an all entities and their attributes"""
     models = mdr_graph.list_attributes(model, entity)
     res = []
     for model in models:
@@ -218,7 +235,10 @@ async def get_model_entity_attributes(model: str, entity: str):
                 }
             })
 @cache()
-async def get_model_entity_attribute(model: str, entity: str, attribute: str) -> Union[HarmonizedAttribute, NodeAttribute]:
+async def get_model_entity_attribute(
+        model: str, entity: str, attribute: str
+) -> Union[HarmonizedAttribute, NodeAttribute]:
+    """Get an entity's attributes"""
     if model in mdr_graph.list_harmonized_models():
         return mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)[0]
     else:
@@ -243,6 +263,10 @@ async def get_model_entity_attribute(model: str, entity: str, attribute: str) ->
             })
 @cache()
 async def get_model_entity_attribute_enums(model: str, entity: str, attribute: str) -> List[Enumeration]:
+    """Get an enumeration of entity attribute enums
+        TODO: @Dazhi I need a better description here I think. Maybe I don't
+        understand this well enough to describe it. - jef 2021/07/30
+    """
     return [Enumeration(name=model + '.' + entity + '.' + attribute)]
 
 
@@ -260,12 +284,14 @@ async def get_model_entity_attribute_enums(model: str, entity: str, attribute: s
             })
 @cache()
 async def get_model_entity_attribute_mappings(request: Request, model: str, entity: str, attribute: str) -> MappingSet:
+    """Get mappings for a given entity attribute"""
     if model in mdr_graph.list_harmonized_models():
         mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(model, entity, attribute, pagination=False)
     else:
         mapping_set = mdr_graph.find_mappings_of_node_attribute(model, entity, attribute, pagination=False)
     if request.headers['accept'] == 'text/tab-separated-values+sssom':
-        return StreamingResponse(generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)), media_type='text/tab-separated-values+sssom')
+        return StreamingResponse(
+            generate_sssom_tsv(MappingSet.parse_obj(mapping_set.__dict__)),
+            media_type='text/tab-separated-values+sssom')
     else:
         return mapping_set.__dict__
-

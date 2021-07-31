@@ -6,7 +6,10 @@ To set up a testing server with docker containers, use `docker/docker-compose-te
 Create a file `.env.test` in the `docker` directory. It should have similar content as `.env`. Then, you should back up
 the prod `.env` file; e.g. you can copy it and can call it `.env.prod`.
 
-The variable `NEO4J_BOLT_PORT` and `NEO4J_HOST` for `.env.test` need to be different than what is in `.env.prod` 
+The variable `NEO4J_BOLT_PORT`, `NEO4J_HOST`, `NEO4J_BOLT_URI`, and `REDIS_URL` for `.env.test` need to be different 
+than what is in `.env.prod`. The simple way to do this for Neo4J and Redis host names in the production `.env` is to use
+the service names in `docker-compose.yml`, and to use the service names in `docker-compose-test.yml` for the test 
+server's `env.test`.
 
 When you've finished your `.env.test` file, overwrite `.env` with those same exact contents. This is because `config.py`
 will always look for `.env`, regardless of the environment. We plan to fix this in a future update.

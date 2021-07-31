@@ -1,8 +1,10 @@
 """CCDH Terminology Service: Root of application code"""
+import aioredis
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_redis_cache import FastApiRedisCache
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 from starlette.responses import RedirectResponse
 from tccm_api.db.tccm_graph import TccmGraph
 
@@ -23,8 +25,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
     allow_methods=['*'],
-    allow_headers=['*']
-)
+    allow_headers=['*'])
 
 
 @app.get("/")
@@ -38,8 +39,13 @@ async def startup():
     """Start up FastAPI server"""
     app.state.graph = TccmGraph()
     app.state.graph.connect()
-    redis_cache = FastApiRedisCache()
-    redis_cache.init(host_url=get_settings().redis_url)
+    redis = aioredis.from_url(
+        url=get_settings().redis_url,
+        encoding="utf8",
+        decode_responses=True)
+    FastAPICache.init(
+        backend=RedisBackend(redis),
+        prefix="fastapi-cache")
 
 
 @app.on_event("shutdown")
