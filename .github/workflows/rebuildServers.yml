@@ -31,12 +31,10 @@ jobs:
           git pull
           # - Deploy
           cd docker
-          docker-compose down
-          docker-compose build ccdh-api
-          docker-compose up
-          docker exec -it ccdh-api /bin/bash
-          python -m ccdh.importers.importer
-          # python -m ccdh.integrations.crdc_h  # only do this on prod
+          docker-compose -f docker-compose-test.yml down
+          docker-compose -f docker-compose-test.yml build
+          docker-compose -f docker-compose-test.yml -p ccdh-test up -d
+          docker exec ccdh-api-test python -m ccdh.importers.importer
 
           # TODO: Wait until this is done, and trigger build production
           # Options:
@@ -57,10 +55,12 @@ jobs:
           cd docker
           docker-compose down
           docker-compose build ccdh-api
-          docker-compose up
-          docker exec -it ccdh-api /bin/bash
-          python -m ccdh.importers.importer
-          python -m ccdh.integrations.crdc_h
+          docker-compose up -d
+          # docker exec -it ccdh-api /bin/bash
+          # python -m ccdh.importers.importer
+          # python -m ccdh.integrations.crdc_h
+          docker exec ccdh-api python -m ccdh.importers.importer
+          docker exec ccdh-api-test python -m ccdh.integrations.crdc_h
 
           # 3. Exit
           exit

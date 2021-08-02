@@ -209,13 +209,17 @@ class Importer:
     @staticmethod
     def import_all():
         """Import data from all nodes / data sources"""
-        # Importer(neo4j_graph()).import_ncit()
+        Importer(neo4j_graph()).import_ncit()
+
+        # PDC: Disabled until resolution of this issue: https://github.com/cancerDHC/ccdh-terminology-service/issues/54
         # Importer(neo4j_graph()).import_node_attributes(PdcImporter.read_data_dictionary())
+
+        # GDC: Temporarily disabled due to error.
         # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
-        Importer(neo4j_graph()).import_harmonized_attributes(
-            CrdcHImporter.read_harmonized_attributes())
-        # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
-        # Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
+
+        Importer(neo4j_graph()).import_harmonized_attributes(CrdcHImporter.read_harmonized_attributes())
+        Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
+        Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')
 
 
 if __name__ == '__main__':
