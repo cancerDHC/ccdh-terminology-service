@@ -1,7 +1,7 @@
+"""PDC (Proteomics Data Commons) Importer"""
 import logging
-from pathlib import Path
 import json
-from typing import List
+from typing import Dict
 
 from ccdh import ROOT_DIR
 from ccdh.importers.gdc import GdcImporter
@@ -13,11 +13,13 @@ PDC_JSON_DIR = ROOT_DIR / 'crdc-nodes/PDC-Public/documentation/prod/json'
 
 
 class PdcImporter:
+    """PDC Importer class"""
     def __init__(self):
         self.data_elements = []
 
     @staticmethod
-    def read_data_dictionary() -> List:
+    def read_data_dictionary() -> Dict:
+        """Read data dictionary"""
         node_attributes = {}
         files = [f for f in PDC_JSON_DIR.glob('*.json') if f.is_file()]
         for file in files:
@@ -53,8 +55,3 @@ class PdcImporter:
                     node_attribute['permissible_values'] = pvs
                     node_attributes[f'PDC.{entity_name}.{prop}'] = node_attribute
         return node_attributes
-
-
-
-
-
