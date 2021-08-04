@@ -31,36 +31,56 @@ jobs:
           git pull
           # - Deploy
           cd docker
-          docker-compose -f docker-compose-test.yml down
-          docker-compose -f docker-compose-test.yml build
-          docker-compose -f docker-compose-test.yml -p ccdh-test up -d
-          docker exec ccdh-api-test python -m ccdh.importers.importer
+          # - Maybe don't include this command?
+          # docker-compose -f docker-compose-test.yml down
+          #WARNING: Found orphan containers (ccdh-api, neo4j) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+          #Removing network docker_default
+          #ERROR: error while removing network: network docker_default id 8d8e3e569664a33b9376538153185df01e9569368e48aaab5cbeaf20f50d4a20 has active endpoint
+          docker stop neo4j-test redis-test ccdh-api-test; \
+          docker-compose -f docker-compose-test.yml build; \
+          docker-compose -f docker-compose-test.yml -p ccdh-test up -d; \
+          docker exec ccdh-api-test python -m ccdh.importers.importer; \
+          RESULT=$?; \
+          if [ $RESULT -eq 0 ]; then
+              # - It looks like this status check is entirely unnecessary.
+              #    i=0; \
+              #    server_status=down; \
+              #    while [[ $i -lt 300 ]]
+              #    do
+              #        response="$(curl -s https://test.terminology.ccdh.io/models/)"
+              #        # response="$(curl https://terminology.ccdh.io/models/)"
+              #        if [[ $(echo $response) = [* ]]
+              #        then
+              #            server_status=up
+              #            break
+              #        else
+              #            server_status=down
+              #        fi
+              #        ((i=i+1))
+              #        printf "Server still down after $i seconds. Trying again.\n"
+              #        sleep 1
+              #    done; \
+              #    printf "Server status ($i seconds elapsed):\n"; \
+              #    echo $server_status
 
-          # TODO: Wait until this is done, and trigger build production
-          # Options:
-          # a. write shellscript here to wait & check when done. how?
-          # b. do it in python, running from 'test', using .env variable
-          #    'ENVIRONMENT_NAME'. At end of importer, if 'test', exec:
-               A. ccdh-terminology-service/scripts/refreshServer.sh ?
-               B. GH action: triggered by repository_dispatch. We can have
-                 an action for rebuildTest.yml, rebuildSevers.yml, and
-                 rebuildProduction.yml.
+              # 2. Production env
+              # - Update codebase
+              cd /opt/Projects/ccdh-terminology-service  # prod env
+              # git checkout master
+              git pull
+              # - Deploy
+              cd docker
+              docker-compose down
+              docker-compose build ccdh-api
+              docker-compose up -d
+              # docker exec -it ccdh-api /bin/bash
+              # python -m ccdh.importers.importer
+              # python -m ccdh.integrations.crdc_h
+              docker exec ccdh-api python -m ccdh.importers.importer
+              docker exec ccdh-api-test python -m ccdh.integrations.crdc_h
 
-          # 2. Production env
-          # - Update codebase
-          cd /opt/Projects/ccdh-terminology-service  # prod env
-          # git checkout master
-          git pull
-          # - Deploy
-          cd docker
-          docker-compose down
-          docker-compose build ccdh-api
-          docker-compose up -d
-          # docker exec -it ccdh-api /bin/bash
-          # python -m ccdh.importers.importer
-          # python -m ccdh.integrations.crdc_h
-          docker exec ccdh-api python -m ccdh.importers.importer
-          docker exec ccdh-api-test python -m ccdh.integrations.crdc_h
-
-          # 3. Exit
-          exit
+              # 3. Exit
+              exit 0
+          else
+              exit 1
+          fi
