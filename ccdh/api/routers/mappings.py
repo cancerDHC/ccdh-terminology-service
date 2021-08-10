@@ -1,3 +1,4 @@
+"""Mappings: classes and endpoints"""
 from sssom.sssom_datamodel import Mapping as SssomMapping
 from sssom.parsers import from_dataframe
 import pandas as pd
@@ -17,6 +18,10 @@ mdr_graph = MdrGraph(neo4j_graph())
 
 
 class Mapping(BaseModel):
+    """Mapping
+        TODO: @Dazhi: This class is exactly the same as the 'Mapping' class
+        in the 'models' module. - jef 2021/07/30
+    """
     # subject_id: Optional[str]
     subject_match_field: str
     subject_label: str
