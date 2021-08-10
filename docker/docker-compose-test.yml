@@ -1,3 +1,4 @@
+# Test environment
 version: "3"
 services:
   ccdh-api-test:
@@ -18,9 +19,9 @@ services:
 
   ccdh-redis-test:
     image: "redis:alpine"
-    container_name: redis-test
-    ports:
-      - "6380:6379"
+    container_name: ccdh-redis-test
+    # ports:
+    #  - "6380:6379"
     volumes:
      - ./redis-data:/var/lib/redis
     healthcheck:
@@ -31,7 +32,7 @@ services:
 
   ccdh-neo4j-test:
     image: neo4j:4.1.3
-    container_name: neo4j-test
+    container_name: ccdh-neo4j-test
     restart: always
     volumes:
       - ./neo4j/logs:/logs
@@ -42,8 +43,8 @@ services:
       - ./neo4j/wrapper.sh:/opt/wrapper.sh
       - ./neo4j/initialize_neo4j.sh:/opt/initialize_neo4j.sh
       - ./neo4j/cyphers:/cyphers
-    ports:
-      - "6687:7687"
+    # ports:
+    #  - "6687:7687"
     environment:
       NEO4J_AUTH: $NEO4J_USERNAME/$NEO4J_PASSWORD
       NEO4J_dbms_memory_heap_max__size: 8G
@@ -58,4 +59,4 @@ services:
 
 volumes:
   ccdh-neo4j-test:
-  ccdh-redis:
+  ccdh-redis-test:
