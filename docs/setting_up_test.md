@@ -18,7 +18,7 @@ Run the following to start up the containers.
 
 ```
 cd docker
-docker-compose -f docker-compose-test.yml build
+docker-compose -f docker-compose-test.yml -p ccdh-test up build
 docker-compose -f docker-compose-test.yml -p ccdh-test up -d
 ```
 
