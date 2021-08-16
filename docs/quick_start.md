@@ -7,7 +7,10 @@ git clone
 git submodule update --init --recursive
 ```
 
-Because the PDC json files are under Git LFS (Large File Storage), it must be installed in the repository. Follow [these instrucions](https://git-lfs.github.com/) for installling Git LFS on your machine. Then, install it in the repo via `git lfs install`. Then, pull the content with git lfs.
+Because the PDC json files are under Git LFS (Large File Storage), it must be
+installed in the repository. Follow [these instrucions](https://git-lfs.github.com/)
+for installling Git LFS on your machine. Then, install it in the repo via 
+`git lfs install`. Then, pull the content with git lfs.
 
 ```shell
 cd crdc-nodes/PDC-Public/documentation/prod/json
@@ -35,12 +38,14 @@ NEO4J_USERNAME=<username>
 NEO4J_PASSWORD=<password>
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=7687
+REDIS_URL=redis://ccdh-redis:6379
 USER_ACCESS_TOKEN=token
 ```
 
 Choose a <username> and <password>. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
 
-By default, the importer will pull the CRDC-H YAML from the main branch of the ccdhmodel GitHub repo. 
+By default, the importer will pull the CRDC-H YAML from the main branch of the 
+ccdhmodel GitHub repo. 
 If another branch is preferred, you can add this line in the .env file.
 
 ```shell

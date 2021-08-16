@@ -13,6 +13,22 @@ services:
     depends_on:
       ccdh-neo4j:
         condition: service_healthy
+      ccdh-redis:
+        condition: service_healthy
+
+  ccdh-redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+     - ./redis-data:/var/lib/redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
   ccdh-neo4j:
     image: neo4j:4.1.3
     container_name: neo4j
@@ -42,4 +58,4 @@ services:
 
 volumes:
   ccdh-neo4j:
-
+  ccdh-redis:
