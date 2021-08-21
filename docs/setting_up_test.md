@@ -36,7 +36,7 @@ USER_ACCESS_TOKEN=<token>
 
 ## Run the following to start up the containers.
 
-```
+```sh
 cd docker
 docker-compose -f docker-compose-test.yml -p ccdh-test build
 docker-compose -f docker-compose-test.yml -p ccdh-test up -d
