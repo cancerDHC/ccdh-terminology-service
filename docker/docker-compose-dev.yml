@@ -1,25 +1,25 @@
-# Production environment
+# Dev environment: Use similar instructions to those in `quick_start.md`, and running: docker-compose -f docker-compose-dev.yml -p ccdh-dev build; docker-compose -f docker-compose-dev.yml -p ccdh-dev up -d
 version: "3"
 services:
-  ccdh-api:
+  ccdh-api-dev:
     build:
       dockerfile: ./docker/ccdh-api/Dockerfile
       context: ..
-    container_name: ccdh-api
+    container_name: ccdh-api-dev
     restart: on-failure
     ports:
-      - "7070:8000"
+      - "6060:8000"
     depends_on:
-      ccdh-neo4j:
+      ccdh-neo4j-dev:
         condition: service_healthy
-      ccdh-redis:
+      ccdh-redis-dev:
         condition: service_healthy
 
-  ccdh-redis:
+  ccdh-redis-dev:
     image: "redis:alpine"
-    container_name: ccdh-redis
+    container_name: ccdh-redis-dev
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
      - ./redis-data:/var/lib/redis
     healthcheck:
@@ -28,9 +28,9 @@ services:
       timeout: 10s
       retries: 30
 
-  ccdh-neo4j:
+  ccdh-neo4j-dev:
     image: neo4j:4.1.3
-    container_name: ccdh-neo4j
+    container_name: ccdh-neo4j-dev
     restart: always
     volumes:
       - ./neo4j/logs:/logs
@@ -42,7 +42,7 @@ services:
       - ./neo4j/initialize_neo4j.sh:/opt/initialize_neo4j.sh
       - ./neo4j/cyphers:/cyphers
     ports:
-      - "7687:7687"
+      - "6687:7687"
     environment:
       NEO4J_AUTH: $NEO4J_USERNAME/$NEO4J_PASSWORD
       NEO4J_dbms_memory_heap_max__size: 8G
@@ -56,5 +56,5 @@ services:
     entrypoint: /opt/wrapper.sh
 
 volumes:
-  ccdh-neo4j:
-  ccdh-redis:
+  ccdh-neo4j-dev:
+  ccdh-redis-dev:

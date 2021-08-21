@@ -32,14 +32,13 @@ In the `docker/` folder, Create a `.env` file with required environment variable
 
 The `.env` file should contain the following:
 
-```
-NEO4J_BOLT_URI=bolt://ccdh-neo4j:7687
+```shell
 NEO4J_USERNAME=<username>
 NEO4J_PASSWORD=<password>
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=7687
 REDIS_URL=redis://ccdh-redis:6379
-USER_ACCESS_TOKEN=token
+USER_ACCESS_TOKEN=<token>
 ```
 
 Choose a <username> and <password>. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
@@ -62,11 +61,10 @@ docker-compose build
 If everything works, spin up the containers
 
 ```shell
-docker-compose up
+docker-compose up -d
 ```
 
-After the docker containers are up, log onto the ccdh-api container and
-load data. 
+After the docker containers are up, log onto the ccdh-api container and load data. 
 
 ```shell
 docker exec -it ccdh-api /bin/bash
@@ -74,4 +72,4 @@ python -m ccdh.importers.importer
 ```
 
 After data is loaded, the server will be running on a local port at 7070. You can visit
-http://localhost:7070. 
+[http://localhost:7070](http://localhost:7070). 
