@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     neo4j_host: str
     neo4j_bolt_port: str
     redis_url: str
+    user_access_token: str
     ccdhmodel_branch: Optional[str] = 'main'
 
     class Config:

@@ -8,10 +8,12 @@ import sys
 
 import requests
 
+from ccdh.config import get_settings
+
 
 def trigger_refresh():
     """Triggers refresh in the CCDH model."""
-    token = os.getenv('USER_ACCESS_TOKEN')
+    token = os.getenv('USER_ACCESS_TOKEN', get_settings().user_access_token)
     if not token:
         print('Error: Attempted to trigger update in CCDH Model repository, '
             'but "USER_ACCESS_TOKEN" was not found in environment.',

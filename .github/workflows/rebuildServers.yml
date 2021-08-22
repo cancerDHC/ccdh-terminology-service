@@ -28,14 +28,15 @@ jobs:
           # - Update codebase
           cd /opt/Projects/ccdh-terminology-service-test  # test env
           # git checkout master
-          git pull
+          # git pull
           # - Deploy
           cd docker
           # - Maybe don't include this command?
           # docker-compose -f docker-compose-test.yml down
-          #WARNING: Found orphan containers (ccdh-api, neo4j) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
-          #Removing network docker_default
-          #ERROR: error while removing network: network docker_default id 8d8e3e569664a33b9376538153185df01e9569368e48aaab5cbeaf20f50d4a20 has active endpoint
+          # WARNING: Found orphan containers (ccdh-api, neo4j) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+          # Removing network docker_default
+          # ERROR: error while removing network: network docker_default id 8d8e3e569664a33b9376538153185df01e9569368e48aaab5cbeaf20f50d4a20 has active endpoint
+          # TODO: change to: docker-compose down -f docker-compose-test.yml?
           docker stop neo4j-test redis-test ccdh-api-test; \
           docker-compose -f docker-compose-test.yml build; \
           docker-compose -f docker-compose-test.yml -p ccdh-test up -d; \
@@ -46,7 +47,7 @@ jobs:
               # - Update codebase
               cd /opt/Projects/ccdh-terminology-service  # prod env
               # git checkout master
-              git pull
+              # git pull
               # - Deploy
               cd docker
               docker-compose down
