@@ -1,8 +1,9 @@
+import logging
+import os
 from functools import lru_cache
 from py2neo import Graph
 from pathlib import Path
 from pydantic import BaseSettings
-import logging
 from typing import Optional
 
 ROOT_DIR = Path(__file__).parent.parent
@@ -28,14 +29,18 @@ class Settings(BaseSettings):
     neo4j_host: str
     neo4j_bolt_port: str
     redis_url: str
-    user_access_token: str
+    docker_user_token_limited: str
     ccdhmodel_branch: Optional[str] = 'main'
 
-    class Config:
-        env_file = ".env"
+    # @Dazhi: I was having difficulty fetching settings consistently from different
+    # files. I think this pathing is better than us needing to make symlinks and
+    # populate .env files in different directories. If you agree, let's remove
+    # these commented lines below. - Joe 2021/08/23
+    # class Config:
+    #     env_file = os.path.join(os.path.realpath(__file__), '..', 'docker' '.env')
 
 
 @lru_cache()
 def get_settings():
-    return Settings()
-
+    env_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'docker', '.env')
+    return Settings(_env_file=env_file_path)
