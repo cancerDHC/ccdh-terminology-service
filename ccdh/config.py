@@ -42,5 +42,5 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings():
-    env_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'docker', '.env')
+    env_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '.env')
     return Settings(_env_file=env_file_path)
