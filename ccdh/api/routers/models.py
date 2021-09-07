@@ -185,8 +185,10 @@ async def get_model_entities(model: str):
                 }
             })
 @cache()
-async def get_model_entity(entity: str):
+async def get_model_entity(model: str, entity: str):
     """Get an entity from a model"""
+    entities = mdr_graph.list_entities(model)
+    # TODO: iterate over entities and return the entity matching 'entity'
     return Entity(name=entity)
 
 
@@ -240,9 +242,10 @@ async def get_model_entity_attribute(
 ) -> Union[HarmonizedAttribute, NodeAttribute]:
     """Get an entity's attributes"""
     if model in mdr_graph.list_harmonized_models():
-        return mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)[0]
+        result = mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)
     else:
-        return mdr_graph.find_node_attributes_complete(model, entity, attribute)[0]
+        result = mdr_graph.find_node_attributes_complete(model, entity, attribute)
+    return result[0] if result else {}
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/enumerations',
