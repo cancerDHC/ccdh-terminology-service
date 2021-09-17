@@ -7,7 +7,7 @@ from ccdh.config import get_settings
 @pytest.fixture
 def ccdh_model_yaml():
     settings = get_settings()
-    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/{settings.ccdhmodel_branch}/src/schema/ccdhmodel.yaml'
+    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/{settings.ccdhmodel_branch}/model/schema/crdch_model.yaml'
     r = requests.get(yaml_url)
     if r.status_code == 200:
         return r.content

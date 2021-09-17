@@ -16,7 +16,7 @@ def read_ccdh_model_yaml():
     """Read model yaml from CCDH Model GH repository"""
     branch = get_settings().ccdhmodel_branch
     yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/' \
-               f'{branch}/src/schema/ccdhmodel.yaml'
+               f'{branch}/model/schema/crdch_model.yaml'
     logger.info("Retrieving CCDH Model YAML: " + yaml_url)
     r = requests.get(yaml_url)
     if r.status_code == 200:
