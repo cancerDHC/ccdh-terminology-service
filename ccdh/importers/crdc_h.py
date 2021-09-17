@@ -33,12 +33,14 @@ class CrdcHImporter:
         pass
 
     @staticmethod
-    def read_harmonized_attributes(yaml: str = read_ccdh_model_yaml()) -> Dict:
+    def read_harmonized_attributes(yaml: str = None) -> Dict:
         """
         Extract the attributes from the ccdhmodel YAML
         :param yaml:
         :return: a dictionary of the attributes.
         """
+        if yaml is None:
+            yaml = read_ccdh_model_yaml()
         # Variables
         # close/related disabled: We've heard these mappings will all soon be
         # merged. - jef 2021/07/26
