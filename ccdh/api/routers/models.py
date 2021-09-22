@@ -1,8 +1,7 @@
 """Models: classes and endpoints"""
 from typing import Optional, List, Dict, Union
 
-from fastapi import APIRouter
-from ccdh.api.cache import cache
+from fastapi import APIRouter, HTTPException
 from pydantic.main import BaseModel
 from starlette.responses import StreamingResponse
 from tccm_api.routers.concept_reference import ConceptReference
@@ -11,6 +10,7 @@ from datetime import date
 
 from ccdh.api.routers.mappings import generate_sssom_tsv
 from ccdh.config import neo4j_graph
+from ccdh.api.cache import cache
 from ccdh.db.mdr_graph import MdrGraph
 
 
@@ -169,7 +169,9 @@ async def get_model_entities(model: str):
     return res
 
 
-@router.get('/{model}/entities/{entity}', response_model=Entity, operation_id='get_model_entity',
+@router.get('/{model}/entities/{entity}',
+            response_model=Entity,
+            operation_id='get_model_entity',
             response_model_exclude_none=True,
             responses={
                 "200": {
@@ -185,12 +187,14 @@ async def get_model_entities(model: str):
                 }
             })
 @cache()
-async def get_model_entity(model: str, entity: str):
+async def get_model_entity(model: str, entity: str) -> Entity:
     """Get an entity from a model"""
-    # TODO: iterate over entities and return the entity matching 'entity'?
-    # ... or is this correct?
-    # entities = mdr_graph.list_entities(model)
-    return Entity(name=entity)
+    entities: List[str] = mdr_graph.list_entities(model)
+    if entity in entities:
+        entity_found = Entity(name=entity)
+        return entity_found
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @router.get('/{model}/entities/{entity}/attributes', response_model=List[Attribute],
@@ -240,13 +244,16 @@ async def get_model_entity_attributes(model: str, entity: str):
 @cache()
 async def get_model_entity_attribute(
         model: str, entity: str, attribute: str
-) -> Union[HarmonizedAttribute, NodeAttribute, Dict]:
+) -> Union[HarmonizedAttribute, NodeAttribute]:
     """Get an entity's attributes"""
     if model in mdr_graph.list_harmonized_models():
         result = mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)
     else:
         result = mdr_graph.find_node_attributes_complete(model, entity, attribute)
-    return result[0] if result else {}
+    if result:
+        return result[0]
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/enumerations',

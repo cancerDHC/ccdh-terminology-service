@@ -4,8 +4,13 @@ from fastapi_cache.decorator import cache
 from ccdh.config import get_settings
 
 
-def nocache():
+# Note: args and kwargs left here because they are used by...
+# ...`fastapi_cache.decorator.cache`
+# noinspection PyUnusedLocal
+def nocache(*args, **kwargs):
+    """Wrapper func"""
     def decorator(func):
+        """Decorator"""
         return func
     return decorator
 
