@@ -43,6 +43,7 @@ async def startup():
         url=get_settings().redis_url,
         encoding="utf8",
         decode_responses=True)
+    # if get_settings().environment_name == 'production':
     FastAPICache.init(
         backend=RedisBackend(redis),
         prefix="fastapi-cache")

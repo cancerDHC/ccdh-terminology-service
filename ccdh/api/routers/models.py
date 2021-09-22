@@ -2,7 +2,7 @@
 from typing import Optional, List, Dict, Union
 
 from fastapi import APIRouter
-from fastapi_cache.decorator import cache
+from ccdh.api.cache import cache
 from pydantic.main import BaseModel
 from starlette.responses import StreamingResponse
 from tccm_api.routers.concept_reference import ConceptReference
@@ -187,8 +187,9 @@ async def get_model_entities(model: str):
 @cache()
 async def get_model_entity(model: str, entity: str):
     """Get an entity from a model"""
-    entities = mdr_graph.list_entities(model)
-    # TODO: iterate over entities and return the entity matching 'entity'
+    # TODO: iterate over entities and return the entity matching 'entity'?
+    # ... or is this correct?
+    # entities = mdr_graph.list_entities(model)
     return Entity(name=entity)
 
 
@@ -219,14 +220,14 @@ async def get_model_entity_attributes(model: str, entity: str):
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}',
-            response_model=Union[HarmonizedAttribute, NodeAttribute],
-            response_model_exclude_unset=True,
+            # response_model=Union[HarmonizedAttribute, NodeAttribute],
+            # response_model_exclude_unset=True,
             operation_id='get_model_entity_attribute',
             responses={
                 "200": {
                     "links": {
                         "Attribute": {
-                            "operationId": "get_model_entity_attribute_enums",
+                            "operationId": "get_model_entity_attribute",
                             "parameters": {
                                 "model": "$request.path.model",
                                 "entity": "$request.path.entity",
@@ -239,7 +240,7 @@ async def get_model_entity_attributes(model: str, entity: str):
 @cache()
 async def get_model_entity_attribute(
         model: str, entity: str, attribute: str
-) -> Union[HarmonizedAttribute, NodeAttribute]:
+) -> Union[HarmonizedAttribute, NodeAttribute, Dict]:
     """Get an entity's attributes"""
     if model in mdr_graph.list_harmonized_models():
         result = mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)
@@ -266,10 +267,7 @@ async def get_model_entity_attribute(
             })
 @cache()
 async def get_model_entity_attribute_enums(model: str, entity: str, attribute: str) -> List[Enumeration]:
-    """Get an enumeration of entity attribute enums
-        TODO: @Dazhi I need a better description here I think. Maybe I don't
-        understand this well enough to describe it. - jef 2021/07/30
-    """
+    """Get an enumeration of entity attributes"""
     return [Enumeration(name=model + '.' + entity + '.' + attribute)]
 
 
