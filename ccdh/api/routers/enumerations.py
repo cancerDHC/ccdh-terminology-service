@@ -1,3 +1,7 @@
+from typing import Dict
+
+import yaml
+
 from fastapi import APIRouter, HTTPException
 from linkml_runtime.linkml_model import EnumDefinition, PermissibleValue
 from linkml_runtime.dumpers.yaml_dumper import YAMLDumper
@@ -15,6 +19,25 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+# TODO: put in utils; later to be put in linkml-runtime utils
+def is_nonequivalent_subset(subset, superset):
+    """Is subset actually a subset of superset, and not wholly equivalent?"""
+    return is_subset(subset, superset) and subset != superset
+
+
+# TODO: put in utils; later to be put in linkml-runtime utils
+def is_subset(subset, superset):
+    """Is subset actually a subset of superset."""
+    if isinstance(subset, dict):
+        return all(key in superset and is_subset(val, superset[key]) for key, val in subset.items())
+
+    if isinstance(subset, list) or isinstance(subset, set):
+        return all(any(is_subset(subitem, superitem) for superitem in superset) for subitem in subset)
+
+    # assume that subset is a plain value if none of the above match
+    return subset == superset
 
 
 @router.get('/{name}',
@@ -46,14 +69,24 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
             contexts = []
             for attr in node_attributes:
                 contexts.append(f'{attr["system"]}.{attr["entity"]}.{attr["attribute"]}')
-            extensions = {'CCDH:context': '; '.join(contexts)}
+            # extensions = {'CCDH:context': '; '.join(contexts)}
             pv = PermissibleValue(text=v['pref_label'], description=v['description'])
             enum.permissible_values.append(pv)
         for concept in concepts:
             concept = dict(concept['cr'])
             pv = PermissibleValue(meaning=uri_to_curie(concept['uri']), description=concept['designation'], text=concept['code'])
             enum.permissible_values.append(pv)
-    return Response(content=YAMLDumper().dumps(enum), media_type="application/x-yaml")
 
-
-
+    enum_dump: str = YAMLDumper().dumps(enum)
+    enum_dict: Dict = yaml.safe_load(enum_dump)
+    val_objs: Dict[str, str] = enum_dict['permissible_values']
+    for val_obj in val_objs:
+        for i in range(len(enum_dict['permissible_values'])):
+            original_val_obj = enum_dict['permissible_values'][i]
+            subset_found = is_nonequivalent_subset(original_val_obj, val_obj)
+            if subset_found:
+                enum_dict['permissible_values'][i] = 'dupe'
+    enum_dict['permissible_values'] = [
+        x for x in enum_dict['permissible_values'] if x != 'dupe']
+    enum_yml_str: str = yaml.dump(enum_dict)
+    return Response(content=enum_yml_str, media_type="application/x-yaml")

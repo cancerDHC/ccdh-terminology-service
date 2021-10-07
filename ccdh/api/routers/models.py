@@ -1,8 +1,7 @@
 """Models: classes and endpoints"""
 from typing import Optional, List, Dict, Union
 
-from fastapi import APIRouter
-from fastapi_cache.decorator import cache
+from fastapi import APIRouter, HTTPException
 from pydantic.main import BaseModel
 from starlette.responses import StreamingResponse
 from tccm_api.routers.concept_reference import ConceptReference
@@ -11,6 +10,7 @@ from datetime import date
 
 from ccdh.api.routers.mappings import generate_sssom_tsv
 from ccdh.config import neo4j_graph
+from ccdh.api.cache import cache
 from ccdh.db.mdr_graph import MdrGraph
 
 
@@ -169,7 +169,9 @@ async def get_model_entities(model: str):
     return res
 
 
-@router.get('/{model}/entities/{entity}', response_model=Entity, operation_id='get_model_entity',
+@router.get('/{model}/entities/{entity}',
+            response_model=Entity,
+            operation_id='get_model_entity',
             response_model_exclude_none=True,
             responses={
                 "200": {
@@ -185,9 +187,14 @@ async def get_model_entities(model: str):
                 }
             })
 @cache()
-async def get_model_entity(entity: str):
+async def get_model_entity(model: str, entity: str) -> Entity:
     """Get an entity from a model"""
-    return Entity(name=entity)
+    entities: List[str] = mdr_graph.list_entities(model)
+    if entity in entities:
+        entity_found = Entity(name=entity)
+        return entity_found
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @router.get('/{model}/entities/{entity}/attributes', response_model=List[Attribute],
@@ -217,14 +224,14 @@ async def get_model_entity_attributes(model: str, entity: str):
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}',
-            response_model=Union[HarmonizedAttribute, NodeAttribute],
-            response_model_exclude_unset=True,
+            # response_model=Union[HarmonizedAttribute, NodeAttribute],
+            # response_model_exclude_unset=True,
             operation_id='get_model_entity_attribute',
             responses={
                 "200": {
                     "links": {
                         "Attribute": {
-                            "operationId": "get_model_entity_attribute_enums",
+                            "operationId": "get_model_entity_attribute",
                             "parameters": {
                                 "model": "$request.path.model",
                                 "entity": "$request.path.entity",
@@ -240,9 +247,13 @@ async def get_model_entity_attribute(
 ) -> Union[HarmonizedAttribute, NodeAttribute]:
     """Get an entity's attributes"""
     if model in mdr_graph.list_harmonized_models():
-        return mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)[0]
+        result = mdr_graph.find_harmonized_attributes_complete(model, entity, attribute)
     else:
-        return mdr_graph.find_node_attributes_complete(model, entity, attribute)[0]
+        result = mdr_graph.find_node_attributes_complete(model, entity, attribute)
+    if result:
+        return result[0]
+    else:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/enumerations',
@@ -263,10 +274,7 @@ async def get_model_entity_attribute(
             })
 @cache()
 async def get_model_entity_attribute_enums(model: str, entity: str, attribute: str) -> List[Enumeration]:
-    """Get an enumeration of entity attribute enums
-        TODO: @Dazhi I need a better description here I think. Maybe I don't
-        understand this well enough to describe it. - jef 2021/07/30
-    """
+    """Get an enumeration of entity attributes"""
     return [Enumeration(name=model + '.' + entity + '.' + attribute)]
 
 

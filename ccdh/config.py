@@ -31,16 +31,11 @@ class Settings(BaseSettings):
     redis_url: str
     docker_user_token_limited: str
     ccdhmodel_branch: Optional[str] = 'main'
-
-    # @Dazhi: I was having difficulty fetching settings consistently from different
-    # files. I think this pathing is better than us needing to make symlinks and
-    # populate .env files in different directories. If you agree, let's remove
-    # these commented lines below. - Joe 2021/08/23
-    # class Config:
-    #     env_file = os.path.join(os.path.realpath(__file__), '..', 'docker' '.env')
+    environment_name: Optional[str] = 'production'
 
 
 @lru_cache()
 def get_settings():
-    env_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '.env')
+    env_file_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '.env')
     return Settings(_env_file=env_file_path)

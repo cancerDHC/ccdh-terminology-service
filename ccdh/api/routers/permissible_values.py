@@ -2,7 +2,7 @@
 from typing import Optional, List
 
 from fastapi import APIRouter
-from fastapi_cache.decorator import cache
+from ccdh.api.cache import cache
 from pydantic.main import BaseModel
 from tccm_api.routers.concept_reference import ConceptReference
 

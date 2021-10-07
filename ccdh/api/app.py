@@ -68,3 +68,8 @@ def use_route_names_as_operation_ids(fastapi_app: FastAPI) -> None:
 
 
 use_route_names_as_operation_ids(app)
+
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host='0.0.0.0', port=8000)

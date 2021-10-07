@@ -1,6 +1,6 @@
 """CCDH Concept References: classes and endpoints"""
 from fastapi import Request
-from fastapi_cache.decorator import cache
+from ccdh.api.cache import cache
 from starlette.responses import StreamingResponse
 from tccm_api.routers import concept_reference
 
