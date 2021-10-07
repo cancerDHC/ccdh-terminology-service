@@ -69,7 +69,7 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
             contexts = []
             for attr in node_attributes:
                 contexts.append(f'{attr["system"]}.{attr["entity"]}.{attr["attribute"]}')
-            extensions = {'CCDH:context': '; '.join(contexts)}
+            # extensions = {'CCDH:context': '; '.join(contexts)}
             pv = PermissibleValue(text=v['pref_label'], description=v['description'])
             enum.permissible_values.append(pv)
         for concept in concepts:
@@ -79,13 +79,6 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
 
     enum_dump: str = YAMLDumper().dumps(enum)
     enum_dict: Dict = yaml.safe_load(enum_dump)
-    # TODO: is this the most elegant way?: (i) permissible_values repeated, (ii)
-    #...the 'dupe' thing is maybe kinda weird; maybe can do w/out extra step after?
-    # Next: Iterate over permissible_values and remove any entry which is fully
-    # contained within another entry, e.g. {'text': 'Unknown'} is fully
-    # contained within {'description': 'Unknown', 'text': 'Unknown'},
-    # so {'text': 'Unknown'} does not contain any extra information and we can
-    # remove it.
     val_objs: Dict[str, str] = enum_dict['permissible_values']
     for val_obj in val_objs:
         for i in range(len(enum_dict['permissible_values'])):
@@ -96,6 +89,4 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
     enum_dict['permissible_values'] = [
         x for x in enum_dict['permissible_values'] if x != 'dupe']
     enum_yml_str: str = yaml.dump(enum_dict)
-    # TODO: order of fields in exported yaml is different. looks like it became
-    # ...alphabetically orderded. Is this ok?
     return Response(content=enum_yml_str, media_type="application/x-yaml")
