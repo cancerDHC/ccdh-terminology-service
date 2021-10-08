@@ -2,7 +2,7 @@ from typing import List, Union, Tuple
 from urllib.parse import quote_plus
 
 import shortuuid
-from py2neo import Relationship, Node, NodeMatcher, Subgraph, Graph
+from py2neo import Relationship, Node, NodeMatcher, Subgraph, Graph, ConnectionBroken
 from py2neo.cypher import Cursor
 from sssom.sssom_datamodel import MappingSet
 from prefixcommons import expand_uri, contract_uri
@@ -20,40 +20,66 @@ class MdrGraph:
     def __init__(self, graph: Graph):
         self.graph = graph
 
+
+    def graph_run_handler(self, *args, **kwargs):
+        """Wraps graph.run() with exception handling"""
+        try:
+            cursor: Cursor = self.graph.run(*args, **kwargs)
+            # if cursor and str(cursor) != '(No data)':
+            #     print()  # Are any enums in db? want to see
+            # Here's something that came up:
+            #  pref_label                                                           | description                                                             | node_attributes
+            # ----------------------------------------------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #  Nasal cavity and middle ear                                          | Nasal Cavity and Middle Ear                                             | [(_602:NodeAttribute:Resource {attribute: 'primary_site', definition: "The text term used to describe the primary site of disease, as categorized by the World Health Organization's (WHO) International Classification of Diseases for Oncology (ICD-O). This categorization groups cases into general categories. Reference tissue_or_organ_of_origin on the diagnosis node for more specific primary sites of disease.", entity: 'Case', reference: 'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId=6161019', system: 'GDC', uri: 'https://ccdh.cancer.gov/node-attributes/GDC/Case/primary_site'})]
+            #  Liver and intrahepatic bile ducts                                    | Liver and Intrahepatic Bile Duct                                        | [(_602:NodeAttribute:Resource {attribute: 'primary_site', definition: "The text term used to describe the primary site of disease, as categorized by the World Health Organization's (WHO) International Classification of Diseases for Oncology (ICD-O). This categorization groups cases into general categories. Reference tissue_or_organ_of_origin on the diagnosis node for more specific primary sites of disease.", entity: 'Case', reference: 'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId=6161019', system: 'GDC', uri: 'https://ccdh.cancer.gov/node-attributes/GDC/Case/primary_site'})]
+            #  Bones, joints and articular cartilage of other and unspecified sites | Bone, Joint ,Articular Cartilage of Other and Unspecified Anatomic Site | [(_602:NodeAttribute:Resource {attribute: 'primary_site', definition: "The text term used to describe the primary site of disease, as categorized by the World Health Organization's (WHO) International Classification of Diseases for Oncology (ICD-O). This categorization groups cases into general categories. Reference tissue_or_organ_of_origin on the diagnosis node for more specific primary sites of disease.", entity: 'Case', reference: 'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId=6161019', system: 'GDC', uri: 'https://ccdh.cancer.gov/node-attributes/GDC/Case/primary_site'})]
+        # TODO: What's causing errors? How to handle?
+        except ConnectionBroken:
+            cursor: Cursor = self.graph.run(*args, **kwargs)
+        return cursor
+
     @staticmethod
     def create_node_attribute_uri(system: str, entity: str, attr: str) -> str:
         return str(CCDH[f'node-attributes/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attr)}'])
+
 
     @staticmethod
     def create_enumeration_uri():
         return str(CCDH[f'enumerations/{shortuuid.uuid()}'])
 
+
     @staticmethod
     def create_harmonized_attribute_uri(system, entity, attribute):
         return str(CCDH[f'harmonized-attributes/{quote_plus(system)}/{quote_plus(entity)}/{quote_plus(attribute)}'])
+
 
     @staticmethod
     def create_permissible_value_uri():
         return str(CCDH[f'permissible-values/{shortuuid.uuid()}'])
 
+
     @staticmethod
     def create_code_set_uri():
         return str(CCDH[f'code-sets/{shortuuid.uuid()}'])
+
 
     @staticmethod
     def create_code_set() -> Node:
         uri = MdrGraph.create_code_set_uri()
         return Node('CodeSet', 'Resource', uri=uri)
 
+
     @staticmethod
     def create_node_attribute(system: str, entity: str, attr: str) -> Node:
         uri = MdrGraph.create_node_attribute_uri(system, entity, attr)
         return Node('NodeAttribute', 'Resource', uri=uri, entity=entity, attribute=attr, system=system)
 
+
     @staticmethod
     def create_enumeration() -> Tuple[Subgraph]:
         uri = MdrGraph.create_enumeration_uri()
         return Node('Enumeration', 'Resource', uri=uri)
+
 
     @staticmethod
     def create_permissible_value(value: str, description: str):
@@ -64,31 +90,38 @@ class MdrGraph:
             pv = Node('PermissibleValue', 'Resource', pref_label=value, description=description, uri=uri)
         return pv
 
+
     @staticmethod
     def create_harmonized_attribute(system, entity: str, attribute: str):
         uri = MdrGraph.create_harmonized_attribute_uri(system, entity, attribute)
         return Node('HarmonizedAttribute', 'Resource', uri=uri, system=system, entity=entity, attribute=attribute)
+
 
     @staticmethod
     def build_where_statement(node_str, **kwargs):
         where_list = [f"{node_str}.{key}='{kwargs[key]}'" for key in kwargs if kwargs[key] is not None]
         return ' AND '.join(where_list)
 
+
     @staticmethod
     def build_where_statement_case_insensitive(node_str, **kwargs):
         where_list = [f"{node_str}.{key} =~ '(?i){kwargs[key]}'" for key in kwargs if kwargs[key] is not None]
         return ' AND '.join(where_list)
 
+
     def get_resource_by_uri(self, uri: str) -> Node:
         return NodeMatcher(self.graph).match('Resource').where(f"_.uri='{uri}'").first()
+
 
     def get_node_attribute(self, system, entity, attribute):
         where_stmt = f"_.system=~'(?i){system}' AND _.entity=~'(?i){entity}' AND _.attribute=~'(?i){attribute}'"
         return NodeMatcher(self.graph).match('NodeAttribute').where(where_stmt).first()
 
+
     def get_harmonized_attribute(self, system, entity, attribute):
         where_stmt = f"_.system=~'(?i){system}' AND _.entity=~'(?i){entity}' AND _.attribute=~'(?i){attribute}'"
         return NodeMatcher(self.graph).match('HarmonizedAttribute').where(where_stmt).first()
+
 
     def assign_harmonized_attribute(self, node_attribute: NodeAttribute, harmonized_attribute: HarmonizedAttribute):
         """
@@ -104,6 +137,7 @@ class MdrGraph:
             tx.create(Relationship(na_node, 'MAPS_TO', ha_node))
             tx.commit()
 
+
     def find_mappings_of_harmonized_attribute(self, system: str, entity: str, attribute: str, pagination: bool = False,
                                               page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
         where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity, attribute=attribute)
@@ -111,12 +145,14 @@ class MdrGraph:
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
 
+
     def find_mappings_of_node_attribute(self, system: str, entity: str, attribute: str, pagination: bool = True,
                                       page: int = 1, page_size: int = DEFAULT_PAGE_SIZE) -> MappingSet:
         where_stmt = MdrGraph.build_where_statement_case_insensitive('n', system=system, entity=entity, attribute=attribute)
         skip_size = (page-1) * page_size
         paging_stmt = f' SKIP {skip_size} LIMIT {page_size} ' if pagination else ''
         return self.find_permissible_value_mappings(where_stmt, paging_stmt)
+
 
     def find_mappings_of_concept_reference(self, curie: str) -> MappingSet:
         uri = curie_to_uri(curie)
@@ -149,6 +185,7 @@ class MdrGraph:
         mapping_set.mappings = mappings
         return mapping_set
 
+
     def find_permissible_value_mappings(self, where_stmt, paging_stmt) -> MappingSet:
         where_stmt = 'WHERE ' + where_stmt if where_stmt else ''
         query = f"""        
@@ -168,10 +205,11 @@ class MdrGraph:
         """
         query = query.format(where_stmt=where_stmt, pageing_stmt=paging_stmt)
         cursor: Cursor = self.graph.run(query)
-        mapping_set = MappingSet(mapping_provider=str(CCDH),
-                                 creator_id='https://orcid.org/0000-0000-0000-0000',
-                                 creator_label='CCDH',
-                                 license='https://creativecommons.org/publicdomain/zero/1.0/')
+        mapping_set = MappingSet(
+            mapping_provider=str(CCDH),
+            creator_id='https://orcid.org/0000-0000-0000-0000',
+            creator_label='CCDH',
+            license='https://creativecommons.org/publicdomain/zero/1.0/')
         mappings = []
         while cursor.forward():
             current = dict(cursor.current)
@@ -182,6 +220,7 @@ class MdrGraph:
             mappings.append(current)
         mapping_set.mappings = mappings
         return mapping_set
+
 
     def find_permissible_values(self, value: str):
         query = f'''        
@@ -199,6 +238,7 @@ class MdrGraph:
             pvs.append(p)
         return pvs
 
+
     def find_permissible_values_of(self, system: str, entity: str, attribute: str):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
                                                                      attribute=attribute)
@@ -214,6 +254,7 @@ class MdrGraph:
             ret.append(cursor.current)
         return ret
 
+
     def find_concept_references_and_permissible_values_of(self, system: str, entity: str, attribute: str):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
                                                                      attribute=attribute)
@@ -224,7 +265,9 @@ class MdrGraph:
         RETURN DISTINCT p.pref_label as pref_label, p.description as description, apoc.coll.toSet(COLLECT(n)) as node_attributes
         '''
         pvs = []
-        cursor: Cursor = self.graph.run(query)
+        # TODO: temp debugging
+        cursor: Cursor = self.graph_run_handler(query)
+        # cursor: Cursor = self.graph.run(query)
         while cursor.forward():
             pvs.append(cursor.current)
         crs = []
@@ -239,12 +282,15 @@ class MdrGraph:
             crs.append(cursor.current)
         return crs, pvs
 
+
     def find_concept_reference(self, notation, defined_in, version=None):
         where_stmt = f"_.notation='{notation}' AND _.defined_in='{defined_in}'"
         if version:
             where_stmt += f" AND _.version='{version}'"
         return NodeMatcher(self.graph).match('ConceptReference').where(where_stmt).first()
 
+
+    # TODO: This should be renamed:
     def find_concept_reference(self, uri):
         query = '''
         MATCH (v:ConceptReference {uri: $uri})
@@ -262,6 +308,7 @@ class MdrGraph:
             v['representations'] = pvs
         return v
 
+
     def find_value_domain(self, permissible_values: List[str], system, entity, attribute) -> Union[str, None]:
         query = "MATCH (n:ValueDomain)<-[:USES]-(:NodeAttribute {system: $system, entity: $entity, attribute: $attribute})\n"
         for pv in permissible_values:
@@ -275,13 +322,16 @@ class MdrGraph:
         else:
             return None
 
+
     def find_harmonized_attributes(self, system, entity, attribute):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('_', entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('HarmonizedAttribute').where(where_stmt)
 
+
     def find_node_attributes(self, system, entity=None, attribute=None):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('_', system=system, entity=entity, attribute=attribute)
         return NodeMatcher(self.graph).match('NodeAttribute').where(where_stmt)
+
 
     def find_node_attributes_complete(self, system, entity=None, attribute=None):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('n', system=system, entity=entity, attribute=attribute)
@@ -301,6 +351,7 @@ class MdrGraph:
             records.append(n)
         return records
 
+
     def find_harmonized_attributes_complete(self, system, entity, attribute):
         where_stmt = MdrGraph.build_where_statement_case_insensitive('n', system=system, entity=entity, attribute=attribute)
         query = f'''
@@ -319,7 +370,8 @@ class MdrGraph:
             records.append(dec)
         return records
 
-    def list_models(self):
+
+    def list_models(self) -> List[str]:
         query = '''
         MATCH (n) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN DISTINCT n.system as model
         '''
@@ -329,6 +381,7 @@ class MdrGraph:
             value = cursor.current
             res.append(value['model'])
         return res
+
 
     def list_harmonized_models(self):
         query = '''
@@ -341,6 +394,7 @@ class MdrGraph:
             res.append(value['model'])
         return res
 
+
     def list_entities(self, model: str):
         query = '''
         MATCH (n {system: $system}) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN DISTINCT n.entity as entity
@@ -352,6 +406,7 @@ class MdrGraph:
             res.append(value['entity'])
         return res
 
+
     def list_attributes(self, model: str, entity: str):
         query = '''
         MATCH (n {system: $system, entity: $entity}) WHERE n:NodeAttribute or n:HarmonizedAttribute RETURN n.attribute as attribute
@@ -362,4 +417,3 @@ class MdrGraph:
             value = cursor.current
             res.append(value['attribute'])
         return res
-

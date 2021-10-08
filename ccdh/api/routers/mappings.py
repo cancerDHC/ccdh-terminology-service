@@ -1,4 +1,7 @@
-"""Mappings: classes and endpoints"""
+"""Mappings: classes and endpoints
+
+# TODO: are any endpoints int his file actually available? I don't see them in the Swagger UI.
+"""
 from sssom.sssom_datamodel import Mapping as SssomMapping
 from sssom.parsers import from_dataframe
 import pandas as pd

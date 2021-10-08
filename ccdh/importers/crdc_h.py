@@ -48,8 +48,8 @@ class CrdcHImporter:
             # 'close_mappings',
             # 'related_mappings',
             'exact_mappings')
-        err_msg = 'Tried to use model.classes as a dictionary ' \
-            'object while it was actually a jsonObj.\n'
+        # err_msg = 'Tried to use model.classes as a dictionary ' \
+        #     'object while it was actually a jsonObj.\n'
 
         # Execution
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)
@@ -58,6 +58,14 @@ class CrdcHImporter:
         # ... "{ValueError}dictionary update sequence element #0 has length 11; 2 is required" - jef 2021/07/29
         # noinspection PyProtectedMember
         class_values = model.classes._as_dict.values()
+
+        # TODO: why isn't it capturing enumerations? is it because enumerations
+        #  not being captured here explicitly following their change?
+        #  doesn't look slike they ever were
+        # TODO: Gaurav says I should use attr.CodeableConcept. only appears in some:
+        # Nice! Note that Terminology shouldn’t be accessing model.enums at all - we generate those from the Terminology API, and at some point we might not generate an enumeration if its not in the Terminology service: the right way to do this is to use model.classes and look for attributes/slots that have a type of “CodeableConcept” — those are the ones we would like to provide code recommendation and validation on.
+        # e.g.:
+        # attr.value_codeable_concept.values_from = enum_CRDCH_CancerGradeObservation_value_codeable_concept
         for cls in class_values:
             for attribute in cls.get('attributes', {}).values():
                 key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
@@ -78,3 +86,9 @@ class CrdcHImporter:
 
         logger.info("Parsed the content in the CCDH Model YAML")
         return harmonized_attributes
+
+
+if __name__ == '__main__':
+    from pprint import pprint
+    parsed_model: Dict = CrdcHImporter.read_harmonized_attributes()
+    pprint(parsed_model)
