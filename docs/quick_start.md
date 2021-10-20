@@ -54,14 +54,8 @@ CCDHMODEL_BRANCH=ccdhmodel_branch_name_or_full_sha_commit_id
 Then run the docker-compose build to build the images
 
 ```shell
-cd docker
-docker-compose build
-```
-
-If everything works, spin up the containers
-
-```shell
-docker-compose up -d
+```sh
+make deploy-local
 ```
 
 After the docker containers are up, log onto the ccdh-api container and load data. 

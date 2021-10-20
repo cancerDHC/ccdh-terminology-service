@@ -1,0 +1,40 @@
+pytest
+pytest-docker
+docker-compose
+faker
+aioredis
+jsonschema==3.2.0
+fastapi-cache2
+fhirclient
+networkx
+rdflib
+tabletext
+fastjsonschema
+pandas
+pygsheets
+inflection
+synapseclient
+matplotlib
+PyYAML
+PyLD
+PyGithub
+py2neo
+# sssom: Unstable dependency, so importing at last known stable commit. - jef 2021/07/22
+# sssom = {editable = true, git = "https://github.com/mapping-commons/sssom-py", ref = "5b56269aac0f6b3e926bfb4d15811b229c33d618"}
+git+https://github.com/mapping-commons/sssom-py.git@5b56269aac0f6b3e926bfb4d15811b229c33d618
+prefixcommons
+shortuuid
+pyrdfa3
+fastapi
+uvicorn
+pydantic
+python-multipart
+python-dotenv
+rfc3986
+neo4j
+httpx
+linkml-runtime
+# tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api"}
+git+https://github.com/HOT-Ecosystem/tccm-api.git
+# tccm-model = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-model"}
+git+https://github.com/HOT-Ecosystem/tccm-model.git
