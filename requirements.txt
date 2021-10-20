@@ -156,8 +156,10 @@ starlette==0.14.2
 stevedore==3.3.0
 synapseclient==2.4.0
 tabletext==0.1
-tccm-api @ git+https://github.com/HOT-Ecosystem/tccm-api.git@7e57ba57b6b1a4c58071178ab3293cf787dca3de
-tccm-model @ git+https://github.com/HOT-Ecosystem/tccm-model.git@be4e381fe0bd95c5ca5cdeaf44ff729d1f5a5c62
+# tccm-api @ git+https://github.com/HOT-Ecosystem/tccm-api.git@7e57ba57b6b1a4c58071178ab3293cf787dca3de
+# tccm-model @ git+https://github.com/HOT-Ecosystem/tccm-model.git@be4e381fe0bd95c5ca5cdeaf44ff729d1f5a5c62
+tccm-api
+tccm-model
 testfixtures==6.18.1
 text-unidecode==1.3
 texttable==1.6.4

@@ -35,6 +35,8 @@ neo4j
 httpx
 linkml-runtime
 # tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api"}
-git+https://github.com/HOT-Ecosystem/tccm-api.git
+# git+https://github.com/HOT-Ecosystem/tccm-api.git
+tccm-api
 # tccm-model = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-model"}
-git+https://github.com/HOT-Ecosystem/tccm-model.git
+# git+https://github.com/HOT-Ecosystem/tccm-model.git
+tccm-model
