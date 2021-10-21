@@ -1,0 +1,63 @@
+# Production environment
+version: "3"
+services:
+  ccdh-api:
+    build:
+      dockerfile: ./docker/ccdh-api/Dockerfile
+      context: .
+    container_name: ccdh-api
+    restart: on-failure
+    ports:
+      # <outside>:<insideContainerNetwork>
+      - "7070:8000"
+    depends_on:
+      ccdh-neo4j:
+        condition: service_healthy
+      ccdh-redis:
+        condition: service_healthy
+
+  ccdh-redis:
+    image: "redis:alpine"
+    container_name: ccdh-redis
+    ports:
+      # <outside>:<insideContainerNetwork>
+      - "6379:6379"
+    volumes:
+     - ./docker/volumes/prod/redis:/var/lib/redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  ccdh-neo4j:
+    image: neo4j:4.1.3
+    container_name: ccdh-neo4j
+    restart: always
+    volumes:
+      - ./docker/volumes/prod/neo4j/logs:/logs
+      - ./docker/volumes/prod/neo4j/data:/data
+      - ./docker/volumes/prod/neo4j/plugins:/var/lib/neo4j/plugins
+      - ./docker/volumes/prod/neo4j/conf:/var/lib/neo4j/conf
+      - ./docker/volumes/prod/neo4j/import:/var/lib/neo4j/import
+      - ./docker/volumes/prod/neo4j/wrapper.sh:/opt/wrapper.sh
+      - ./docker/volumes/prod/neo4j/initialize_neo4j.sh:/opt/initialize_neo4j.sh
+      - ./docker/volumes/prod/neo4j/cyphers:/cyphers
+    ports:
+      # <outside>:<insideContainerNetwork>
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: $NEO4J_USERNAME/$NEO4J_PASSWORD
+      NEO4J_dbms_memory_heap_max__size: 8G
+    env_file:
+      - .env.prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7474"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    entrypoint: /opt/wrapper.sh
+
+volumes:
+  ccdh-neo4j:
+  ccdh-redis:
