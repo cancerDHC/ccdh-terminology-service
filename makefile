@@ -1,4 +1,4 @@
-.PHONY: deploy-local deploy-local-prod deploy-local-test run
+.PHONY: deploy-local deploy-local-prod deploy-local-test run run-outside-docker
 
 # Deploy
 deploy-local: deploy-local-prod
@@ -13,7 +13,8 @@ deploy-local-test:
 	docker-compose -f docker-compose-test.yml -p ccdh-test build; \
 	docker-compose -f docker-compose-test.yml -p ccdh-test up -d
 
-# TODO: is .env.prod the best one for running locally?
-run:
-	@cp .env.prod .env; \
+run: run-outside-docker
+
+run-outside-docker:
+	@cp .env.dev .env; \
 	uvicorn ccdh.api.app:app $$ROOT_PATH --host 0.0.0.0 --port 8000

@@ -88,4 +88,21 @@ You may find it useful to also install the following:
 - Neo4j desktop / Neo4j browser
 
 ## Debugging locally
-If you want to debug locally, you should run the CCDH-API outside of docker.
+If you want to debug locally, you should run the CCDH-API outside of docker. That 
+way, if you set breakpoints in your IDE, it will stop at them.
+
+**Step 1: `.env.dev`**
+1.1. Create an `.env.dev` file. It can look like just like your `.env.prod` file, but
+with the following change:
+
+```sh
+NEO4J_HOST=localhost
+```
+
+1.2. Then, do: `cp .env.dev .env`
+
+**Step 2: Run**
+From within your IDE's debugger, have it run the following command:
+```sh
+uvicorn ccdh.api.app:app $$ROOT_PATH --host 0.0.0.0 --port 8000
+```

@@ -1,6 +1,8 @@
 """Config"""
 import logging
 import os
+from pprint import pprint
+
 from functools import lru_cache
 from py2neo import Graph
 from pathlib import Path
@@ -10,11 +12,6 @@ from typing import Optional
 
 ROOT_DIR = Path(__file__).parent.parent
 
-# ENV_NAME_ENV_FILE_MAP = {
-#     'production': '.env.prod',
-#     'test': '.env.test',
-#     'development': '.env.dev'
-# }
 
 # noinspection PyArgumentList
 logging.basicConfig(
@@ -40,7 +37,7 @@ class Settings(BaseSettings):
     neo4j_host: str
     neo4j_bolt_port: str
     redis_url: str
-    docker_user_token_limited: str
+    docker_user_token_limited: Optional[str]
     ccdhmodel_branch: Optional[str] = 'main'
     environment_name: Optional[str] = 'production'
 
@@ -48,19 +45,18 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings():
     """get_settings"""
-    # env_name = os.getenv('ENVIRONMENT_NAME', 'production')
-    # env_file_path = os.path.join(ROOT_DIR, ENV_NAME_ENV_FILE_MAP[env_name])
     env_file_path = os.path.join(ROOT_DIR, '.env')
     try:
         settings = Settings(_env_file=env_file_path)
         return settings
     except ValidationError as err:
-        print(str(err))
         print('Env files not found?:')
         print('env_file_path:', env_file_path)
-        from pprint import pprint
+        exists = '.env' in os.listdir()
         pprint(os.listdir(ROOT_DIR))
-        print('env file exists?:', '.env' in os.listdir())
-        with open(env_file_path, 'r') as file:
-            print(file.read())
-        raise FileNotFoundError(';(')
+        print('env file exists?:', exists)
+        if exists:
+            'env file contents: '
+            with open(env_file_path, 'r') as file:
+                print(file.read())
+        raise err
