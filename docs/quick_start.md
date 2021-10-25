@@ -86,3 +86,6 @@ After data is loaded, the server will be running on a local port at 7070. You ca
 You may find it useful to also install the following:
 - Docker desktop
 - Neo4j desktop / Neo4j browser
+
+## Debugging locally
+If you want to debug locally, you should run the CCDH-API outside of docker.
