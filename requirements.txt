@@ -1,4 +1,3 @@
-# Lockfile
 aiofiles==0.7.0
 aioredis==2.0.0
 alabaster==0.7.12
@@ -39,6 +38,7 @@ fastjsonschema==2.15.1
 fhirclient==3.2.0
 filelock==3.0.12
 frozendict==2.0.6
+ghp-import==2.0.2
 google-api-core==2.0.1
 google-api-python-client==2.21.0
 google-auth==2.1.0
@@ -55,6 +55,7 @@ httplib2==0.19.1
 httpx==0.19.0
 idna==3.2
 imagesize==1.2.0
+importlib-metadata==4.8.1
 inflection==0.5.1
 iniconfig==1.1.1
 interchange==2021.0.3
@@ -63,17 +64,24 @@ Jinja2==3.0.1
 json-flattener==0.1.7
 jsonasobj==1.3.1
 jsonasobj2==1.0.4
+jsonpatch==1.32
+jsonpath-ng==1.5.3
+jsonpointer==2.1
 jsonschema==3.2.0
 keyring==12.0.2
 kiwisolver==1.3.2
 linkml==1.1.0
 linkml-model==1.0.0
 linkml-runtime==1.1.0
+linkml-runtime-api==0.0.4
 lxml==4.6.3
+Markdown==3.3.4
 markdown-it-py==1.1.0
 MarkupSafe==2.0.1
 matplotlib==3.4.3
 mdit-py-plugins==0.2.8
+mergedeep==1.3.4
+mkdocs==1.2.3
 monotonic==1.6
 myst-parser==0.15.2
 neo4j==4.3.4
@@ -93,6 +101,7 @@ pbr==5.6.0
 Pillow==8.3.2
 pipenv==2021.5.29
 pluggy==1.0.0.dev0
+ply==3.11
 prefixcommons==0.1.9
 prologterms==0.0.6
 prompt-toolkit==3.0.19
@@ -124,6 +133,7 @@ python-dotenv==0.19.0
 python-multipart==0.0.5
 pytz==2021.1
 PyYAML==5.4.1
+pyyaml_env_tag==0.1
 rdflib==5.0.0
 rdflib-jsonld==0.6.1
 rdflib-pyld-compat==0.1.0
@@ -133,6 +143,8 @@ requests==2.26.0
 requests-oauthlib==1.3.0
 rfc3986==1.5.0
 rsa==4.7.2
+ruamel.yaml==0.17.16
+ruamel.yaml.clib==0.2.6
 scipy==1.7.1
 ShExJSG==0.7.1
 shortuuid==1.0.1
@@ -156,10 +168,8 @@ starlette==0.14.2
 stevedore==3.3.0
 synapseclient==2.4.0
 tabletext==0.1
-# tccm-api @ git+https://github.com/HOT-Ecosystem/tccm-api.git@7e57ba57b6b1a4c58071178ab3293cf787dca3de
-# tccm-model @ git+https://github.com/HOT-Ecosystem/tccm-model.git@be4e381fe0bd95c5ca5cdeaf44ff729d1f5a5c62
-tccm-api
-tccm-model
+tccm-api==0.1.4
+tccm-model==0.1.3.dev12
 testfixtures==6.18.1
 text-unidecode==1.3
 texttable==1.6.4
@@ -177,3 +187,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 websocket-client==0.59.0
 wrapt==1.12.1
+zipp==3.6.0

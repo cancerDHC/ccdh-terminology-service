@@ -19,7 +19,7 @@ git lfs pull --include ./*.json
 ```
 
 ## Using Docker
-
+### Seeding Neo4j vlumes 
 This is the prefered approach to set up the service. You need to have
 docker and docker-compose installed on your system before the set up. 
 
@@ -30,6 +30,7 @@ cp data/tccm/ncit-termci.ttl docker/volumes/prod/neo4j/import
 cp data/tccm/ncit-termci.ttl docker/volumes/test/neo4j/import
 ```
 
+## Environmental variables
 In the root directory, Create a file called `.env.prod` file with required 
 environment variables.
 
@@ -44,7 +45,8 @@ REDIS_URL=redis://ccdh-redis:6379
 USER_ACCESS_TOKEN=<token>
 ```
 
-Choose a <username> and <password>. As for `USER_ACCESS_TOKEN`, this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
+Choose a `<username>` and `<password>`. As for `USER_ACCESS_TOKEN`, this is used for 
+[GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
 
 By default, the importer will pull the CRDC-H YAML from the main branch of the 
 ccdhmodel GitHub repo. 
@@ -54,6 +56,16 @@ If another branch is preferred, you can add this line in the .env file.
 CCDHMODEL_BRANCH=ccdhmodel_branch_name_or_full_sha_commit_id
 ```
 
+Finally, in addition to `.env.prod`, you'll also need a file called `.env`. This 
+is due to some limitations in the docker setup. We want the docker-compose files
+to point to distinctly different .env files, but it also requires a generic file
+called `.env`, even if you tell it to look for another file. So finally you should do:
+
+```sh
+cp .env.prod .env
+```
+
+## Running containers
 Then run the docker-compose build to build the images
 
 ```shell

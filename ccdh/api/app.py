@@ -37,10 +37,11 @@ def root():
 @app.on_event("startup")
 async def startup():
     """Start up FastAPI server"""
-    app.state.graph = TccmGraph()
+    settings = get_settings()
+    app.state.graph = TccmGraph(settings)
     app.state.graph.connect()
     redis = aioredis.from_url(
-        url=get_settings().redis_url,
+        url=settings.redis_url,
         encoding="utf8",
         decode_responses=True)
     FastAPICache.init(
