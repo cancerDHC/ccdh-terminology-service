@@ -3,13 +3,14 @@
 Clone this repo, and pull the submodules. 
 
 ```shell
-git clone 
+git clone https://github.com/cancerDHC/ccdh-terminology-service.git
+cd ccdh-terminology-service 
 git submodule update --init --recursive
 ```
 
 Because the PDC json files are under Git LFS (Large File Storage), it must be
-installed in the repository. Follow [these instrucions](https://git-lfs.github.com/)
-for installling Git LFS on your machine. Then, install it in the repo via 
+installed in the repository. Follow [these instructions](https://git-lfs.github.com/)
+for installing Git LFS on your machine. Then, install it in the repo via 
 `git lfs install`. Then, pull the content with git lfs.
 
 ```shell
@@ -25,12 +26,14 @@ docker and docker-compose installed on your system before the set up.
 First copy the TCCM NCIT Turtle RDF to the docker import directory for neo4j. 
 
 ```shell
-cp data/tccm/ncit-termci.ttl docker/neo4j/import
+cp data/tccm/ncit-termci.ttl docker/volumes/prod/neo4j/import
+cp data/tccm/ncit-termci.ttl docker/volumes/test/neo4j/import
 ```
 
-In the `docker/` folder, Create a `.env` file with required environment variables.
+In the root directory, Create a file called `.env.prod` file with required 
+environment variables.
 
-The `.env` file should contain the following:
+The `.env.prod` file should contain the following:
 
 ```shell
 NEO4J_USERNAME=<username>
@@ -54,14 +57,7 @@ CCDHMODEL_BRANCH=ccdhmodel_branch_name_or_full_sha_commit_id
 Then run the docker-compose build to build the images
 
 ```shell
-cd docker
-docker-compose build
-```
-
-If everything works, spin up the containers
-
-```shell
-docker-compose up -d
+make deploy-local
 ```
 
 After the docker containers are up, log onto the ccdh-api container and load data. 
@@ -73,3 +69,8 @@ python -m ccdh.importers.importer
 
 After data is loaded, the server will be running on a local port at 7070. You can visit
 [http://localhost:7070](http://localhost:7070). 
+
+## Useful tools
+You may find it useful to also install the following:
+- Docker desktop
+- Neo4j desktop / Neo4j browser

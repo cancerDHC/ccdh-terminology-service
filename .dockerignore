@@ -1,4 +1,9 @@
 .git
 docker/neo4j
+docker/volumes/prod/neo4j
+docker/volumes/test/neo4j
+docker/redis
+docker/volumes/prod/redis
+docker/volumes/test/redis
 crdc-nodes/PDC-Public/ui-app
 crdc-nodes/PDC-Public/graphql

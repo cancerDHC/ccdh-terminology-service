@@ -177,10 +177,34 @@ output/*.tsv
 ## Project specific ignores
 
 !.keep
-!docker/neo4j/import/*.keep
+
 config.ini
 .env
+
+# Docker
+!docker/neo4j/import/*.keep
 docker/neo4j/data
 docker/neo4j/logs
 docker/neo4j/import
 docker/neo4j/conf
+
+!docker/volumes/prod/neo4j/import/*.keep
+docker/volumes/prod/neo4j/data
+docker/volumes/prod/neo4j/logs
+docker/volumes/prod/neo4j/import
+docker/volumes/prod/neo4j/conf
+
+!docker/volumes/test/neo4j/import/*.keep
+docker/volumes/test/neo4j/data
+docker/volumes/test/neo4j/logs
+docker/volumes/test/neo4j/import
+docker/volumes/test/neo4j/conf
+
+!docker/redis/*.keep
+docker/redis/*
+
+!docker/volumes/prod/redis/*.keep
+docker/volumes/prod/neo4j/redis/*
+
+!docker/volumes/test/redis/*.keep
+docker/volumes/test/neo4j/redis/*
