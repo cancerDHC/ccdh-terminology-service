@@ -1,5 +1,5 @@
 """Models: classes and endpoints"""
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic.main import BaseModel
@@ -56,6 +56,7 @@ class Mapping(BaseModel):
     mapping_date: Optional[date]
 
 
+# noinspection HttpUrlsUsage
 class MappingSet(BaseModel):
     """Mapping set"""
     creator_id: str
@@ -126,11 +127,12 @@ async def get_models():
 
 
 @router.get('/{model}', response_model=Model, operation_id='get_model', response_model_exclude_none=True,
+            description="Deprecated: Get model name from model name.",
             responses={
                 "200": {
                     "links": {
                         "Entities": {
-                            "operationId": "get_model_entities",
+                            "operationId": "get_model_name",
                             "parameters": {
                                 "model": "$request.path.model"
                             }
@@ -145,12 +147,13 @@ async def get_model(model: str):
 
 
 @router.get('/{model}/entities', response_model=List[Entity], operation_id='get_model_entities',
+            description="List of names of all top level entities in model",
             response_model_exclude_none=True,
             responses={
                 "200": {
                     "links": {
                         "Entity": {
-                            "operationId": "get_model_entity",
+                            "operationId": "get_model_entities",
                             "parameters": {
                                 "model": "$resonse.body#/{index}/name",
                                 "entity": "$response.body#/{index}/name"
@@ -170,6 +173,7 @@ async def get_model_entities(model: str):
 
 
 @router.get('/{model}/entities/{entity}',
+            description="Deprecated: Get entity name from entity name",
             response_model=Entity,
             operation_id='get_model_entity',
             response_model_exclude_none=True,
@@ -198,7 +202,9 @@ async def get_model_entity(model: str, entity: str) -> Entity:
 
 
 @router.get('/{model}/entities/{entity}/attributes', response_model=List[Attribute],
-            operation_id='get_model_entity_attributes', response_model_exclude_none=True,
+            description="Names of all attributes of given entity",
+            operation_id='get_model_entity_attributes',
+            response_model_exclude_none=True,
             responses={
                 "200": {
                     "links": {
@@ -226,6 +232,8 @@ async def get_model_entity_attributes(model: str, entity: str):
 @router.get('/{model}/entities/{entity}/attributes/{attribute}',
             # response_model=Union[HarmonizedAttribute, NodeAttribute],
             # response_model_exclude_unset=True,
+            description="Get (1) Mappings to equivalent model/entity/attr in each CRDC model (including harmonized), "
+            "(2) detailed enumeration of concept references; includes NCIT codes",
             operation_id='get_model_entity_attribute',
             responses={
                 "200": {
@@ -257,6 +265,7 @@ async def get_model_entity_attribute(
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/enumerations',
+            description='Deprecated: Given name of model/entity/attr, get name of model/entity/attr',
             response_model=List[Enumeration],
             response_model_exclude_unset=True,
             operation_id='get_model_entity_attribute_enums',
@@ -279,6 +288,7 @@ async def get_model_entity_attribute_enums(model: str, entity: str, attribute: s
 
 
 @router.get('/{model}/entities/{entity}/attributes/{attribute}/mappings',
+            description='Mappings between attribute’s enumeration values and NCIT terminologies, in SSSOM format',
             response_model=MappingSet,
             response_model_exclude_unset=True,
             operation_id='get_model_entity_attribute_mappings',
@@ -291,7 +301,12 @@ async def get_model_entity_attribute_enums(model: str, entity: str, attribute: s
                 }
             })
 @cache()
-async def get_model_entity_attribute_mappings(request: Request, model: str, entity: str, attribute: str) -> MappingSet:
+async def get_model_entity_attribute_mappings(
+    request: Request,
+    model: str,
+    entity: str,
+    attribute: str
+) -> Union[StreamingResponse, dict[str, Any]]:
     """Get mappings for a given entity attribute"""
     if model in mdr_graph.list_harmonized_models():
         mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(model, entity, attribute, pagination=False)

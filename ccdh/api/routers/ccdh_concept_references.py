@@ -9,11 +9,17 @@ from ccdh.api.routers.models import MappingSet
 from ccdh.config import neo4j_graph
 from ccdh.db.mdr_graph import MdrGraph
 
+# TODO: Architecturally, why is 'concept_reference' in TCCM-API when so much else
+#  ...is in CCDH terminology service? What is the logic behind what is and isn't
+#  ...in TCCM? - joeflack4 2021/10/27
 router = concept_reference.router
 mdr_graph = MdrGraph(neo4j_graph())
 
 
-@router.get('/{curie}/mappings', response_model=MappingSet)
+@router.get(
+    '/{curie}/mappings',
+    description='An SSSOM TSV file depending on request headers, otherwise a list of mappings',
+    response_model=MappingSet)
 @cache()
 def get_concept_reference_mappings(curie: str, request: Request):
     """Get concept reference mappings"""

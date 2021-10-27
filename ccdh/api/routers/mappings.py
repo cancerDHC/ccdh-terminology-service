@@ -1,4 +1,7 @@
-"""Mappings: classes and endpoints"""
+"""Mappings: classes and endpoints
+TODO: Why did we disable these endpoints? From app.py:
+  ...Re-add 'mappings' to 'from ccdh.api.routers import'? Re-add below? - jef 2021/07/29
+"""
 from sssom.sssom_datamodel import Mapping as SssomMapping
 from sssom.parsers import from_dataframe
 import pandas as pd
@@ -136,6 +139,3 @@ def map_mapping(mapping: SssomMapping) -> Dict:
     if mapping.object_id:
         mapping.object_id = uri_to_curie(mapping.object_id, NAMESPACES)
     return mapping.__dict__
-
-
-
