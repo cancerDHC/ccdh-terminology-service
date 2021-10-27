@@ -30,7 +30,12 @@ router = APIRouter(
 )
 
 
-@router.get('/{value}', response_model=List[PermissibleValue], response_model_exclude_unset=True)
+@router.get(
+    '/{value}',
+    description='For given enumeration value, get (1) references to all usages in all models, '
+    '(2) NCIT codes and other terminological information',
+    response_model=List[PermissibleValue],
+    response_model_exclude_unset=True)
 @cache()
 async def get_permissible_values(value: str) -> List[PermissibleValue]:
     """Get permissible values"""

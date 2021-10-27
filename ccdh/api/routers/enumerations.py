@@ -40,7 +40,9 @@ def is_subset(subset, superset):
     return subset == superset
 
 
-@router.get('/{name}',
+@router.get('/{model.entity.attribute}',
+            description='Given model, entity, and attribute in period-delimited format of <model>.<entity>.<attribute>, '
+            'get numeration of concept references, including NCIT codes',
             response_model_exclude_none=True,
             response_model_exclude_unset=True,
             response_class=Response,

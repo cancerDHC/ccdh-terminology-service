@@ -37,7 +37,7 @@ environment variables.
 The `.env.prod` file should contain the following:
 
 ```shell
-NEO4J_USERNAME=<username>
+NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=<password>
 NEO4J_HOST=ccdh-neo4j
 NEO4J_BOLT_PORT=7687
@@ -59,10 +59,18 @@ CCDHMODEL_BRANCH=ccdhmodel_branch_name_or_full_sha_commit_id
 Finally, in addition to `.env.prod`, you'll also need a file called `.env`. This 
 is due to some limitations in the docker setup. We want the docker-compose files
 to point to distinctly different .env files, but it also requires a generic file
-called `.env`, even if you tell it to look for another file. So finally you should do:
+called `.env`, even if you tell it to look for another file. So you should run:
 
 ```sh
 cp .env.prod .env
+```
+
+And finally, the current setup also expects an `.env.test`, even if you're just running
+a single instance of the docker containers. This really shouldn't be needed if
+runnin a single instance, but for now it is needed. So finally, run:
+
+```shell
+cdp .env.prod .env.test
 ```
 
 ## Running containers
