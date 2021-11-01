@@ -48,8 +48,8 @@ class CrdcHImporter:
             # 'close_mappings',
             # 'related_mappings',
             'exact_mappings')
-        err_msg = 'Tried to use model.classes as a dictionary ' \
-            'object while it was actually a jsonObj.\n'
+        # err_msg = 'Tried to use model.classes as a dictionary ' \
+        #     'object while it was actually a jsonObj.\n'
 
         # Execution
         model = yaml_loader.loads(yaml, target_class=YAMLRoot)

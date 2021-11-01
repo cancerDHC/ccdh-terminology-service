@@ -9,7 +9,6 @@ async-timeout==3.0.1
 attrs==21.2.0
 Babel==2.9.1
 bcrypt==3.2.0
-biolinkml==1.7.6
 cachetools==4.2.2
 certifi==2021.5.30
 cffi==1.14.6
@@ -70,10 +69,27 @@ jsonpointer==2.1
 jsonschema==3.2.0
 keyring==12.0.2
 kiwisolver==1.3.2
-linkml==1.1.0
+
 linkml-model==1.0.0
-linkml-runtime==1.1.0
 linkml-runtime-api==0.0.4
+
+linkml==1.1.0
+linkml-runtime==1.1.0
+
+# linkml==1.1.0
+# linkml-runtime==1.1.0
+#  extended_str error appeared when running this combo of dependencies
+
+# linkml==1.0.1
+# linkml-runtime==1.0.5
+#   last known stable linkml_runtime: 1.0.5
+#   However, got this error:
+#   ERROR: Cannot install -r requirements.txt (line 73) and linkml-runtime==1.0.5 because these package versions have conflicting dependencies.
+#   The conflict is caused by:
+#     The user requested linkml-runtime==1.0.5
+#     linkml 1.0.1 depends on linkml-runtime>=1.0.10 and ~=1.0
+#   Was linkml 1.0.1 package removed?
+
 lxml==4.6.3
 Markdown==3.3.4
 markdown-it-py==1.1.0

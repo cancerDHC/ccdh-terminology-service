@@ -70,18 +70,15 @@ class Importer:
         system = harmonized_attribute['system']
         entity = harmonized_attribute['entity']
         attribute = harmonized_attribute['attribute']
-
         logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} ...')
 
         ha_node = self.mdr_graph.get_harmonized_attribute(system, entity, attribute)
-
         if ha_node is not None:  # already exists. Skip
             return
-
         ha_node = self.mdr_graph.create_harmonized_attribute(system, entity, attribute)
         ha_node['definition'] = harmonized_attribute['definition']
-        subgraph = Subgraph([ha_node])
 
+        subgraph = Subgraph([ha_node])
         cs_node = self.mdr_graph.create_code_set()
         subgraph |= cs_node
         subgraph |= Relationship(ha_node, 'HAS_MEANING', cs_node)
