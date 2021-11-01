@@ -306,7 +306,7 @@ async def get_model_entity_attribute_mappings(
     model: str,
     entity: str,
     attribute: str
-) -> Union[StreamingResponse, dict[str, Any]]:
+) -> Union[StreamingResponse, Dict[str, Any]]:
     """Get mappings for a given entity attribute"""
     if model in mdr_graph.list_harmonized_models():
         mapping_set = mdr_graph.find_mappings_of_harmonized_attribute(model, entity, attribute, pagination=False)
