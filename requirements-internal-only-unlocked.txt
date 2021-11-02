@@ -1,4 +1,11 @@
-# I should install from this if I can, as I'll want the latest of our internal dependencies
+# I should install from this if I can, as I'll want the latest of our internal dependencies (tccm):
+# tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api"}
+# git+https://github.com/HOT-Ecosystem/tccm-api.git
+tccm-api
+# tccm-model = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-model"}
+# git+https://github.com/HOT-Ecosystem/tccm-model.git
+tccm-model
+
 aiofiles==0.7.0
 aioredis==2.0.0
 alabaster==0.7.12
@@ -158,12 +165,7 @@ starlette==0.14.2
 stevedore==3.3.0
 synapseclient==2.4.0
 tabletext==0.1
-# tccm-api = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-api"}
-# git+https://github.com/HOT-Ecosystem/tccm-api.git
-tccm-api
-# tccm-model = {editable = true, git = "https://github.com/HOT-Ecosystem/tccm-model"}
-# git+https://github.com/HOT-Ecosystem/tccm-model.git
-tccm-model
+
 testfixtures==6.18.1
 text-unidecode==1.3
 texttable==1.6.4

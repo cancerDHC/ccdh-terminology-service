@@ -1,5 +1,7 @@
 """Importer for CRDC-H Model"""
+import json
 import logging
+
 import requests
 from typing import Dict
 
@@ -52,17 +54,28 @@ class CrdcHImporter:
         #     'object while it was actually a jsonObj.\n'
 
         # Execution
-        model = yaml_loader.loads(yaml, target_class=YAMLRoot)
-        harmonized_attributes = {}
-        # Ideally, would use dict(model.classes).values, but got error:
+        model: YAMLRoot = yaml_loader.loads(yaml, target_class=YAMLRoot)
+        model_name = str(model.name)
+
+        # native_class_dict: Ideally, would use dict(model.classes).values, but got error:
         # ... "{ValueError}dictionary update sequence element #0 has length 11; 2 is required" - jef 2021/07/29
         # noinspection PyProtectedMember
-        class_values = model.classes._as_dict.values()
+        native_class_dict: Dict = model.classes._as_dict
+
+        # standard_class_dict: This is done primarily to convert instances of `enhanced_str` to
+        # ...`str`. This solves an issue where Neo4J refused to import `enhanced_str`s.
+        # ...We could use a simple recursive algorithm as in the following issue, but this `json`
+        # ...module based approach is simple and reliable. - joeflack4 2021/11/01
+        # https://stackoverflow.com/questions/54565160/how-to-convert-all-values-of-a-nested-dictionary-into-strings/54565257
+        standard_class_dict: Dict = json.loads(json.dumps(native_class_dict))
+
+        class_values = standard_class_dict.values()  # dict_values
+        harmonized_attributes = {}
         for cls in class_values:
             for attribute in cls.get('attributes', {}).values():
-                key = f'{model.name}.{cls["name"]}.{attribute["name"]}'
+                key = f'{model_name}.{cls["name"]}.{attribute["name"]}'
                 harmonized_attribute = {
-                    'system': model.name,
+                    'system': model_name,
                     'entity': cls["name"],
                     'attribute': attribute["name"],
                     'definition': attribute["description"],
