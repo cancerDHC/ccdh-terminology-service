@@ -127,7 +127,7 @@ class Importer:
                 params = {
                     'system': system,
                     'attribute': attribute,
-                    'predicate_id': predicate_id,
+                    'predicate_id': str(predicate_id),
                     'pv_label': pv_label,
                     'creator_id': 'https://gdc.cancer.gov',
                     'cr_uri': f'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{code}',

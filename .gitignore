@@ -181,30 +181,34 @@ output/*.tsv
 config.ini
 .env
 
-# Docker
+# Docker volume structure
+## Old docker volumes
+### Neo4j
+docker/neo4j/conf/*
+docker/neo4j/data/*
+docker/neo4j/import/*
+docker/neo4j/logs/*
 !docker/neo4j/import/*.keep
-docker/neo4j/data
-docker/neo4j/logs
-docker/neo4j/import
-docker/neo4j/conf
-
-!docker/volumes/prod/neo4j/import/*.keep
-docker/volumes/prod/neo4j/data
-docker/volumes/prod/neo4j/logs
-docker/volumes/prod/neo4j/import
-docker/volumes/prod/neo4j/conf
-
-!docker/volumes/test/neo4j/import/*.keep
-docker/volumes/test/neo4j/data
-docker/volumes/test/neo4j/logs
-docker/volumes/test/neo4j/import
-docker/volumes/test/neo4j/conf
-
-!docker/redis/*.keep
+### Redis
 docker/redis/*
-
-!docker/volumes/prod/redis/*.keep
+!docker/redis/*.keep
+## Prod docker volumes
+### Neo4j
+docker/volumes/prod/neo4j/conf/*
+docker/volumes/prod/neo4j/data/*
+docker/volumes/prod/neo4j/import/*
+docker/volumes/prod/neo4j/logs/*
+!docker/volumes/prod/neo4j/*/*.keep
+### Redis
 docker/volumes/prod/neo4j/redis/*
-
-!docker/volumes/test/redis/*.keep
+!docker/volumes/prod/redis/*.keep
+## Test docker volumes
+### Neo4j
+docker/volumes/test/neo4j/conf/*
+docker/volumes/test/neo4j/data/*
+docker/volumes/test/neo4j/import/*
+docker/volumes/test/neo4j/logs/*
+!docker/volumes/test/neo4j/*/*.keep
+### Redis
 docker/volumes/test/neo4j/redis/*
+!docker/volumes/test/redis/*.keep

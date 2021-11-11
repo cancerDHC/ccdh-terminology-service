@@ -29,11 +29,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pipenv-to-requirements
-        pipenv_to_requirements
+        # Note: "setuptools<=57.5.0": There is/was an issue where with newer versions (was using 58.0 by default), some packages would fail: "  error in tabletext setup command: use_2to3 is invalid." We can remove this setuptools installation step in the future once setuptools has fixed this issue. - joeflack4 2021/11/11
+        pip install "setuptools<=57.5.0"
         pip install -r requirements.txt
-        pip install -r requirements-dev.txt
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Create .env file
       run: |
         echo -en "NEO4J_USERNAME=neo4j\nNEO4J_PASSWORD=ccdh\nNEO4J_HOST=localhost\nNEO4J_BOLT_PORT=7687\nREDIS_URL=redis://ccdh-redis:6379\nDOCKER_USER_TOKEN_LIMITED=notARealToken\nCCDHMODEL_BRANCH=main" > .env

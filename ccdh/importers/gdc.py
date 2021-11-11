@@ -9,6 +9,7 @@ from requests.exceptions import HTTPError
 from datetime import datetime
 
 from ccdh import ROOT_DIR
+from ccdh.config import neo4j_graph
 from ccdh.importers.cadsr import get_cadsr_values
 
 logger = logging.getLogger('ccdh.importers.gdc')
@@ -120,4 +121,10 @@ class GdcImporter:
 
 
 if __name__ == '__main__':
+    # A. If just need update dictionary
     GdcImporter.update_data_dictionary()
+    # B. If need debug importer
+    from ccdh.importers.importer import Importer
+    # Importer(neo4j_graph()).import_node_attributes(GdcImporter.read_data_dictionary())
+    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'GDC')
+    Importer(neo4j_graph()).import_ncit_mapping(GdcImporter.read_ncit_mappings(), 'PDC')

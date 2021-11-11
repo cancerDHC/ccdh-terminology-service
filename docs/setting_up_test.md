@@ -42,6 +42,12 @@ USER_ACCESS_TOKEN=<token>
 make deploy-local-test
 ```
 
+## And run the importer
+```shell
+docker exec -it ccdh-api-test /bin/bash
+python -m ccdh.importers.importer
+```
+
 In the [`docker-compose`](https://docs.docker.com/compose/) command above, `-f` stands for `--file`, `-p` is 
 for `--project-name`. We use this to avoid name collisions between the test/production containers. Running 
 [with `up`](https://docs.docker.com/compose/reference/up/) builds, (re)creates, starts, and attaches to containers for 

@@ -8,7 +8,7 @@ from typing import Dict
 from linkml_runtime.loaders import yaml_loader
 from linkml_runtime.utils.yamlutils import YAMLRoot
 
-from ccdh.config import get_settings
+from ccdh.config import get_settings, neo4j_graph
 
 
 logger = logging.getLogger('ccdh.importers.crcd_h')
@@ -91,3 +91,9 @@ class CrdcHImporter:
 
         logger.info("Parsed the content in the CCDH Model YAML")
         return harmonized_attributes
+
+
+if __name__ == '__main__':
+    from ccdh.importers.importer import Importer
+    Importer(neo4j_graph()).import_harmonized_attributes(
+        CrdcHImporter.read_harmonized_attributes())
