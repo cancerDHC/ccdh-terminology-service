@@ -25,41 +25,28 @@ jobs:
         #   2x here? - jef 2021/07/26
         script: |
           # 1. Test env
-          # - Update codebase
-          cd /opt/Projects/ccdh-terminology-service-test
+          cd /opt/Projects/ccdh-terminology-service
+          ## - Update codebase
           # git checkout master
           # git pull
           # - Deploy
-          cd docker
-          # Wanted to do the following way, but didn't work:
-          # - docker-compose -f docker-compose-test.yml down
-          # > WARNING: Found orphan containers (ccdh-api, neo4j) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
-          # > Removing network docker_default
-          # > ERROR: error while removing network: network docker_default id 8d8e3e569664a33b9376538153185df01e9569368e48aaab5cbeaf20f50d4a20 has active endpoint
           echo Rebuilding test environment.
           docker stop ccdh-neo4j-test ccdh-redis-test ccdh-api-test; \
           docker rm ccdh-api-test; \
-          docker-compose -f docker-compose-test.yml build; \
-          docker-compose -f docker-compose-test.yml -p ccdh-test up -d; \
+          make deploy-local-test; \
           echo Running importer in test environment. ; \
           docker exec ccdh-api-test python -m ccdh.importers.importer; \
 
           RESULT=$?; \
           if [ $RESULT -eq 0 ]; then
               # 2. Production env
-              # - Update codebase
-              cd /opt/Projects/ccdh-terminology-service
+              ## - Update codebase
               # git checkout master
               # git pull
               # - Deploy
-              cd docker
               echo Rebuilding production environment.
               docker-compose down
-              docker-compose build
-              docker-compose up -d
-              # docker exec -it ccdh-api /bin/bash
-              # python -m ccdh.importers.importer
-              # python -m ccdh.integrations.crdc_h
+              make deploy-local-prod
               echo Running importer in production environment.
               docker exec ccdh-api python -m ccdh.importers.importer
               echo Running CCDH Model integration script in production environment.
