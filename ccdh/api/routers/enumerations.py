@@ -81,7 +81,7 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
 
     enum_dump: str = YAMLDumper().dumps(enum)
     enum_dict: Dict = yaml.safe_load(enum_dump)
-    val_objs: Dict[str, str] = enum_dict['permissible_values']
+    val_objs: Dict[str, str] = enum_dict.get('permissible_values', {})
     for val_obj in val_objs:
         for i in range(len(enum_dict['permissible_values'])):
             original_val_obj = enum_dict['permissible_values'][i]
@@ -89,6 +89,7 @@ async def get_enumeration(name: str, value_only: bool = False) -> Response:
             if subset_found:
                 enum_dict['permissible_values'][i] = 'dupe'
     enum_dict['permissible_values'] = [
-        x for x in enum_dict['permissible_values'] if x != 'dupe']
+        x for x in enum_dict['permissible_values'] if x != 'dupe'] \
+        if 'permissible_values' in enum_dict else []
     enum_yml_str: str = yaml.dump(enum_dict)
     return Response(content=enum_yml_str, media_type="application/x-yaml")

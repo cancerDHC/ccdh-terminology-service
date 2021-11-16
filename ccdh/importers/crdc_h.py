@@ -46,10 +46,10 @@ class CrdcHImporter:
         # Variables
         # close/related disabled: We've heard these mappings will all soon be
         # merged. - jef 2021/07/26
-        mapping_types = (
+        mapping_types = [
             # 'close_mappings',
             # 'related_mappings',
-            'exact_mappings')
+            'exact_mappings']
         # err_msg = 'Tried to use model.classes as a dictionary ' \
         #     'object while it was actually a jsonObj.\n'
 
@@ -85,8 +85,6 @@ class CrdcHImporter:
                     if mapping in attribute:
                         for m in attribute[mapping]:
                             harmonized_attribute['node_attributes'].append(m)
-                # harmonized_attribute['node_attributes'] = \
-                #     list(set(harmonized_attribute['node_attributes']))
                 harmonized_attributes[key] = harmonized_attribute
 
         logger.info("Parsed the content in the CCDH Model YAML")

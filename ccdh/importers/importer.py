@@ -1,7 +1,7 @@
 from typing import Dict
 import logging
 
-from prefixcommons import contract_uri
+# from prefixcommons import contract_uri
 from py2neo import Graph, Subgraph, Relationship
 from sssom import MappingSet, Mapping
 
@@ -12,7 +12,9 @@ from ccdh.importers.crdc_h import CrdcHImporter
 from ccdh.importers.gdc import GdcImporter
 from ccdh.importers.pdc import PdcImporter
 from ccdh.db.mdr_graph import MdrGraph
-from ccdh.namespaces import NAMESPACES, NCIT, SKOS
+# from ccdh.namespaces import NAMESPACES, NCIT, SKOS
+from ccdh.namespaces import SKOS
+
 
 logger = logging.getLogger('ccdh.importers.importer')
 
