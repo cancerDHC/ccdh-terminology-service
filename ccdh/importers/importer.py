@@ -75,6 +75,12 @@ class Importer:
         logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} ...')
 
         ha_node = self.mdr_graph.get_harmonized_attribute(system, entity, attribute)
+
+        # TODO: Temp debugging: i. verify has mapping here, ii. check how cypher query does what it does
+        #  ...I need to clear DB each time in order to proceed past next line
+        if attribute == 'site':
+            print()
+
         if ha_node is not None:  # already exists. Skip
             return
         ha_node = self.mdr_graph.create_harmonized_attribute(system, entity, attribute)
@@ -85,6 +91,8 @@ class Importer:
         subgraph |= cs_node
         subgraph |= Relationship(ha_node, 'HAS_MEANING', cs_node)
 
+        # node_attributes: Looks like will only be mappings, of the format:
+        # ...<MODEL>:<ENTITY>.<ATTR> - joeflack4 2021/11/19
         if 'node_attributes' in harmonized_attribute:
             for node_attribute in harmonized_attribute['node_attributes']:
                 try:
@@ -95,6 +103,7 @@ class Importer:
                     logger.error(e)
                     continue
                 na_node = self.mdr_graph.get_node_attribute(system, entity, attribute)
+
                 if na_node is None:
                     logger.warning(node_attribute + ' not found in database')
                 else:
@@ -202,7 +211,10 @@ class Importer:
 
     def import_ncit(self):
         # CALL 'n10s.rdf.import.fetch("file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle", {predicateExclusionList : [ "https://hotecosystem.org/termci/contents"] })'
-        self.graph.call('n10s.rdf.import.fetch', "file:///var/lib/neo4j/import/ncit-termci.ttl", "Turtle",
+        # to-do: How to make this import work? Saw error message upon closer examination. Check GitHub issue: #125
+        path = 'file:///var/lib/neo4j/import/ncit-termci.ttl'  # neo4j container location
+        # path = 'file:///app/data/tccm/ncit-termci.ttl'  # ccdh-api container location
+        self.graph.call('n10s.rdf.import.fetch', path, "Turtle",
                         {'predicateExclusionList': ["https://hotecosystem.org/termci/contents"]})
 
     @staticmethod

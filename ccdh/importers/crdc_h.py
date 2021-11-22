@@ -17,8 +17,12 @@ logger = logging.getLogger('ccdh.importers.crcd_h')
 def read_ccdh_model_yaml():
     """Read model yaml from CCDH Model GH repository"""
     branch = get_settings().ccdhmodel_branch
-    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/' \
-               f'{branch}/model/schema/crdch_model.yaml'
+    yaml_url = f'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/{branch}/model/schema/crdch_model.yaml'
+
+    # to-do: Remove old yaml url when done w/ debugging:
+    # Old yaml_url for debugging purposes (-jef 2021/11/19):
+    # yaml_url = 'https://raw.githubusercontent.com/cancerDHC/ccdhmodel/253fdbc48f2d3df809f79356cbde6d449306e84f/model/schema/crdch_model.yaml'  # 2021/09/23
+
     logger.info("Retrieving CCDH Model YAML: " + yaml_url)
     r = requests.get(yaml_url)
     if r.status_code == 200:

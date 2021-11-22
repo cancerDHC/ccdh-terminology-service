@@ -200,8 +200,8 @@ class MdrGraph:
         return pvs
 
     def find_permissible_values_of(self, system: str, entity: str, attribute: str):
-        where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
-                                                                     attribute=attribute)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive(
+            'c', system=system, entity=entity, attribute=attribute)
         query = f'''
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
@@ -212,11 +212,13 @@ class MdrGraph:
         cursor: Cursor = self.graph.run(query)
         while cursor.forward():
             ret.append(cursor.current)
+
         return ret
 
     def find_concept_references_and_permissible_values_of(self, system: str, entity: str, attribute: str):
-        where_stmt = MdrGraph.build_where_statement_case_insensitive('c', system=system, entity=entity,
-                                                                     attribute=attribute)
+        where_stmt = MdrGraph.build_where_statement_case_insensitive(
+            'c', system=system, entity=entity, attribute=attribute)
+
         query = f'''
         MATCH (c:HarmonizedAttribute)<-[:MAPS_TO]-(n:NodeAttribute)-[:USES]->(:Enumeration)
         -[:HAS_PERMISSIBLE_VALUE]->(p:PermissibleValue)
@@ -227,6 +229,7 @@ class MdrGraph:
         cursor: Cursor = self.graph.run(query)
         while cursor.forward():
             pvs.append(cursor.current)
+
         crs = []
         query = f'''
         MATCH (c:HarmonizedAttribute)-[:HAS_MEANING]->(:CodeSet)-[:HAS_MEMBER]->(cr:ConceptReference)<-[:MAPPED_TO]
@@ -237,6 +240,7 @@ class MdrGraph:
         cursor: Cursor = self.graph.run(query)
         while cursor.forward():
             crs.append(cursor.current)
+
         return crs, pvs
 
     def find_concept_reference(self, notation, defined_in, version=None):
@@ -245,7 +249,7 @@ class MdrGraph:
             where_stmt += f" AND _.version='{version}'"
         return NodeMatcher(self.graph).match('ConceptReference').where(where_stmt).first()
 
-    def find_concept_reference(self, uri):
+    def find_concept_reference_from_uri(self, uri):
         query = '''
         MATCH (v:ConceptReference {uri: $uri})
         OPTIONAL MATCH (v)<-[:MAPPED_TO]-(m:Mapping)-[:MAPPED_FROM]->(pv:PermissibleValue)<-[:HAS_PERMISSIBLE_VALUE]-(:Enumeration)<-[:USES]-(d:NodeAttribute)
