@@ -1,5 +1,13 @@
 # Quick start
 
+## System dependencies
+- [Docker](https://www.docker.com/products/docker-desktop): Needs to be running in 
+  the background on your machinewhen running `docker-compose`. We recommend 
+  [Docker Desktop](https://www.docker.com/products/docker-desktop) for Windows and Mac.
+- [Python 3.7+](https://www.python.org/downloads/)
+- [Neo4J 4.0+](https://neo4j.com/download/)
+
+## Cloning and setting up git submodules
 Clone this repo, and pull the submodules. 
 
 ```shell
@@ -45,8 +53,13 @@ REDIS_URL=redis://ccdh-redis:6379
 USER_ACCESS_TOKEN=<token>
 ```
 
-Choose a `<username>` and `<password>`. As for `USER_ACCESS_TOKEN`, this is used for 
-[GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you have access to that repository, you should use a [GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been auto-filled for you, but these are configurable if you want to change them.
+Choose and `<password>`. As for the `<token>` to put under `USER_ACCESS_TOKEN`, 
+this is used for [GitHub workflow integration](https://docs.github.com/en/actions/reference/authentication-in-a-workflow) 
+with the [CCDH Model repository](https://github.com/cancerDHC/ccdhmodel). If you 
+have access to that repository, you should use a 
+[GitHub personal access token](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) 
+and set `USER_ACCESS_TOKEN` to that. The port, host, and 'bolt uri' have been 
+auto-filled for you, but these are configurable if you want to change them.
 
 By default, the importer will pull the CRDC-H YAML from the main branch of the 
 ccdhmodel GitHub repo. 
