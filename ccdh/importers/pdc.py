@@ -20,10 +20,10 @@ class PdcImporter:
     @staticmethod
     def read_data_dictionary() -> Dict:
         """Read data dictionary"""
-        node_attributes = {}
+        nodes_attributes = {}
         files = [f for f in PDC_JSON_DIR.glob('*.json') if f.is_file()]
         for file in files:
-            if file.name == 'dictionary.json' or file.name == 'dictionary_item.json':
+            if file.name in ['dictionary.json', 'dictionary_item.json']:
                 continue
             logger.info(f'Loading {file.name}')
             entity = json.loads(file.read_text())
@@ -34,7 +34,7 @@ class PdcImporter:
                     continue
                 if values.get('type', '') == 'Enumeration':
                     cde_id = values.get('cde_id', None)
-                    node_attribute = {
+                    node_attributes = {
                         'system': 'PDC',
                         'entity': entity_name,
                         'attribute': prop,
@@ -51,7 +51,7 @@ class PdcImporter:
                         for pv in permissible_values:
                             if pv in value_desc:
                                 pvs[pv] = value_desc[pv]
-                        node_attribute['cadsr_cde'] = str(cde_id)
-                    node_attribute['permissible_values'] = pvs
-                    node_attributes[f'PDC.{entity_name}.{prop}'] = node_attribute
-        return node_attributes
+                        node_attributes['cadsr_cde'] = str(cde_id)
+                    node_attributes['permissible_values'] = pvs
+                    nodes_attributes[f'PDC.{entity_name}.{prop}'] = node_attributes
+        return nodes_attributes

@@ -111,7 +111,8 @@ async def upload_mappings(file: UploadFile = File(...)):
     if file.content_type == 'text/tab-separated-values':
         df = pd.read_csv(file.file, sep='\t', comment='#').fillna('')
         msd = from_dataframe(df, NAMESPACES, {})
-        Importer(neo4j_graph()).import_mapping_set(msd.mapping_set, NAMESPACES)
+        # Importer(neo4j_graph()).import_mapping_set(msd.mapping_set, NAMESPACES)
+        Importer(neo4j_graph()).import_mapping_set(msd.mapping_set)
         return {"filename": file.filename, 'mappings': len(msd.mapping_set.mappings)}
     else:
         raise HTTPException(status_code=404, detail=f"content type not supported: {file.content_type}")

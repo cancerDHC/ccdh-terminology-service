@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 import logging
 
 # from prefixcommons import contract_uri
@@ -38,7 +38,8 @@ class Importer:
         na_node = self.mdr_graph.create_node_attribute(system, entity, attribute)
         na_node['definition'] = node_attribute['definition']
         if 'cadsr_cde' in node_attribute:
-            na_node['reference'] = f'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId={node_attribute["cadsr_cde"]}'
+            if node_attribute["cadsr_cde"]:
+                na_node['reference'] = f'https://cdebrowser.nci.nih.gov/cdebrowserClient/cdeBrowser.html#/search?version=2.0&publicId={node_attribute["cadsr_cde"]}'
         subgraph = Subgraph([na_node])
 
         permissible_values = node_attribute['permissible_values']
@@ -76,17 +77,16 @@ class Importer:
 
         ha_node = self.mdr_graph.get_harmonized_attribute(system, entity, attribute)
 
-        # TODO: Temp debugging: i. verify has mapping here, ii. check how cypher query does what it does
-        #  ...I need to clear DB each time in order to proceed past next line
-        if attribute == 'site':
-            print()
-
         if ha_node is not None:  # already exists. Skip
+            # TODO: Update
             return
         ha_node = self.mdr_graph.create_harmonized_attribute(system, entity, attribute)
         ha_node['definition'] = harmonized_attribute['definition']
 
         subgraph = Subgraph([ha_node])
+
+        # to-do: What's created here is empty. Is it updated later anywhere? If not,
+        # ...is this just something that Dazhi never got to? - joeflack4 2021/11/30
         cs_node = self.mdr_graph.create_code_set()
         subgraph |= cs_node
         subgraph |= Relationship(ha_node, 'HAS_MEANING', cs_node)
@@ -94,6 +94,9 @@ class Importer:
         # node_attributes: Looks like will only be mappings, of the format:
         # ...<MODEL>:<ENTITY>.<ATTR> - joeflack4 2021/11/19
         if 'node_attributes' in harmonized_attribute:
+            # TODO: Shouldn't exact_mapping be nested within node_attributes or
+            #  ...node_attributes/mappings?= instead? (updated here and in
+            #  ...CRDCH.import_harmonized_attributes()
             for node_attribute in harmonized_attribute['node_attributes']:
                 try:
                     system, entity_attribute = node_attribute.split(':')
@@ -115,7 +118,14 @@ class Importer:
 
         logger.info(f'Importing HarmonizedAttribute {system}.{entity}.{attribute} was successful')
 
-    def import_ncit_mapping(self, gdc_ncit_mappings, system):
+    def import_ncit_mapping(self, gdc_ncit_mappings: Dict[str, Dict[str, List[str]]], system: str):
+        """Cypher query notes:
+        ON CREATE/MATCH SET: "SET" doesn't mean the mathematical concept of a set;
+        it means "to set the value of a property". So, gramatically in English it
+        would actally be "on create/match, set x property with y value".
+        ON CREATE is a conditinoal where a creation is done, and ON MATCH is a conditional
+        where a match is done.
+        """
         query = '''
         MATCH (cs:CodeSet:Resource)<-[:HAS_MEANING]-
           (:HarmonizedAttribute)<-[:MAPS_TO]-
@@ -130,7 +140,7 @@ class Importer:
         '''
         for _, attr in gdc_ncit_mappings.items():
             for _, value in attr.items():
-                code, _pref_label, predicate_id, attribute, pv_label = list(value[0:5])
+                code, _pref_label, predicate_id, attribute, pv_label = list(value[0:5])  # isnt it always list anyway??
                 if predicate_id == 'Has Synonym':
                     predicate_id = SKOS.exactMatch
                 elif predicate_id == 'Related To':
@@ -145,11 +155,16 @@ class Importer:
                 }
                 self.graph.run(query, **params)
 
-    def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
+    # def import_mapping_set(self, mapping_set: MappingSet, curie_map: Dict[str, str]):
+    def import_mapping_set(self, mapping_set: MappingSet):
+        """Used by endpoint: /mappings/upload/"""
         for mapping in mapping_set.mappings:
-            self.import_mapping(mapping, curie_map)
+            # self.import_mapping(mapping, curie_map)
+            self.import_mapping(mapping)
 
-    def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
+    # def import_mapping(self, mapping: Mapping, curie_map: Dict[str, str]):
+    def import_mapping(self, mapping: Mapping):
+        """Used by: self.import_mapping_set()"""
         de_system, entity, attribute = mapping.subject_match_field.split('.')
         dec_system, dec_entity, dec_attribute = mapping.object_match_field.split('.')
         curie = mapping.object_id

@@ -88,6 +88,9 @@ class CrdcHImporter:
                 for mapping in mapping_types:
                     if mapping in attribute:
                         for m in attribute[mapping]:
+                            # TODO: Shouldn't exact_mapping be nested within node_attributes or
+                            #  ...node_attributes/mappings?= instead? (updated here and in
+                            #  ...Importer.read_harmonized_attribute()
                             harmonized_attribute['node_attributes'].append(m)
                 harmonized_attributes[key] = harmonized_attribute
 

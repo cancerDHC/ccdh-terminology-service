@@ -51,7 +51,8 @@ class MdrGraph:
         return Node('NodeAttribute', 'Resource', uri=uri, entity=entity, attribute=attr, system=system)
 
     @staticmethod
-    def create_enumeration() -> Tuple[Subgraph]:
+    def create_enumeration() -> Node:
+    # def create_enumeration() -> Tuple[Subgraph]:  Node superclass includes Subgraph
         uri = MdrGraph.create_enumeration_uri()
         return Node('Enumeration', 'Resource', uri=uri)
 
