@@ -24,6 +24,7 @@ for installing Git LFS on your machine. Then, install it in the repo via
 ```shell
 cd crdc-nodes/PDC-Public/documentation/prod/json
 git lfs pull --include ./*.json
+cd -  # to return to root diriectory of repo
 ```
 
 ## Using Docker
