@@ -57,14 +57,14 @@ CREATE INDEX node_attribute_idx FOR (n:NodeAttribute) ON (n.attribute);
 DROP INDEX node_system_idx IF EXISTS;
 CREATE INDEX node_system_idx FOR (n:NodeAttribute) ON (n.system);
 
-DROP INDEX harmonizned_system_idx IF EXISTS;
-CREATE INDEX harmonizned_system_idx FOR (n:HarmonizedAttribute) ON (n.system);
+DROP INDEX harmonized_system_idx IF EXISTS;
+CREATE INDEX harmonized_system_idx FOR (n:HarmonizedAttribute) ON (n.system);
 
-DROP INDEX harmonizned_entity_idx IF EXISTS;
-CREATE INDEX harmonizned_entity_idx FOR (n:HarmoniznedAttribute) ON (n.entity);
+DROP INDEX harmonized_entity_idx IF EXISTS;
+CREATE INDEX harmonized_entity_idx FOR (n:HarmonizedAttribute) ON (n.entity);
 
 DROP INDEX harmonized_attribute_idx IF EXISTS;
-CREATE INDEX harmonized_attribute_idx FOR (n:HarmoniznedAttribute) ON (n.attribute);
+CREATE INDEX harmonized_attribute_idx FOR (n:HarmonizedAttribute) ON (n.attribute);
 
 DROP INDEX permissible_value_pref_label_idx IF EXISTS;
 CREATE INDEX permissible_value_pref_label_idx FOR (n:PermissibleValue) ON (n.pref_label);
