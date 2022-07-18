@@ -4,7 +4,7 @@
 
 The CCDH terminology service is a RESTful API that supports the validation, lookup, binding, and mapping of the concepts 
 in the CCDH data harmonization process and the transformation and validation workflow.
-#License:
+# License:
 BSD License
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
